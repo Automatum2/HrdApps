@@ -1,0 +1,310 @@
+@extends('layouts.admin')
+
+@section('title', 'Pengaturan Sistem - HRDApps')
+@section('page_title', 'Pengaturan Sistem')
+
+@section('content')
+<!-- Header Section -->
+<div class="mb-6">
+    <nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm mb-1">
+        <a class="hover:text-primary transition-colors text-xs" href="{{ route('backoffice.dashboard') }}">Beranda</a>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <span class="text-primary font-semibold text-xs">Pengaturan</span>
+    </nav>
+    <p class="text-body-sm text-on-surface-variant">Kelola profil akun administrator, preferensi pemberitahuan, konfigurasi HR perusahaan, serta riwayat keamanan.</p>
+</div>
+
+<!-- Settings Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- Navigation Tabs (Left Column) -->
+    <div class="lg:col-span-3 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-4 lg:pb-0 custom-scrollbar whitespace-nowrap">
+        <!-- Tab 1: Profil -->
+        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer" id="tab-profil" onclick="switchTab('profil')">
+            <span class="material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10">person</span>
+            <div>
+                <span class="block font-bold text-xs text-on-surface">Profil Akun</span>
+                <span class="block text-[10px] text-on-surface-variant font-medium">Informasi personal</span>
+            </div>
+        </button>
+        <!-- Tab 2: Notifikasi -->
+        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-notifikasi" onclick="switchTab('notifikasi')">
+            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">notifications_active</span>
+            <div>
+                <span class="block font-bold text-xs text-on-surface">Notifikasi</span>
+                <span class="block text-[10px] text-on-surface-variant font-medium">Preferensi waspada</span>
+            </div>
+        </button>
+        <!-- Tab 3: Konfigurasi HR -->
+        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-konfigurasi" onclick="switchTab('konfigurasi')">
+            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">business_center</span>
+            <div>
+                <span class="block font-bold text-xs text-on-surface">Konfigurasi HR</span>
+                <span class="block text-[10px] text-on-surface-variant font-medium">Parameter sistem</span>
+            </div>
+        </button>
+        <!-- Tab 4: Keamanan -->
+        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-keamanan" onclick="switchTab('keamanan')">
+            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">security</span>
+            <div>
+                <span class="block font-bold text-xs text-on-surface">Keamanan</span>
+                <span class="block text-[10px] text-on-surface-variant font-medium">Akses & Otentikasi</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- Settings Panels (Right Column) -->
+    <div class="lg:col-span-9 space-y-6">
+        <!-- Panel 1: Profil Akun -->
+        <div class="settings-panel space-y-6" id="panel-profil">
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
+                <h3 class="font-bold text-sm text-on-surface mb-6">Detail Administrasi Akun</h3>
+                
+                <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
+                    <div class="relative group">
+                        <div class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl shadow-sm border border-outline-variant">
+                            BS
+                        </div>
+                        <button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer" onclick="alert('Unggah foto profil baru...')">
+                            <span class="material-symbols-outlined text-sm">photo_camera</span>
+                        </button>
+                    </div>
+                    <div class="flex-1 grid grid-cols-1 gap-4 w-full">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Lengkap</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="Budi Santoso">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Alamat Email</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="budi.santoso@hrdapps.co.id">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Jabatan</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="HR Manager">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Notifikasi (Hidden by default) -->
+        <div class="settings-panel space-y-6 hidden" id="panel-notifikasi">
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
+                <h3 class="font-bold text-sm text-on-surface mb-6">Preferensi Pemberitahuan</h3>
+                <div class="space-y-4">
+                    <!-- Item 1 -->
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                        <div class="flex gap-4 items-center">
+                            <span class="material-symbols-outlined text-primary text-xl">event_available</span>
+                            <div>
+                                <p class="font-bold text-xs text-on-surface">Laporan Absensi</p>
+                                <p class="text-[10px] text-on-surface-variant font-medium">Terima rekap harian absensi karyawan.</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input checked class="sr-only peer" type="checkbox">
+                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                        <div class="flex gap-4 items-center">
+                            <span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
+                            <div>
+                                <p class="font-bold text-xs text-on-surface">Peringatan Penggajian</p>
+                                <p class="text-[10px] text-on-surface-variant font-medium">Notifikasi saat periode payroll dimulai.</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input checked class="sr-only peer" type="checkbox">
+                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                        <div class="flex gap-4 items-center">
+                            <span class="material-symbols-outlined text-primary text-xl">time_to_leave</span>
+                            <div>
+                                <p class="font-bold text-xs text-on-surface">Permohonan Cuti</p>
+                                <p class="text-[10px] text-on-surface-variant font-medium">Pemberitahuan real-time untuk pengajuan cuti.</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input class="sr-only peer" type="checkbox">
+                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Konfigurasi HR (Hidden by default) -->
+        <div class="settings-panel space-y-6 hidden" id="panel-konfigurasi">
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
+                <h3 class="font-bold text-sm text-on-surface mb-6">Konfigurasi Perusahaan</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tahun Fiskal Aktif</label>
+                            <select class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs font-medium cursor-pointer">
+                                <option>2024</option>
+                                <option>2025</option>
+                                <option selected>2026</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Mata Uang Utama</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs font-medium" type="text" value="IDR - Indonesian Rupiah">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Jam Kerja Perusahaan</label>
+                            <div class="flex items-center gap-2">
+                                <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs font-medium" type="time" value="08:00">
+                                <span class="text-on-surface-variant text-xs font-bold">Ke</span>
+                                <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs font-medium" type="time" value="17:00">
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Format Tanggal</label>
+                            <select class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs font-medium cursor-pointer">
+                                <option>DD/MM/YYYY</option>
+                                <option>MM/DD/YYYY</option>
+                                <option>YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Keamanan (Hidden by default) -->
+        <div class="settings-panel space-y-6 hidden" id="panel-keamanan">
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
+                <h3 class="font-bold text-sm text-on-surface mb-6">Otentikasi Dua Faktor (2FA)</h3>
+                <div class="flex items-start gap-4 p-4 border-2 border-dashed border-outline-variant rounded-xl mb-6 bg-surface-container-low">
+                    <div class="bg-primary/10 p-3 rounded-lg text-primary">
+                        <span class="material-symbols-outlined text-3xl">vibration</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-on-surface">Tingkatkan Keamanan Akun Anda</p>
+                        <p class="text-[10px] text-on-surface-variant mb-3 font-medium">Gunakan aplikasi autentikator untuk mendapatkan kode verifikasi saat login.</p>
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg font-bold text-xs hover:brightness-110 active:scale-95 transition-all cursor-pointer" onclick="alert('Mengaktifkan verifikasi Dua Faktor...')">Aktifkan 2FA</button>
+                    </div>
+                </div>
+                
+                <h4 class="font-bold text-xs text-on-surface mb-4">Riwayat Login Terakhir</h4>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="bg-surface-container-low text-on-surface-variant font-bold text-[10px] border-b border-outline-variant">
+                            <tr>
+                                <th class="px-4 py-2">Perangkat</th>
+                                <th class="px-4 py-2">Lokasi</th>
+                                <th class="px-4 py-2">Waktu</th>
+                                <th class="px-4 py-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant font-body-sm text-body-sm">
+                            <tr>
+                                <td class="px-4 py-3 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-lg">laptop_mac</span>
+                                    <span class="font-bold text-on-surface">MacBook Pro (Chrome)</span>
+                                </td>
+                                <td class="px-4 py-3 text-on-surface-variant">Jakarta, ID</td>
+                                <td class="px-4 py-3 text-on-surface-variant font-mono text-xs">Hari ini, 09:42</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2.5 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed text-[9px] rounded-full uppercase font-bold tracking-wider">Aktif Sekarang</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-lg">smartphone</span>
+                                    <span class="font-bold text-on-surface">iPhone 14 Pro</span>
+                                </td>
+                                <td class="px-4 py-3 text-on-surface-variant">Bandung, ID</td>
+                                <td class="px-4 py-3 text-on-surface-variant font-mono text-xs">12 Jan 2026, 20:15</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2.5 py-0.5 bg-outline-variant text-on-surface-variant text-[9px] rounded-full uppercase font-bold tracking-wider">Berhasil</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-outline-variant">
+            <button class="px-5 py-2.5 rounded-lg border border-outline-variant text-secondary font-bold text-xs hover:bg-surface-container-low transition-all cursor-pointer active:scale-95 bg-white shadow-sm" onclick="location.reload()">Batalkan</button>
+            <button class="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-xs hover:brightness-110 transition-all flex items-center gap-2 shadow cursor-pointer active:scale-95" id="btn-save-settings" onclick="savePulse(this)">
+                <span>Simpan Perubahan</span>
+                <span class="material-symbols-outlined text-sm">check_circle</span>
+            </button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // ==========================================
+    // 1. Logika Perpindahan Tab Panel
+    // ==========================================
+    function switchTab(tabId) {
+        // Sembunyikan seluruh panel pengaturan
+        document.querySelectorAll('.settings-panel').forEach(panel => {
+            panel.classList.add('hidden');
+        });
+        
+        // Tampilkan panel yang dituju
+        document.getElementById('panel-' + tabId).classList.remove('hidden');
+
+        // Reset semua gaya tombol tab
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.className = "tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer";
+            
+            // Ubah icon warna ke default
+            const icon = btn.querySelector('.material-symbols-outlined');
+            icon.className = "material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high";
+        });
+
+        // Set style aktif untuk tab yang diklik
+        const activeBtn = document.getElementById('tab-' + tabId);
+        activeBtn.className = "tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer";
+        
+        const activeIcon = activeBtn.querySelector('.material-symbols-outlined');
+        activeIcon.className = "material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10";
+    }
+
+    // ==========================================
+    // 2. Animasi Denyut Simpan Perubahan (Save pulse)
+    // ==========================================
+    function savePulse(btn) {
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('opacity-80', 'cursor-not-allowed');
+        btn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Menyimpan...</span>
+        `;
+        
+        setTimeout(() => {
+            btn.innerHTML = `
+                <span>Berhasil Disimpan</span>
+                <span class="material-symbols-outlined text-sm">done_all</span>
+            `;
+            btn.className = "px-5 py-2.5 rounded-lg bg-tertiary text-white font-bold text-xs flex items-center gap-2 shadow cursor-pointer";
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.className = "px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-xs hover:brightness-110 transition-all flex items-center gap-2 shadow cursor-pointer active:scale-95";
+                btn.disabled = false;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }, 2000);
+        }, 1500);
+    }
+</script>
+@endpush

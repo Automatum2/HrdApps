@@ -68,37 +68,41 @@
         <nav class="flex-1 space-y-1 overflow-y-auto px-2">
             <!-- Active Tab: Dashboard -->
             <a class="{{ request()->routeIs('backoffice.dashboard') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.dashboard') }}">
-                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.dashboard') ? 'text-primary' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.dashboard') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 <span class="font-body-md font-bold">Dashboard</span>
             </a>
 
             <!-- Menu Karyawan (Read-Only View) -->
             <a class="{{ request()->routeIs('backoffice.karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.karyawan') }}">
-                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.karyawan') ? 'text-primary' : 'text-white/75 group-hover:text-white' }}">group</span>
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">group</span>
                 <span class="font-medium font-body-md">Karyawan</span>
             </a>
 
+            @if(session('user_role', 'manager') === 'manager')
             <!-- Menu Absensi -->
-            <a class="text-white hover:bg-white/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
-                <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-white">schedule</span>
+            <a class="{{ request()->routeIs('backoffice.absensi') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.absensi') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.absensi') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">date_range</span>
                 <span class="font-medium font-body-md">Absensi</span>
             </a>
+            @endif
 
             <!-- Menu Penggajian -->
-            <a class="text-white hover:bg-white/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
-                <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-white">payments</span>
+            <a class="{{ request()->routeIs('backoffice.penggajian') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.penggajian') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.penggajian') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">payments</span>
                 <span class="font-medium font-body-md">Penggajian</span>
             </a>
 
+            @if(session('user_role', 'manager') === 'manager')
             <!-- Menu Laporan -->
-            <a class="text-white hover:bg-white/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
-                <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-white">analytics</span>
+            <a class="{{ request()->routeIs('backoffice.laporan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.laporan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.laporan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">analytics</span>
                 <span class="font-medium font-body-md">Laporan</span>
             </a>
+            @endif
 
             <!-- Menu Pengaturan -->
-            <a class="text-white hover:bg-white/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
-                <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-white">settings</span>
+            <a class="{{ request()->routeIs('backoffice.pengaturan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.pengaturan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.pengaturan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">settings</span>
                 <span class="font-medium font-body-md">Pengaturan</span>
             </a>
         </nav>
@@ -115,7 +119,7 @@
             
             <!-- Tombol Keluar -->
             <div class="px-2 mb-2">
-                <a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
+                <a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="{{ route('login') }}">
                     <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-error">logout</span>
                     <span class="font-medium font-body-md">Keluar</span>
                 </a>
@@ -149,7 +153,7 @@
         </header>
 
         <!-- Canvas -->
-        <div class="p-8 space-y-8 max-w-container-max mx-auto w-full">
+        <div class="p-8 space-y-8 max-w-container-max mx-auto w-full animate-page-in">
             @yield('content')
         </div>
     </main>
