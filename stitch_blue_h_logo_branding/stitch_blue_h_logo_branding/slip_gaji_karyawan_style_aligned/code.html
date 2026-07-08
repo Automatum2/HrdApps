@@ -1,0 +1,398 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HRDApps - Slip Gaji Karyawan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Hanken+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "surface-variant": "#d3e4fe",
+                        "outline": "#727687",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c2c6d8",
+                        "on-secondary-fixed": "#111c2d",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#001849",
+                        "tertiary-container": "#008259",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container": "#e5eeff",
+                        "primary": "#0050cb",
+                        "on-tertiary-fixed": "#002113",
+                        "on-primary-container": "#f8f7ff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-secondary-container": "#586377",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#0066ff",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#424656",
+                        "on-primary-fixed-variant": "#003fa4",
+                        "primary-fixed": "#dae1ff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#213145",
+                        "on-background": "#0b1c30",
+                        "secondary": "#545f73",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "secondary-container": "#d5e0f8",
+                        "inverse-primary": "#b3c5ff",
+                        "tertiary": "#006645",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary-fixed": "#d8e3fb",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "surface-container-low": "#eff4ff",
+                        "surface": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#e1ffec",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#0054d6",
+                        "surface-bright": "#f8f9ff",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sm": "12px",
+                        "container-max": "1440px",
+                        "xs": "8px",
+                        "sidebar-width": "260px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "table-header": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-uppercase": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "table-header": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-uppercase": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "title-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .payslip-border { border: 1px solid #e2e8f0; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .payslip-container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; }
+            .sidebar-fixed, .topbar-fixed { display: none !important; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Sidebar Navigation (SideNavBar Component) -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+<img alt="HRDApps Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-white leading-none">HRDApps</h1>
+<p class="text-[11px] text-white/70 uppercase tracking-widest mt-1">Management Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<a class="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-title-sm text-title-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-title-sm text-title-sm">Karyawan</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-title-sm text-title-sm">Absensi</span>
+</a>
+<a class="bg-primary/10 text-primary border-l-4 border-primary flex items-center gap-3 px-4 py-3 transition-colors cursor-pointer" href="#"><span class="material-symbols-outlined">payments</span><span class="font-title-sm text-title-sm font-bold">Penggajian</span></a>
+<a class="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-title-sm text-title-sm">Laporan</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-title-sm text-title-sm">Pengaturan</span>
+</a>
+</nav>
+<div class="px-2 mt-auto mb-2"><div class="px-4 py-4 mb-2 mx-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3"><img alt="Budi Santoso" class="w-10 h-10 rounded-full border border-white/20 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb6bUeOIqphATF0C6NFPgMH7iPwXTW_Yo-w1w6BSZbQ83X3-4Z3m8gvxnsQsW6SrUdzKo0JOuomjZt7ugF4EGY0yklZ78se7s7Onbhm1DAD4fT9Fz-5JF7_ketWPFdc4tT0TeRmTHf3RCw2qlWq2CHwhbMqMyQ2uF3WpDAP5u16vvj6genm_j2zSU_gFdAiY5G6v7nN-gte3cN4FELKgXPEvO1opnk7lSnx_aF79js-NI1GNknB3Tk"><div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">Budi Santoso</p><p class="text-[10px] text-white/60 uppercase tracking-wider truncate">Manager HRD</p></div></div><div class="px-2 mb-2"><a class="text-[#ffffff] hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#"><span class="material-symbols-outlined mr-3 text-xl">logout</span><span class="font-medium font-body-md">Keluar</span></a></div></div>
+</aside>
+<!-- Top Navigation Bar (TopNavBar Component) -->
+<header class="topbar-fixed h-16 fixed top-0 right-0 w-[calc(100%-260px)] bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center px-lg z-40 transition-all duration-300">
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-on-surface-variant cursor-pointer">menu</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-md w-64 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Cari data slip gaji..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-md"><div class="flex items-center gap-4"><button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80"><span class="material-symbols-outlined text-on-surface-variant">notifications</span><span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span></button><button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80"><span class="material-symbols-outlined text-on-surface-variant">help</span></button></div></div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[260px] pt-16 min-h-screen">
+<div class="p-xl max-w-5xl mx-auto">
+<!-- Breadcrumb -->
+<nav class="no-print flex items-center gap-2 text-on-surface-variant mb-md font-body-sm">
+<span class="hover:text-primary cursor-pointer">Payroll</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="hover:text-primary cursor-pointer">Proses Bulanan</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">Slip Gaji</span>
+</nav>
+<!-- Page Header -->
+<div class="no-print flex flex-col md:flex-row md:items-center justify-between gap-4 mb-xl">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-background">Slip Gaji Karyawan - Juni 2026</h2>
+<p class="text-on-surface-variant font-body-md">Data gaji terverifikasi untuk periode pembayaran Juni.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-md py-2 bg-white border border-outline-variant rounded-lg font-body-md font-bold text-on-secondary-fixed hover:bg-surface-container-low transition-all" onclick="window.print()">
+<span class="material-symbols-outlined text-sm">print</span>
+                        Print
+                    </button>
+<button class="flex items-center gap-2 px-md py-2 bg-primary text-on-primary rounded-lg font-body-md font-bold hover:bg-primary-container transition-all shadow-md active:scale-95">
+<span class="material-symbols-outlined text-sm">download</span>
+                        Download PDF
+                    </button>
+</div>
+</div>
+<!-- Payslip Card (Main Focus) -->
+<div class="bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden p-xl payslip-container" style="opacity: 1; transform: translateY(0px); transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);">
+<!-- Payslip Header -->
+<div class="flex flex-col md:flex-row justify-between items-start border-b-2 border-primary/20 pb-lg mb-lg">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-surface-container-low rounded-xl flex items-center justify-center p-2">
+<img alt="HRDApps Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
+</div>
+<div>
+<h3 class="font-display-lg text-display-lg text-primary leading-tight">PT Global Tech Solusindo</h3>
+<p class="font-body-md text-on-surface-variant italic">Cyber Tower Suite 10, Jakarta Pusat, Indonesia</p>
+</div>
+</div>
+<div class="text-right mt-4 md:mt-0">
+<h4 class="font-headline-md text-headline-md font-extrabold uppercase tracking-widest text-on-background">SLIP GAJI KARYAWAN</h4>
+<div class="inline-block mt-1 px-4 py-1 bg-surface-container-high rounded-full">
+<p class="font-label-uppercase text-label-uppercase text-primary">Periode: Juni 2026</p>
+</div>
+</div>
+</div>
+<!-- Employee Info Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl bg-surface-container-low/50 p-lg rounded-xl mb-xl border border-outline-variant/30">
+<div class="space-y-3">
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">Nama</span>
+<span class="col-span-2 font-body-md font-bold">: Ahmad Fadillah</span>
+</div>
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">NIK</span>
+<span class="col-span-2 font-body-md font-bold">: EMP-2024-001</span>
+</div>
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">No Rekening</span>
+<span class="col-span-2 font-body-md font-bold">: BCA - 1234567890</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">Jabatan</span>
+<span class="col-span-2 font-body-md font-bold">: Staff IT</span>
+</div>
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">Departemen</span>
+<span class="col-span-2 font-body-md font-bold">: Teknologi Informasi</span>
+</div>
+<div class="grid grid-cols-3">
+<span class="text-on-surface-variant font-label-uppercase">Status</span>
+<span class="col-span-2 font-body-md font-bold">: Karyawan Tetap</span>
+</div>
+</div>
+</div>
+<!-- Earnings vs Deductions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg mb-xl">
+<!-- Earnings (Pendapatan) -->
+<div class="border border-outline-variant rounded-xl overflow-hidden">
+<div class="bg-primary px-md py-2">
+<h5 class="text-white font-label-uppercase">Pendapatan</h5>
+</div>
+<div class="p-md space-y-3">
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">Gaji Pokok</span>
+<span class="font-bold">Rp 5.000.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">Tunjangan Transport</span>
+<span class="font-bold">Rp 500.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">Tunjangan Makan</span>
+<span class="font-bold">Rp 400.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">Tunjangan Jabatan</span>
+<span class="font-bold">Rp 300.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">Lembur (8 jam)</span>
+<span class="font-bold">Rp 250.000</span>
+</div>
+<div class="pt-3 border-t border-outline-variant flex justify-between items-center">
+<span class="font-bold text-primary">Total Pendapatan</span>
+<span class="font-display-lg text-title-sm text-primary">Rp 6.450.000</span>
+</div>
+</div>
+</div>
+<!-- Deductions (Potongan) -->
+<div class="border border-outline-variant rounded-xl overflow-hidden">
+<div class="bg-error px-md py-2">
+<h5 class="text-white font-label-uppercase">Potongan</h5>
+</div>
+<div class="p-md space-y-3">
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">BPJS Kesehatan</span>
+<span class="font-bold text-error">Rp 200.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">BPJS Ketenagakerjaan</span>
+<span class="font-bold text-error">Rp 150.000</span>
+</div>
+<div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
+<span class="text-on-surface-variant">PPh 21</span>
+<span class="font-bold text-error">Rp 100.000</span>
+</div>
+<!-- Filler for equal height -->
+<div class="h-10 opacity-0">Filler</div>
+<div class="h-4 opacity-0">Filler</div>
+<div class="pt-3 border-t border-outline-variant flex justify-between items-center">
+<span class="font-bold text-error">Total Potongan</span>
+<span class="font-display-lg text-title-sm text-error">Rp 450.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Net Salary Summary -->
+<div class="bg-primary-container rounded-xl p-lg text-white mb-xl flex flex-col md:flex-row justify-between items-center shadow-lg transform hover:scale-[1.01] transition-transform">
+<div class="mb-4 md:mb-0">
+<p class="font-label-uppercase opacity-80 uppercase tracking-widest">Total Gaji Bersih Terbayarkan</p>
+<h4 class="font-display-lg text-display-lg font-extrabold">Rp 6.000.000</h4>
+<p class="font-body-sm italic opacity-70">Enam Juta Rupiah</p>
+</div>
+<div class="bg-white/20 backdrop-blur-sm p-4 rounded-lg flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-body-md font-bold">Status: Dibayarkan</p>
+<p class="text-xs opacity-80">25 Juni 2026 - 09:00 WIB</p>
+</div>
+</div>
+</div>
+<!-- Signature & Footer -->
+<div class="flex flex-col md:flex-row justify-between items-end">
+<div class="space-y-4 max-w-xs">
+<div class="bg-surface-container p-4 rounded-lg border-l-4 border-outline">
+<p class="text-[11px] leading-tight text-on-surface-variant">
+<strong>CATATAN:</strong><br>
+                                Ini adalah dokumen yang dihasilkan secara otomatis oleh sistem HRDApps. 
+                                Segala bentuk perubahan fisik tanpa persetujuan HRD dianggap tidak sah.
+                            </p>
+</div>
+<div class="text-[10px] text-on-surface-variant/60 font-mono">
+                            ID Dokumen: HR-SLIP-2026-JUN-001-AF
+                        </div>
+</div>
+<div class="text-center mt-xl md:mt-0">
+<p class="font-label-uppercase text-on-surface-variant mb-md">Diterbitkan oleh Digital HRD</p>
+<div class="w-32 h-32 mx-auto relative group">
+<!-- Digital Seal Placeholder -->
+<div class="absolute inset-0 bg-primary/5 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow"></div>
+<img class="w-full h-full object-contain relative z-10 opacity-80 grayscale group-hover:grayscale-0 transition-all" data-alt="A futuristic digital signature seal for a corporate HR department, featuring a blue circular emblem with a stylized fingerprint and a verified checkmark icon, glowing subtly on a white background, corporate tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhwQ7ReZyH75moikS87Uw4Qv8-y1HQIaJxzBRg1TauBatd7fcL74n6HBDpMqDibuy0dFB3I33TQaqLKuQU-069EgLatMBwpw9Os2hi-b47ycgXhZpsL-oKxleoMLqKSZZ2JguudMPPBqA3ysCw_Xw_hF6JE_MyNVXMumcWN1KiIQBZFfQ6pRLMkfggZL7Ye_e7JaQQX19mztI78UiZVjXb83ar3hKb74x0ePOAFxXbBW9I7q5RZh4p">
+</div>
+<p class="font-body-md font-bold mt-2">Jane Doe</p>
+<p class="text-xs text-on-surface-variant">Manager HRD</p>
+</div>
+</div>
+</div>
+<!-- Additional Help/Contact -->
+<div class="no-print mt-xl p-lg bg-surface-container-high rounded-xl flex items-center gap-4 border border-primary/10">
+<div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</div>
+<div>
+<h6 class="font-title-sm text-primary">Ada pertanyaan mengenai rincian gaji Anda?</h6>
+<p class="font-body-md text-on-surface-variant">Hubungi departemen keuangan atau HRD melalui tiket bantuan di portal HRDApps.</p>
+</div>
+<button class="ml-auto px-md py-2 bg-white rounded-lg font-bold text-primary shadow-sm hover:shadow-md transition-all">Kirim Tiket</button>
+</div>
+</div>
+</main>
+<style>
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 20s linear infinite;
+        }
+    </style>
+<script>
+        // Micro-interactions and state handling
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animation for the payslip appearance
+            const card = document.querySelector('.payslip-container');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+
+            // Hover effects for items
+            const salaryItems = document.querySelectorAll('.flex.justify-between.items-center.font-body-md');
+            salaryItems.forEach(item => {
+                item.classList.add('transition-all', 'duration-200', 'px-2', 'py-1', 'rounded-md', 'hover:bg-surface-container-low');
+            });
+        });
+
+        // Trigger print function
+        window.onbeforeprint = function() {
+            console.log("Preparing payslip for print...");
+        };
+    </script>
+
+
+
+
+</body></html>

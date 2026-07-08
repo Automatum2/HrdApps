@@ -1,0 +1,484 @@
+<!DOCTYPE html><html class="light" lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Manajemen Karyawan - HRDApps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003fa4",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#006645",
+                        "surface-container-high": "#dce9ff",
+                        "inverse-primary": "#b3c5ff",
+                        "surface-tint": "#0054d6",
+                        "on-tertiary-container": "#e1ffec",
+                        "tertiary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "primary-container": "#0066ff",
+                        "outline-variant": "#c2c6d8",
+                        "on-primary-container": "#f8f7ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#dae1ff",
+                        "on-surface": "#0b1c30",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-fixed": "#002113",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#213145",
+                        "surface-dim": "#cbdbf5",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#001849",
+                        "on-error-container": "#93000a",
+                        "surface": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#586377",
+                        "on-secondary-fixed": "#111c2d",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "outline": "#727687",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "secondary-container": "#d5e0f8",
+                        "on-surface-variant": "#424656",
+                        "secondary-fixed": "#d8e3fb",
+                        "surface-container": "#e5eeff",
+                        "surface-variant": "#d3e4fe",
+                        "secondary": "#545f73",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary": "#0050cb",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "tertiary-container": "#008259",
+                        "surface-bright": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "xs": "8px",
+                        "sm": "12px",
+                        "sidebar-width": "260px",
+                        "base": "4px",
+                        "container-max": "1440px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "title-sm": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "table-header": ["Inter"],
+                        "label-uppercase": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "title-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "table-header": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "label-uppercase": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .sidebar-active-gradient {
+            background: linear-gradient(90deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 102, 255, 0) 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0px 4px 20px -4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background overflow-x-hidden min-h-screen">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between">
+<div class="px-6 mb-10 flex items-center gap-3">
+<img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-surface-container-lowest leading-none">HRDApps</h1>
+<p class="text-[10px] text-white uppercase tracking-widest mt-1 opacity-70">Management Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
+<span class="font-medium font-body-md">Dashboard</span>
+</a>
+<!-- Active Tab: Karyawan -->
+<a class="bg-primary/10 text-primary rounded-lg flex items-center px-4 py-3 border-l-4 border-primary scale-95 active:scale-100 transition-transform group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" style="font-variation-settings: &quot;FILL&quot; 1;">group</span>
+<span class="font-medium font-body-md">Karyawan</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">schedule</span>
+<span class="font-medium font-body-md">Absensi</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">payments</span>
+<span class="font-medium font-body-md">Penggajian</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">analytics</span>
+<span class="font-medium font-body-md">Laporan</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">settings</span>
+<span class="font-medium font-body-md">Pengaturan</span>
+</a>
+</nav>
+<div class="px-2 mt-auto mb-2"><div class="px-4 py-4 mb-2 mx-2 rounded-xl bg-white/10 border border-white/10 flex items-center gap-3">
+<img alt="Budi Santoso" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuqJaJpZIcwLC7_SiPgHzBqohkzrOKy5VB62Wz-0F13MaN2u0arLsvgx8Q9OqUTUkLs79CibzZpFxDCGp44YHx_-I-e6Kw6l1SHA4D3iYbtFCN0K-kb6HPjkAKzx-k8GAdbCEJgKazfjrIbpAvbfiQ0CTvxUVOn3n0xJnMiH1uFw2ojRiwAnt9ks39eRpiTLRLCwzz0DF4u2QEcv6_Hsg82ocqXFmAnblAsZzVqNJB-kCcbQLO0ov9">
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-surface-container-lowest truncate">Budi Santoso</p>
+<p class="text-[10px] text-white uppercase tracking-wider truncate">Manager HRD</p>
+</div>
+</div><div class="px-2 mb-2">
+<a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">logout</span>
+<span class="font-medium font-body-md">Keluar</span>
+</a>
+</div></div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-sidebar-width flex flex-col min-h-screen">
+<!-- Top App Bar -->
+<header class="flex items-center justify-between px-8 h-16 bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">menu</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Dashboard Admin HRD</h2>
+<div class="relative hidden lg:block ml-4">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="bg-surface-container-low border border-outline-variant rounded-full pl-10 pr-5 py-2 text-body-md w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none text-on-surface" placeholder="Search data..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-lg flex-1">
+<!-- Header & Breadcrumbs -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-lg">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Manajemen Karyawan</h1>
+<nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Beranda</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-semibold">Manajemen Karyawan</span>
+</nav>
+</div>
+<div class="flex items-center gap-3 mt-md md:mt-0">
+<button class="flex items-center gap-2 px-lg py-sm bg-primary-container text-on-primary-container rounded-lg font-title-sm text-title-sm shadow-md hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+<span class="">Tambah Karyawan</span>
+</button>
+<button class="flex items-center gap-2 px-lg py-sm bg-surface-container-lowest border border-outline-variant text-secondary rounded-lg font-title-sm text-title-sm hover:bg-surface-container-low active:scale-95 transition-all">
+<span class="material-symbols-outlined">download</span>
+<span class="">Export Excel</span>
+</button>
+</div>
+</div>
+<!-- Bento Filter & List Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Filter Section -->
+<div class="p-lg border-b border-outline-variant bg-surface-bright flex flex-col md:flex-row gap-lg justify-between items-center">
+<div class="flex flex-col sm:flex-row gap-md items-center w-full md:w-auto">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<label class="text-label-uppercase font-label-uppercase text-on-surface-variant">Filter:</label>
+<select class="form-select bg-surface border-outline-variant rounded-lg text-body-md py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all">
+<option>Semua Jabatan</option>
+<option>Developer</option>
+<option>Designer</option>
+<option>Manager</option>
+</select>
+</div>
+</div>
+<div class="relative w-full md:w-96 group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="pl-12 pr-4 py-2 bg-surface border-outline-variant rounded-lg text-body-md focus:ring-primary focus:border-primary w-full transition-all" placeholder="Cari Karyawan..." type="text">
+</div>
+</div>
+<div class="p-md bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
+<p class="text-body-sm text-on-surface-variant font-medium">Menampilkan <span class="font-bold text-on-surface">1-8</span> dari <span class="font-bold text-on-surface">250</span> karyawan</p>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-surface-container-high rounded transition-colors text-outline">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-1 hover:bg-surface-container-high rounded transition-colors text-outline">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+</div>
+<!-- Table Content -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-on-surface uppercase tracking-wider font-table-header text-table-header border-b border-outline-variant">
+<th class="px-lg py-md w-12">No</th>
+<th class="px-lg py-md">Foto</th>
+<th class="px-lg py-md">Nama Lengkap</th>
+<th class="px-lg py-md">NIK</th>
+<th class="px-lg py-md">Jabatan</th>
+<th class="px-lg py-md">Departemen</th>
+<th class="px-lg py-md">Status</th>
+<th class="px-lg py-md text-center">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Employee 1 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-lg py-md text-body-md text-on-surface">1</td>
+<td class="px-lg py-md">
+<img class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" data-alt="A professional headshot of Ahmad Fauzi, a senior developer. He has a friendly and intelligent look, wearing a casual polo shirt. The lighting is crisp and modern, with a clean office background that complements the HR dashboard's corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyc-oAyIMtS9noGEq6cqMA68j-K1H_LNQbS8yxEIcJCKwAnXrh9sQJwH851mKr6zxePSy3V5Hf_Jpz2bcCdSNIfMFUvQ7devYp8tYa1IPABUWiVdcTbd-hF95KvvsOkDHke4I55NZucpHixn4TeRfaM-eQsncgMHGQ2sKJxi4B4JodCCuJJELLQOOHuUfHyiwVZQAESKAgLAwWh3vz-ePZN6Q3ylDOXp8HSu7gwmpLEKCBiHq-Js9_">
+</td>
+<td class="px-lg py-md text-body-md font-bold text-on-surface">Ahmad Fauzi</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">1990010101</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">Senior Developer</td>
+<td class="px-lg py-md text-body-md"><span class="px-3 py-1 bg-surface-container rounded-full text-secondary font-semibold text-xs">IT</span></td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-error text-on-error hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Employee 2 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-lg py-md text-body-md text-on-surface">2</td>
+<td class="px-lg py-md">
+<img class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" data-alt="A profile photo of Siti Nurhaliza, an HR Officer. She is wearing a professional hijab and a formal blazer, projecting a helpful and organized persona. The lighting is soft and flattering, suitable for a high-end corporate employee management interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnY_5OONetCSmEZQYlrSJvbR-Sx465Z6mEKAm_lZg_lzDg93-pvjcn2SnRiUPzLvX-n7hypJeSPpU-TvhozgqFDM0CbHuF-yU-01qSTFmqT5MgSmps2rzImmpHoivF0RfVwRm1lJSS2egRtwObqw5cKlO07EIGuMdiT6yFE9c-5pPZr9BCuSw7l9MSdT1J6KXb9yuBhYprc0o5rCNTfKSGnESQONGQbdflICP7SeV6newx31a1712N">
+</td>
+<td class="px-lg py-md text-body-md font-bold text-on-surface">Siti Nurhaliza</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">1991051502</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">HR Officer</td>
+<td class="px-lg py-md text-body-md"><span class="px-3 py-1 bg-surface-container rounded-full text-secondary font-semibold text-xs">HRD</span></td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-error text-on-error hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Employee 3 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-lg py-md text-body-md text-on-surface">3</td>
+<td class="px-lg py-md">
+<img class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" data-alt="Budi Santoso, Sales Manager, captured in a professional headshot. He is wearing a crisp white shirt and a dark tie, looking energetic and trustworthy. The background is a minimalist corporate setting with natural morning light streaming in, adhering to the clean design system's aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVgEVu07vW4Fdzno3qmcOctqDj3T8t6LyRpEwiNZ09NcQ5P1KdGE7gHWnfmJL1QFOrHwCV5-p355eV_A3Kd08hDxP5e_Dh3xiQpmma7A3gPyT-ooN3UTAJ3AG0ixeZIdwZH1JkhU2B2y5n52A2A4FmdeXKSA1O_-mhbQu8HvDUU1Nr-ZwbCtyr4mVZz9O8RQToAvM0sUx2DMbGTniUSKmJ12gI_WN19C3B9xVvI-pMsdhf7ue2qLuz">
+</td>
+<td class="px-lg py-md text-body-md font-bold text-on-surface">Jane Doe</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">1988112003</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">Sales Manager</td>
+<td class="px-lg py-md text-body-md"><span class="px-3 py-1 bg-surface-container rounded-full text-secondary font-semibold text-xs">Sales</span></td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-error text-on-error hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Employee 4 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-lg py-md text-body-md text-on-surface">4</td>
+<td class="px-lg py-md">
+<img class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" data-alt="Diana Lestari, a talented UX Designer. She has a creative and focused expression, wearing a minimalist black turtleneck. The photo is well-composed with a shallow depth of field, blurring out a modern design studio background to keep the focus on her face, perfectly matching the SaaS purity of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1bEsmqLlNlvHqkaaCTrPqyvqCs96w7iQT38da9z8UmJPMHIx7SJXn-voysfMItzs57jKsw3C3HNkaZw48u_o5TK5tDE1D4J_J1KFrVB7iREUgjdRnAJlNleaH1hpP03YwGNsTEPSL7RMjIbJ4GO5JdTyk--7Vwpt7TwM6TK8RsoOuuJysihkFfwudOD-uGT1Y0DcHMQwAxLCYj1EW5BUDo9UeivkSh6E8HhQGe_-yDsiOLa6RRaN-">
+</td>
+<td class="px-lg py-md text-body-md font-bold text-on-surface">Diana Lestari</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">1993031004</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">UX Designer</td>
+<td class="px-lg py-md text-body-md"><span class="px-3 py-1 bg-surface-container rounded-full text-secondary font-semibold text-xs">IT</span></td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-error text-on-error hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Employee 5 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-lg py-md text-body-md text-on-surface">5</td>
+<td class="px-lg py-md">
+<img class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" data-alt="Eko Prasetyo, Finance Lead. A sharp, professional portrait of a man in his late 30s, wearing a charcoal suit. He exudes reliability and financial acumen. The lighting is high-end studio quality, ensuring he looks prominent and clear within the employee table component." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJTfLbT8iSU-o7SZHYMA65MW9l2lZo_Kmhc53rTafDFkoqBLzdut39NHWUWGg8or6WN-iSXWvk6L1N0cN8aen7UHXRLmgVE3XQg3plwnHeFlNEFCRQo1naPJzkKkR26Fy5wwe0RJJw5tiJKAdR_PsxUIuF7W8730pZ3V-6l6i2IuqkmQVeL6zJHGRzWrTbVAwbwKVZNQWbsoz8Ic5r8HEYM7CWr2qdYlSTh90TdOH_wcagTb14l2Ud">
+</td>
+<td class="px-lg py-md text-body-md font-bold text-on-surface">Eko Prasetyo</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">1985082505</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">Finance Lead</td>
+<td class="px-lg py-md text-body-md"><span class="px-3 py-1 bg-surface-container rounded-full text-secondary font-semibold text-xs">Finance</span></td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-error text-on-error hover:brightness-110 active:scale-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="p-lg border-t border-outline-variant bg-surface-bright flex flex-col sm:flex-row items-center justify-between gap-md">
+<p class="text-body-sm text-on-surface-variant">Menampilkan 8 karyawan dari total 250</p>
+<div class="flex items-center gap-1">
+<button class="px-4 py-2 border border-outline-variant rounded-lg text-body-md hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">Sebelumnya</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-lg text-body-md font-bold shadow-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-lg text-body-md hover:bg-surface-container transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-lg text-body-md hover:bg-surface-container transition-colors">3</button>
+<span class="px-2 text-outline">...</span>
+<button class="px-4 py-2 border border-outline-variant rounded-lg text-body-md hover:bg-surface-container transition-colors">Lanjut</button>
+</div>
+</div>
+</div>
+<!-- Stats Overview (Bonus Bento Card) -->
+<div class="mt-lg grid grid-cols-1 md:grid-cols-4 gap-lg">
+<div class="p-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-lg">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div>
+<p class="text-label-uppercase font-label-uppercase text-on-surface-variant">Total Staff</p>
+<p class="text-headline-md font-bold text-on-surface">250</p>
+</div>
+</div>
+<div class="p-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-lg">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">how_to_reg</span>
+</div>
+<div>
+<p class="text-label-uppercase font-label-uppercase text-on-surface-variant">Aktif</p>
+<p class="text-headline-md font-bold text-on-surface">242</p>
+</div>
+</div>
+<div class="p-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-lg">
+<div class="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">person_off</span>
+</div>
+<div>
+<p class="text-label-uppercase font-label-uppercase text-on-surface-variant">Cuti/Off</p>
+<p class="text-headline-md font-bold text-on-surface">8</p>
+</div>
+</div>
+<div class="p-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-lg">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">new_releases</span>
+</div>
+<div>
+<p class="text-label-uppercase font-label-uppercase text-on-surface-variant">Baru (Bulan Ini)</p>
+<p class="text-headline-md font-bold text-on-surface">12</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Credits -->
+<footer class="p-lg mt-auto text-center border-t border-outline-variant bg-surface-container-lowest/50">
+<p class="text-body-sm text-on-surface-variant">© 2026 PT Global Tech Solusindo. Seluruh hak cipta dilindungi.</p>
+</footer>
+</main>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput?.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.02]');
+        });
+        searchInput?.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.02]');
+        });
+    </script>
+
+
+</body></html>

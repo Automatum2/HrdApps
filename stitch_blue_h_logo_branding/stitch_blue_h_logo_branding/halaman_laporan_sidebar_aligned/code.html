@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Laporan - HRDApps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c2c6d8",
+                        "surface": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#586377",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001849",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "primary": "#0050cb",
+                        "outline": "#727687",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "secondary-fixed": "#d8e3fb",
+                        "primary-fixed": "#dae1ff",
+                        "inverse-surface": "#213145",
+                        "surface-container-highest": "#d3e4fe",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0054d6",
+                        "on-tertiary-fixed": "#002113",
+                        "on-surface": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#e1ffec",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "tertiary-container": "#008259",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#424656",
+                        "secondary-container": "#d5e0f8",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#6ffbbe",
+                        "background": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "inverse-primary": "#b3c5ff",
+                        "secondary": "#545f73",
+                        "on-secondary-fixed": "#111c2d",
+                        "on-primary-container": "#f8f7ff",
+                        "tertiary": "#006645",
+                        "primary-container": "#0066ff",
+                        "on-primary-fixed-variant": "#003fa4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xl": "32px",
+                        "sm": "12px",
+                        "sidebar-width": "260px",
+                        "container-max": "1440px",
+                        "lg": "24px",
+                        "xs": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-uppercase": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "table-header": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "title-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "label-uppercase": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "table-header": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "title-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between">
+<div class="px-6 mb-10 flex items-center gap-3">
+<img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLu0G9URZoA5P3NeK8oPX6Yg5IJ9uQ5PObvUorKDZoAiqDz61xAOITJ3Z7CcNzyUjIuArTWiAxYfi_IeJocWEnDNOZbW4aGIVWZaUrgoC8z9VJwEQpQNM02kFQQ8meUAWRjf2D9bqP2BnPQUWRMy8H3leC3LzX6K0nEtLnu8MhGtMKqwm8aZWp5ZQbhPEwiFi9f4F_PCTrXh3xuZKweSOhJIaiwccRxNkVbkQc_FFPyu52FK66P2Kdz65NU">
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-surface-container-lowest leading-none">HRDApps</h1>
+<p class="text-[10px] text-white uppercase tracking-widest mt-1 opacity-70">Management Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
+<span class="font-medium font-body-md">Dashboard</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">group</span>
+<span class="font-medium font-body-md">Karyawan</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">schedule</span>
+<span class="font-medium font-body-md">Absensi</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">payments</span>
+<span class="font-medium font-body-md">Penggajian</span>
+</a>
+<!-- Active Tab: Laporan -->
+<a class="bg-primary/10 text-primary rounded-lg flex items-center px-4 py-3 border-l-4 border-primary scale-95 active:scale-100 transition-transform group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" style="font-variation-settings: &quot;FILL&quot; 1;">analytics</span>
+<span class="font-body-md font-bold">Laporan</span>
+</a>
+<a class="text-white hover:bg-white/10 flex items-center px-4 py-3 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">settings</span>
+<span class="font-medium font-body-md">Pengaturan</span>
+</a>
+</nav>
+<div class="px-2 mt-auto mb-2"><div class="px-4 py-4 mb-2 mx-2 rounded-xl bg-white/10 border border-white/10 flex items-center gap-3">
+<img alt="Budi Santoso" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDiRkP8LFOpR23Ifl6GtYOsuqhCM4fYUA5j65P5hWCFdou6lJvvtp-Kacgwu11Q7U7G4dwyjt1rcw5EHIFAW6BUcHAwMNjleXWmXW7tpiQmFBtW5EXBE-KgNlbKmTRKd7A4vA51KEKJfpsqVt-ndKnOBbPPsHdEDRuJq2v01TCz5pypD_WhOqiOMwVifKSFEoOUe5yhzwR1hc4VQzm3HKcl2nl5CZvmrhe2YHjHuqUu_x4hfMxB-Lu">
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-surface-container-lowest truncate">Budi Santoso</p>
+<p class="text-[10px] text-white uppercase tracking-wider truncate">Admin</p>
+</div>
+</div><div class="px-2 mb-2">
+<a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">logout</span>
+<span class="font-medium font-body-md">Keluar</span>
+</a>
+</div></div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col min-w-0 md:ml-sidebar-width transition-all duration-300">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm flex items-center justify-between px-8 h-16">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md text-on-background">Laporan &amp; Rekap</h2>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search Bar (on_right) -->
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded-full text-body-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-64 transition-all" placeholder="Search..." type="text">
+</div><div class="flex items-center gap-6"><div class="flex items-center gap-2"><button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full relative cursor-pointer active:opacity-80"><span class="material-symbols-outlined">notifications</span><span class="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span></button><button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full relative cursor-pointer active:opacity-80"><span class="material-symbols-outlined">settings</span></button></div><div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div></div>
+<!-- Trailing Icons -->
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-lg md:p-xl overflow-y-auto">
+<!-- Breadcrumbs (Optional but good for context) -->
+<div class="flex items-center justify-end text-body-sm text-secondary mb-6">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="mx-2">/</span>
+<span class="text-primary font-medium">Laporan</span>
+</div>
+<div class="max-w-container-max mx-auto space-y-8">
+<!-- Bento Grid: Report Categories -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1: Laporan Absensi -->
+<div class="bg-primary text-on-primary rounded-xl p-6 relative overflow-hidden group cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+<span class="material-symbols-outlined text-4xl mb-4 filled block" data-icon="event_note">event_note</span>
+<h3 class="font-headline-md text-xl mb-2 font-semibold">Laporan Absensi</h3>
+<p class="font-body-sm text-on-primary/80">Rekapitulasi Kehadiran, Cuti &amp; Izin</p>
+</div>
+<!-- Card 2: Laporan Penggajian -->
+<div class="bg-tertiary-container text-on-tertiary-container rounded-xl p-6 relative overflow-hidden group cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+<span class="material-symbols-outlined text-4xl mb-4 filled block" data-icon="payments">payments</span>
+<h3 class="font-headline-md text-xl mb-2 font-semibold">Laporan Penggajian</h3>
+<p class="font-body-sm text-on-tertiary-container/80">Total Gaji, Bonus, Lembur &amp; Pajak</p>
+</div>
+<!-- Card 3: Laporan Karyawan -->
+<div class="bg-[#7c3aed] text-white rounded-xl p-6 relative overflow-hidden group cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+<span class="material-symbols-outlined text-4xl mb-4 filled block" data-icon="groups">groups</span>
+<h3 class="font-headline-md text-xl mb-2 font-semibold">Laporan Karyawan</h3>
+<p class="font-body-sm text-white/80">Data Diri, Divisi, Kontrak &amp; Kinerja</p>
+</div>
+</div>
+<!-- Generate Report Form Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 border-b border-outline-variant bg-surface/50">
+<h3 class="font-title-sm text-title-sm text-on-background">Generate Laporan</h3>
+</div>
+<div class="p-6">
+<form class="flex flex-col lg:flex-row gap-6 items-end">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+<!-- Tipe Laporan -->
+<div class="space-y-2">
+<label class="font-body-sm font-medium text-on-surface-variant block">Tipe Laporan</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-background focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
+<option>Laporan Absensi Bulanan</option>
+<option>Laporan Gaji Pokok</option>
+<option>Laporan Kinerja Tahunan</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Periode -->
+<div class="space-y-2">
+<label class="font-body-sm font-medium text-on-surface-variant block">Periode</label>
+<div class="relative flex items-center">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none bg-surface-container border border-outline-variant border-r-0 rounded-l-lg px-3">
+<span class="material-symbols-outlined text-outline text-sm">calendar_month</span>
+</div>
+<input class="w-full pl-12 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-background focus:ring-2 focus:ring-primary focus:border-transparent" type="text" value="01/10/2026 - 31/10/2026">
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none bg-surface-container border border-outline-variant border-l-0 rounded-r-lg px-3">
+<span class="material-symbols-outlined text-outline text-sm">event</span>
+</div>
+</div>
+</div>
+<!-- Department -->
+<div class="space-y-2">
+<label class="font-body-sm font-medium text-on-surface-variant block">Department</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-background focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
+<option>IT Development</option>
+<option>Human Resources</option>
+<option>Finance</option>
+<option>Marketing</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Format -->
+<div class="space-y-2">
+<label class="font-body-sm font-medium text-on-surface-variant block">Format</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-background focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
+<option>PDF / Excel</option>
+<option>PDF Only</option>
+<option>Excel Only</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Generate Button -->
+<button class="w-full lg:w-auto h-[116px] bg-primary hover:bg-primary/90 text-on-primary rounded-xl px-8 flex flex-col items-center justify-center gap-2 transition-colors shadow-sm font-title-sm text-title-sm whitespace-nowrap lg:ml-2" type="button">
+<span class="material-symbols-outlined text-3xl filled block" data-icon="description">description</span>
+                                Generate
+                            </button>
+</form>
+</div>
+</div>
+<!-- Recent Reports Table Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="p-6 border-b border-outline-variant bg-surface/50 flex justify-between items-center">
+<h3 class="font-title-sm text-title-sm text-on-background">Laporan Terakhir</h3>
+<button class="text-primary hover:bg-surface-container-low px-3 py-1.5 rounded-lg text-body-sm font-medium transition-colors">Lihat Semua</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider w-16">No</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider">Nama Laporan</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider">Tipe</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider">Periode</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider">Dibuat Oleh</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider">Tanggal</th>
+<th class="py-3 px-6 font-table-header text-table-header text-on-background uppercase tracking-wider text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group bg-surface/30">
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">1</td>
+<td class="py-3 px-6 font-body-sm font-medium text-on-background">Laporan Absensi Oktober 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Absensi</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-31 Oct 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Admin</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-11-2026 10:15</td>
+<td class="py-3 px-6 text-right">
+<button class="bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-secondary font-body-sm px-3 py-1.5 rounded flex items-center justify-center gap-2 ml-auto transition-colors shadow-sm">
+                                            [Download PDF]
+                                        </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group">
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">2</td>
+<td class="py-3 px-6 font-body-sm font-medium text-on-background">Laporan Absensi Oktober 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Absensi</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-31 Oct 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Admin</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-11-2026 10:15</td>
+<td class="py-3 px-6 text-right">
+<button class="bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-secondary font-body-sm px-3 py-1.5 rounded flex items-center justify-center gap-2 ml-auto transition-colors shadow-sm">
+                                            [Download PDF]
+                                        </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group bg-surface/30">
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">3</td>
+<td class="py-3 px-6 font-body-sm font-medium text-on-background">Laporan Absensi Oktober 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Absensi</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-31 Oct 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Admin</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-11-2026 10:15</td>
+<td class="py-3 px-6 text-right">
+<button class="bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-secondary font-body-sm px-3 py-1.5 rounded flex items-center justify-center gap-2 ml-auto transition-colors shadow-sm">
+                                            [Download PDF]
+                                        </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group">
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">4</td>
+<td class="py-3 px-6 font-body-sm font-medium text-on-background">Laporan Absensi Oktober 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Absensi</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-31 Oct 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Admin</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-11-2026 10:15</td>
+<td class="py-3 px-6 text-right">
+<button class="bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-secondary font-body-sm px-3 py-1.5 rounded flex items-center justify-center gap-2 ml-auto transition-colors shadow-sm">
+                                            [Download PDF]
+                                        </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group bg-surface/30">
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">5</td>
+<td class="py-3 px-6 font-body-sm font-medium text-on-background">Laporan Absensi Oktober 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Absensi</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-31 Oct 2026</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">Admin</td>
+<td class="py-3 px-6 font-body-sm text-on-surface-variant">01-11-2026 10:15</td>
+<td class="py-3 px-6 text-right">
+<button class="bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-secondary font-body-sm px-3 py-1.5 rounded flex items-center justify-center gap-2 ml-auto transition-colors shadow-sm">
+                                            [Download PDF]
+                                        </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+
+
+</body></html>

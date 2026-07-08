@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Kelola Karyawan - HRDApps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Hanken+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-secondary-container": "#586377",
+                        "surface-tint": "#0054d6",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed": "#111c2d",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "secondary": "#545f73",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-fixed": "#dae1ff",
+                        "on-surface-variant": "#424656",
+                        "tertiary-container": "#008259",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "on-tertiary-fixed": "#002113",
+                        "secondary-fixed": "#d8e3fb",
+                        "on-error": "#ffffff",
+                        "primary": "#0050cb",
+                        "secondary-container": "#d5e0f8",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#d3e4fe",
+                        "surface-bright": "#f8f9ff",
+                        "error": "#ba1a1a",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "outline": "#727687",
+                        "on-primary-fixed-variant": "#003fa4",
+                        "on-background": "#0b1c30",
+                        "primary-container": "#0066ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001849",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "surface-dim": "#cbdbf5",
+                        "on-surface": "#0b1c30",
+                        "tertiary": "#006645",
+                        "outline-variant": "#c2c6d8",
+                        "on-tertiary-container": "#e1ffec",
+                        "on-primary-container": "#f8f7ff",
+                        "inverse-primary": "#b3c5ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "container-max": "1440px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "sidebar-width": "260px"
+                    },
+                    "fontFamily": {
+                        "label-uppercase": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "table-header": ["Inter"],
+                        "title-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-uppercase": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "table-header": ["13px", { "lineHeight": "18px", "fontWeight": "600" }],
+                        "title-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface antialiased flex">
+<!-- SideNavBar -->
+<aside class="fixed h-full w-sidebar-width left-0 top-0 bg-[#1e293b] border-r border-outline-variant flex flex-col h-full justify-between py-lg z-20">
+<div>
+<!-- Header Brand -->
+<div class="px-lg mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-[#0066ff] flex items-center justify-center text-white font-headline-md text-headline-md font-bold">
+                    H
+                </div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-white">HRDApps</h2>
+<p class="font-body-sm text-body-sm text-white opacity-80">Super Admin</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-1 font-body-md text-body-md">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer active:opacity-80 mx-md rounded-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+<!-- Karyawan (Active) -->
+<a class="flex items-center gap-md px-md py-sm bg-[#0066ff]/10 border-l-4 border-[#0066ff] text-[#0066ff] font-bold hover:bg-[#0066ff]/20 transition-colors duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+                    Karyawan
+                </a>
+<!-- Kelola HR Manager (Inactive) -->
+<a class="flex items-center gap-md px-md py-sm text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer active:opacity-80 mx-md rounded-md" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+                    Kelola HR Manager
+                </a>
+</nav>
+</div>
+<!-- Footer Actions -->
+<div class="px-md font-body-md text-body-md">
+<a class="flex items-center gap-md px-md py-sm text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer active:opacity-80 rounded-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Keluar
+            </a>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="ml-sidebar-width w-[calc(100%-260px)] min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full h-16 bg-surface-container-lowest border-b border-outline-variant shadow-sm flex justify-between items-center px-xl z-10">
+<!-- Search Bar Area -->
+<div class="flex-1 max-w-md">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-xl pr-sm py-xs bg-surface border border-outline-variant rounded-md font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="Search..." type="text">
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-lg">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-xs rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-xs rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant cursor-pointer active:opacity-80 hover:bg-surface-container-low transition-colors p-1 rounded-full pr-4">
+<div class="w-8 h-8 bg-primary text-on-primary rounded-full flex items-center justify-center font-bold text-sm">
+                        S
+                    </div>
+<span class="text-sm font-medium text-on-surface font-body-md">Super Admin</span>
+<span class="material-symbols-outlined text-outline text-sm">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 p-xl">
+<div class="max-w-container-max mx-auto">
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-xl">
+<h1 class="font-display-lg text-display-lg text-on-surface">Kelola Karyawan</h1>
+<button class="bg-tertiary-container hover:bg-tertiary text-on-tertiary px-lg py-sm rounded-md font-label-uppercase text-label-uppercase flex items-center gap-xs transition-colors shadow-sm cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                        Tambah Karyawan
+                    </button>
+</div>
+<!-- Data Table Card -->
+<div class="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">No</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Nama</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Email</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Jabatan</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Departemen</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Gaji Pokok</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant">Status</th>
+<th class="px-md py-sm font-table-header text-table-header text-on-surface-variant text-center">Aksi</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm text-on-surface-variant">1</td>
+<td class="px-md py-sm font-title-sm text-title-sm">Adi Saputra</td>
+<td class="px-md py-sm text-on-surface-variant">adi.saputra@email.com</td>
+<td class="px-md py-sm">Senior Developer</td>
+<td class="px-md py-sm">Engineering</td>
+<td class="px-md py-sm font-mono text-on-surface-variant">Rp 8.500.000</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-xs py-base rounded-full bg-tertiary-container/10 text-tertiary font-label-uppercase text-label-uppercase text-[10px]">
+                                            Aktif
+                                        </span>
+</td>
+<td class="px-md py-sm">
+<div class="flex items-center justify-center gap-xs">
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Detail">
+<span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+</button>
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+</button>
+<button class="w-8 h-8 rounded border border-error-container text-error hover:bg-error-container transition-colors flex items-center justify-center cursor-pointer active:opacity-80" title="Nonaktifkan">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm text-on-surface-variant">2</td>
+<td class="px-md py-sm font-title-sm text-title-sm">Budi Santoso</td>
+<td class="px-md py-sm text-on-surface-variant">budi.santoso@email.com</td>
+<td class="px-md py-sm">UI/UX Designer</td>
+<td class="px-md py-sm">Product</td>
+<td class="px-md py-sm font-mono text-on-surface-variant">Rp 7.200.000</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-xs py-base rounded-full bg-tertiary-container/10 text-tertiary font-label-uppercase text-label-uppercase text-[10px]">
+                                            Aktif
+                                        </span>
+</td>
+<td class="px-md py-sm">
+<div class="flex items-center justify-center gap-xs">
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Detail">
+<span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+</button>
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+</button>
+<button class="w-8 h-8 rounded border border-error-container text-error hover:bg-error-container transition-colors flex items-center justify-center cursor-pointer active:opacity-80" title="Nonaktifkan">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm text-on-surface-variant">3</td>
+<td class="px-md py-sm font-title-sm text-title-sm text-on-surface-variant">Citra Rahayu</td>
+<td class="px-md py-sm text-on-surface-variant">citra.rahayu@email.com</td>
+<td class="px-md py-sm text-on-surface-variant">HR Specialist</td>
+<td class="px-md py-sm text-on-surface-variant">Human Resources</td>
+<td class="px-md py-sm font-mono text-on-surface-variant">Rp 9.000.000</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-xs py-base rounded-full bg-surface-variant text-on-surface-variant font-label-uppercase text-label-uppercase text-[10px]">
+                                            Nonaktif
+                                        </span>
+</td>
+<td class="px-md py-sm">
+<div class="flex items-center justify-center gap-xs">
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Detail">
+<span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+</button>
+<button class="w-8 h-8 rounded border border-outline-variant text-outline-variant cursor-not-allowed" disabled="" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+</button>
+<button class="w-8 h-8 rounded border border-outline-variant text-outline-variant cursor-not-allowed" disabled="" title="Nonaktifkan">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm text-on-surface-variant">4</td>
+<td class="px-md py-sm font-title-sm text-title-sm">Deni Kurniawan</td>
+<td class="px-md py-sm text-on-surface-variant">deni.k@email.com</td>
+<td class="px-md py-sm">Marketing Lead</td>
+<td class="px-md py-sm">Marketing</td>
+<td class="px-md py-sm font-mono text-on-surface-variant">Rp 10.500.000</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-xs py-base rounded-full bg-tertiary-container/10 text-tertiary font-label-uppercase text-label-uppercase text-[10px]">
+                                            Aktif
+                                        </span>
+</td>
+<td class="px-md py-sm">
+<div class="flex items-center justify-center gap-xs">
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Detail">
+<span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+</button>
+<button class="w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center cursor-pointer active:bg-surface-variant" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+</button>
+<button class="w-8 h-8 rounded border border-error-container text-error hover:bg-error-container transition-colors flex items-center justify-center cursor-pointer active:opacity-80" title="Nonaktifkan">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination (Simplified) -->
+<div class="px-lg py-md border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between text-body-sm text-on-surface-variant">
+<div class="">
+                            Menampilkan 1 hingga 4 dari 4 entri
+                        </div>
+<div class="flex gap-xs">
+<button class="px-sm py-xs border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50" disabled="">Sebelumnya</button>
+<button class="px-sm py-xs border border-primary bg-primary text-on-primary rounded hover:bg-primary-container transition-colors cursor-pointer">1</button>
+<button class="px-sm py-xs border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50" disabled="">Selanjutnya</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+</body></html>
