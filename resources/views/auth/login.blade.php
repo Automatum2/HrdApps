@@ -21,7 +21,7 @@
         </div>
         
         <!-- Form -->
-        <form class="w-full space-y-md" action="#" method="POST" onsubmit="event.preventDefault();">
+        <form class="w-full space-y-md" action="{{ route('login.post') }}" method="POST" onsubmit="event.preventDefault();">
             @csrf
             
             <!-- Username Field -->
@@ -54,6 +54,21 @@
                         <option value="WFO">WFO</option>
                         <option value="WFH">WFH</option>
                         <option value="WFF">WFF</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none text-secondary">
+                        <span class="material-symbols-outlined">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Dropdown -->
+            <div class="space-y-base">
+                <label class="font-label-uppercase text-label-uppercase text-on-surface-variant px-1" for="role">Masuk Sebagai</label>
+                <div class="relative group">
+                    <select class="w-full appearance-none px-md py-sm border border-outline-variant rounded-lg bg-white font-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer" id="role" name="role">
+                        <option value="manager">HRD Manager (Budi Santoso)</option>
+                        <option value="employee">Karyawan (Ahmad Fadillah)</option>
+                        <option value="super_admin">Super Admin (Admin Utama)</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none text-secondary">
                         <span class="material-symbols-outlined">expand_more</span>
@@ -113,8 +128,8 @@
             btn.disabled = false;
             btn.classList.remove('opacity-80', 'cursor-not-allowed');
             
-            // Mengarahkan langsung ke halaman dashboard manager secara statis
-            window.location.href = "{{ route('backoffice.dashboard') }}";
+            // Submit form to Laravel POST route
+            form.submit();
         }, 1500);
     });
 

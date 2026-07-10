@@ -66,60 +66,108 @@
         </div>
 
         <nav class="flex-1 space-y-1 overflow-y-auto px-2">
-            <!-- Active Tab: Dashboard -->
-            <a class="{{ request()->routeIs('backoffice.dashboard') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.dashboard') }}">
+            @php
+                $role = session('user_role', 'manager');
+            @endphp
+
+            <!-- MENU UNTUK SUPER ADMIN -->
+            @if($role === 'super_admin')
+            <!-- Dashboard Super Admin -->
+            <a class="{{ request()->routeIs('backoffice.dashboard') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.dashboard') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.dashboard') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 <span class="font-body-md font-bold">Dashboard</span>
             </a>
 
-            <!-- Menu Karyawan (Read-Only View) -->
-            <a class="{{ request()->routeIs('backoffice.karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.karyawan') }}">
-                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">group</span>
+            <!-- Karyawan (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.super_admin.kelola_karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.kelola_karyawan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.kelola_karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">groups</span>
                 <span class="font-medium font-body-md">Karyawan</span>
             </a>
 
-            @if(session('user_role', 'manager') === 'manager')
+            <!-- Kelola HR Manager -->
+            <a class="{{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.kelola_hr') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">manage_accounts</span>
+                <span class="font-medium font-body-md">Kelola HR Manager</span>
+            </a>
+            
+            <!-- MENU UNTUK MANAGER DAN EMPLOYEE -->
+            @else
+            <!-- Dashboard Manager / Karyawan -->
+            <a class="{{ request()->routeIs('backoffice.dashboard') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.dashboard') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.dashboard') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                <span class="font-body-md font-bold">Dashboard</span>
+            </a>
+
+            @if($role === 'manager')
+            <!-- Menu Karyawan -->
+            <a class="{{ request()->routeIs('backoffice.karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.karyawan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">group</span>
+                <span class="font-medium font-body-md">Karyawan</span>
+            </a>
+            @endif
+
+            @if($role === 'manager')
             <!-- Menu Absensi -->
-            <a class="{{ request()->routeIs('backoffice.absensi') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.absensi') }}">
+            <a class="{{ request()->routeIs('backoffice.absensi') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.absensi') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.absensi') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">date_range</span>
                 <span class="font-medium font-body-md">Absensi</span>
             </a>
             @endif
 
             <!-- Menu Penggajian -->
-            <a class="{{ request()->routeIs('backoffice.penggajian') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.penggajian') }}">
+            <a class="{{ request()->routeIs('backoffice.penggajian') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.penggajian') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.penggajian') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">payments</span>
                 <span class="font-medium font-body-md">Penggajian</span>
             </a>
 
-            @if(session('user_role', 'manager') === 'manager')
+            @if($role === 'manager')
             <!-- Menu Laporan -->
-            <a class="{{ request()->routeIs('backoffice.laporan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.laporan') }}">
+            <a class="{{ request()->routeIs('backoffice.laporan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.laporan') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.laporan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">analytics</span>
                 <span class="font-medium font-body-md">Laporan</span>
             </a>
             @endif
 
             <!-- Menu Pengaturan -->
-            <a class="{{ request()->routeIs('backoffice.pengaturan') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.pengaturan') }}">
+            <a class="{{ request()->routeIs('backoffice.pengaturan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.pengaturan') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.pengaturan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">settings</span>
                 <span class="font-medium font-body-md">Pengaturan</span>
             </a>
+            @endif
         </nav>
 
+        @php
+            $userName = session('user_name', 'Budi Santoso');
+            $userRole = session('user_role', 'manager');
+            $userPhoto = session('user_photo', 'https://lh3.googleusercontent.com/aida/AP1WRLs3mGjsESMPhmv8tzbwL4Cv8eybl3L-pVFuT7bSZKkYATCbB3SohTtuQWEIJDs_lr89hffZfJdshr0JX6-tHTDP0Q5kvayq-J4PoHfMmI2WZkUVxA2N0VBZS0aU3saEKTTh3VmVA36ZoHnDvLB1iKE8iL_q31WiqrXHIprZpUQt_qGXEWo-wL-jx_CZkSqMHy8mg2AR9Lfxbyvc-04EzQfgbgVhuWhp89YgVQXF0zjbCgKQFyA8qEgUjHo');
+            
+            if ($userRole === 'super_admin') {
+                $userTitle = 'Administrator';
+            } elseif ($userRole === 'manager') {
+                $userTitle = 'Manager HRD';
+            } else {
+                $userTitle = 'Employee ID: ' . session('employee_id', '00001221');
+            }
+        @endphp
         <div class="px-2 mt-auto mb-2">
-            <!-- Profil Singkat Manager -->
+            <!-- Profil Singkat User -->
             <div class="px-4 py-4 mb-2 mx-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
-                <img alt="Budi Santoso" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLs3mGjsESMPhmv8tzbwL4Cv8eybl3L-pVFuT7bSZKkYATCbB3SohTtuQWEIJDs_lr89hffZfJdshr0JX6-tHTDP0Q5kvayq-J4PoHfMmI2WZkUVxA2N0VBZS0aU3saEKTTh3VmVA36ZoHnDvLB1iKE8iL_q31WiqrXHIprZpUQt_qGXEWo-wL-jx_CZkSqMHy8mg2AR9Lfxbyvc-04EzQfgbgVhuWhp89YgVQXF0zjbCgKQFyA8qEgUjHo">
+                @if($userPhoto)
+                    <img alt="{{ $userName }}" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="{{ $userPhoto }}">
+                @else
+                    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg border border-white/10 shadow-sm">
+                        {{ strtoupper(substr($userName, 0, 1)) }}
+                    </div>
+                @endif
                 <div class="overflow-hidden">
-                    <p class="text-sm font-bold text-white truncate">Budi Santoso</p>
-                    <p class="text-[10px] text-white/70 uppercase tracking-wider truncate">Manager HRD</p>
+                    <p class="text-sm font-bold text-white truncate">{{ $userName }}</p>
+                    <p class="text-[10px] text-white/70 uppercase tracking-wider truncate">{{ $userTitle }}</p>
                 </div>
             </div>
             
             <!-- Tombol Keluar -->
             <div class="px-2 mb-2">
-                <a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="{{ route('login') }}">
+                <a class="text-white hover:text-error hover:bg-error/10 flex items-center px-4 py-3 rounded-lg transition-colors duration-200 group" href="{{ route('logout') }}">
                     <span class="material-symbols-outlined mr-3 text-xl text-white/75 group-hover:text-error">logout</span>
                     <span class="font-medium font-body-md">Keluar</span>
                 </a>
@@ -158,6 +206,7 @@
         </div>
     </main>
 
+    @stack('modals')
     @stack('scripts')
 </body>
 </html>

@@ -251,10 +251,12 @@
         </div>
     </div>
 </section>
+@endsection
 
+@push('modals')
 <!-- MODAL: Tambah Karyawan Baru (Assign Departemen) -->
-<div class="fixed inset-0 bg-[#0b1c30]/60 backdrop-blur-sm z-50 items-center justify-center p-4 hidden" id="modal-tambah">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-tambah" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 640px; min-width: 280px; display: flex; flex-direction: column;">
         <!-- Modal Header -->
         <div class="px-xl py-lg border-b border-outline-variant flex justify-between items-center bg-surface">
             <div>
@@ -349,8 +351,8 @@
 </div>
 
 <!-- MODAL: Konfirmasi Lepas Karyawan -->
-<div class="fixed inset-0 bg-[#0b1c30]/60 backdrop-blur-sm z-50 items-center justify-center p-4 hidden" id="modal-konfirmasi">
-    <div class="bg-white rounded-xl shadow-xl max-w-sm w-full border border-outline-variant p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-konfirmasi" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 400px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
         <div class="w-14 h-14 bg-error-container text-error rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-3xl">person_remove</span>
         </div>
@@ -358,7 +360,7 @@
         <p class="text-body-sm text-on-surface-variant mb-6 leading-relaxed">
             Apakah Anda yakin ingin melepas <span class="font-bold text-on-surface" id="konfirmasi-nama">Nama Karyawan</span> (<span class="font-mono text-[12px]" id="konfirmasi-nik">NIK</span>) dari departemen ini? Statusnya akan kembali menjadi "Belum Ditempatkan".
         </p>
-        <div class="flex gap-3 justify-center">
+        <div class="flex gap-3 justify-center w-full">
             <button class="flex-1 border border-outline-variant hover:bg-surface-container text-on-surface-variant py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors" id="btn-konfirmasi-batal">
                 Batal
             </button>
@@ -368,20 +370,76 @@
         </div>
     </div>
 </div>
-@endsection
+
+<!-- MODAL: Form Detail Penempatan Karyawan Baru -->
+<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-assign-detail" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10000; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">Detail Penempatan Karyawan</h3>
+                <p class="text-xs text-slate-500 mt-1">Lengkapi jabatan dan status kerja untuk <span class="font-bold text-primary" id="assign-nama-karyawan">Nama</span>.</p>
+            </div>
+            <button class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer" id="btn-close-assign-modal">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <!-- Form Content -->
+        <form id="form-assign-detail" class="p-6 space-y-4 overflow-y-auto">
+            <!-- Jabatan Field -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-jabatan">Jabatan Baru</label>
+                <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="assign-jabatan" name="assign-jabatan" placeholder="Contoh: QA Engineer atau HR Staff" type="text" required>
+            </div>
+            
+            <!-- Status Hubungan Kerja Field -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-status">Status Kerja</label>
+                <div class="relative">
+                    <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="assign-status" name="assign-status">
+                        <option value="Tetap">Karyawan Tetap</option>
+                        <option value="Kontrak">Karyawan Kontrak</option>
+                        <option value="Magang">Magang (Internship)</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 border-t border-outline-variant bg-slate-50 flex justify-end gap-3">
+            <button type="button" class="border border-slate-300 hover:bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all" id="btn-cancel-assign-modal">
+                Batal
+            </button>
+            <button type="submit" form="form-assign-detail" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
+                Tempatkan Karyawan
+            </button>
+        </div>
+    </div>
+</div>
+@endpush
 
 @push('scripts')
 <script>
     // Inisialisasi Elemen Modal
     const modalTambah = document.getElementById('modal-tambah');
     const modalKonfirmasi = document.getElementById('modal-konfirmasi');
+    const modalAssignDetail = document.getElementById('modal-assign-detail');
     
     const btnOpenModal = document.getElementById('btn-open-modal');
     const btnCloseModal = document.getElementById('btn-close-modal');
     const btnCloseModalFooter = document.getElementById('btn-close-modal-footer');
     
+    const btnCloseAssignModal = document.getElementById('btn-close-assign-modal');
+    const btnCancelAssignModal = document.getElementById('btn-cancel-assign-modal');
+    const formAssignDetail = document.getElementById('form-assign-detail');
+    const assignNamaKaryawan = document.getElementById('assign-nama-karyawan');
+    
     const btnKonfirmasiBatal = document.getElementById('btn-konfirmasi-batal');
     const btnKonfirmasiLepas = document.getElementById('btn-konfirmasi-lepas');
+    
+    let activeAssignData = null;
     
     // Input Pencarian
     const searchAnggota = document.getElementById('search-anggota');
@@ -404,14 +462,12 @@
     // 1. Logika Buka/Tutup Modal
     // ==========================================
     btnOpenModal.addEventListener('click', () => {
-        modalTambah.classList.remove('hidden');
-        modalTambah.classList.add('flex');
+        modalTambah.style.display = 'flex';
         searchModalKaryawan.focus();
     });
     
     const tutupModalTambah = () => {
-        modalTambah.classList.remove('flex');
-        modalTambah.classList.add('hidden');
+        modalTambah.style.display = 'none';
         searchModalKaryawan.value = '';
         filterModalKaryawan('');
     };
@@ -471,19 +527,115 @@
     // ==========================================
     // 4. Aksi Tambah / Pilih Karyawan Baru
     // ==========================================
+    // Load data karyawan baru dari localStorage
+    const loadKaryawanBaruDariStorage = () => {
+        const listKaryawanStr = localStorage.getItem('karyawan_baru');
+        if (listKaryawanStr) {
+            const listKaryawan = JSON.parse(listKaryawanStr);
+            listKaryawan.forEach(k => {
+                if (k.departemen === 'Belum Ditempatkan') {
+                    const existingInModal = modalTableBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInModal) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const modalRow = document.createElement('tr');
+                        modalRow.className = 'hover:bg-primary/5 transition-colors group';
+                        modalRow.setAttribute('data-nik', k.nik);
+                        modalRow.setAttribute('data-nama', k.nama);
+                        modalRow.innerHTML = `
+                            <td class="px-lg py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                                    <span class="font-bold text-on-surface">${k.nama}</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-3 font-mono text-on-surface-variant">${k.nik}</td>
+                            <td class="px-lg py-3 text-right">
+                                <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                                    + Pilih
+                                </button>
+                            </td>
+                        `;
+                        modalTableBody.appendChild(modalRow);
+                    }
+                } else if (k.departemen === 'HRD') {
+                    const existingInTable = tableAnggotaBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInTable) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'hover:bg-primary/5 transition-colors group';
+                        newRow.setAttribute('data-nik', k.nik);
+                        newRow.setAttribute('data-status', k.status || 'Kontrak');
+                        newRow.innerHTML = `
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">${inisial}</div>
+                                    <span class="font-medium text-on-background">${k.nama}</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">${k.nik}</td>
+                            <td class="px-8 py-4 text-on-surface-variant">${k.jabatan}</td>
+                            <td class="px-8 py-4">
+                                <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">${k.departemen}</span>
+                            </td>
+                            <td class="px-8 py-4 text-center">
+                                <span class="px-3 py-1 rounded-full ${k.status === 'Tetap' ? 'bg-primary-container/10 text-primary' : (k.status === 'Kontrak' ? 'bg-surface-container-highest text-secondary' : 'bg-tertiary-container/10 text-tertiary')} text-xs font-bold">${k.status || 'Kontrak'}</span>
+                            </td>
+                            <td class="px-8 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
+                                    <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="${k.nama}" data-nik="${k.nik}"><span class="material-symbols-outlined text-lg">person_remove</span></button>
+                                </div>
+                            </td>
+                        `;
+                        tableAnggotaBody.appendChild(newRow);
+                    }
+                }
+            });
+            updateStatistics();
+        }
+    };
+    
+    // Panggil saat halaman diload
+    loadKaryawanBaruDariStorage();
+
     modalTableBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-assign')) {
             const row = e.target.closest('tr');
             const nama = row.getAttribute('data-nama');
             const nik = row.getAttribute('data-nik');
-            const jabatan = row.getAttribute('data-jabatan');
-            const dept = row.getAttribute('data-dept');
-            const status = row.getAttribute('data-status');
             
-            // Generate inisial nama untuk avatar
+            activeAssignData = { row, nama, nik };
+            assignNamaKaryawan.innerText = nama;
+            
+            // Tutup modal pilihan awal
+            tutupModalTambah();
+            
+            // Buka modal detail penempatan
+            modalAssignDetail.style.display = 'flex';
+            document.getElementById('assign-jabatan').focus();
+        }
+    });
+    
+    const tutupModalAssignDetail = () => {
+        modalAssignDetail.style.display = 'none';
+        formAssignDetail.reset();
+        activeAssignData = null;
+    };
+    
+    btnCloseAssignModal.addEventListener('click', tutupModalAssignDetail);
+    btnCancelAssignModal.addEventListener('click', tutupModalAssignDetail);
+    
+    formAssignDetail.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (activeAssignData) {
+            const nama = activeAssignData.nama;
+            const nik = activeAssignData.nik;
+            const jabatan = document.getElementById('assign-jabatan').value;
+            const status = document.getElementById('assign-status').value;
+            const dept = 'HRD'; // Asumsi departemen dinamis manajer HRD
+            
             const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             
-            // Tambahkan baris baru ke tabel utama Karyawan Terbaru
             const newRow = document.createElement('tr');
             newRow.className = 'hover:bg-primary/5 transition-colors group';
             newRow.setAttribute('data-nik', nik);
@@ -512,15 +664,24 @@
             `;
             
             tableAnggotaBody.appendChild(newRow);
+            activeAssignData.row.remove();
             
-            // Hapus baris dari tabel modal agar tidak bisa dipilih ganda
-            row.remove();
+            // Perbarui status di localStorage
+            const listKaryawanStr = localStorage.getItem('karyawan_baru');
+            if (listKaryawanStr) {
+                const listKaryawan = JSON.parse(listKaryawanStr);
+                const targetK = listKaryawan.find(item => item.nik === nik);
+                if (targetK) {
+                    targetK.departemen = dept;
+                    targetK.jabatan = jabatan;
+                    targetK.status = status;
+                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
+                }
+            }
             
-            // Update widget statistik
             updateStatistics();
-            
-            // Tutup modal secara halus
-            tutupModalTambah();
+            tutupModalAssignDetail();
+            alert(`Karyawan ${nama} berhasil ditempatkan di departemen ${dept} sebagai ${jabatan}!`);
         }
     });
 
@@ -539,15 +700,13 @@
             document.getElementById('konfirmasi-nama').innerText = nama;
             document.getElementById('konfirmasi-nik').innerText = nik;
             
-            modalKonfirmasi.classList.remove('hidden');
-            modalKonfirmasi.classList.add('flex');
+            modalKonfirmasi.style.display = 'flex';
         }
     });
     
     // Batal Konfirmasi
     btnKonfirmasiBatal.addEventListener('click', () => {
-        modalKonfirmasi.classList.remove('flex');
-        modalKonfirmasi.classList.add('hidden');
+        modalKonfirmasi.style.display = 'none';
         targetRowToRelease = null;
         targetNikToRelease = '';
     });
@@ -562,29 +721,65 @@
             const status = targetRowToRelease.getAttribute('data-status');
             const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             
-            // Kembalikan karyawan ke daftar pilihan modal
-            const returnRow = document.createElement('tr');
-            returnRow.className = 'hover:bg-primary/5 transition-colors group';
-            returnRow.setAttribute('data-nik', NIK);
-            returnRow.setAttribute('data-nama', nama);
-            returnRow.setAttribute('data-jabatan', jabatan);
-            returnRow.setAttribute('data-dept', dept);
-            returnRow.setAttribute('data-status', status);
-            returnRow.innerHTML = `
-                <td class="px-lg py-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
-                        <span class="font-bold text-on-surface">${nama}</span>
-                    </div>
-                </td>
-                <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
-                <td class="px-lg py-3 text-right">
-                    <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                        + Pilih
-                    </button>
-                </td>
-            `;
-            modalTableBody.appendChild(returnRow);
+            // Perbarui status di localStorage jika ada
+            const listKaryawanStr = localStorage.getItem('karyawan_baru');
+            let isKaryawanBaru = false;
+            if (listKaryawanStr) {
+                const listKaryawan = JSON.parse(listKaryawanStr);
+                const targetK = listKaryawan.find(item => item.nik === NIK);
+                if (targetK) {
+                    targetK.departemen = 'Belum Ditempatkan';
+                    targetK.jabatan = 'Belum Ditentukan';
+                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
+                    isKaryawanBaru = true;
+                }
+            }
+            
+            if (isKaryawanBaru) {
+                const returnRow = document.createElement('tr');
+                returnRow.className = 'hover:bg-primary/5 transition-colors group';
+                returnRow.setAttribute('data-nik', NIK);
+                returnRow.setAttribute('data-nama', nama);
+                returnRow.innerHTML = `
+                    <td class="px-lg py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                            <span class="font-bold text-on-surface">${nama}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
+                    <td class="px-lg py-3 text-right">
+                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                            + Pilih
+                        </button>
+                    </td>
+                `;
+                modalTableBody.appendChild(returnRow);
+            } else {
+                // Karyawan dummy default, kembalikan dengan attribute lengkapnya
+                const returnRow = document.createElement('tr');
+                returnRow.className = 'hover:bg-primary/5 transition-colors group';
+                returnRow.setAttribute('data-nik', NIK);
+                returnRow.setAttribute('data-nama', nama);
+                returnRow.setAttribute('data-jabatan', jabatan);
+                returnRow.setAttribute('data-dept', dept);
+                returnRow.setAttribute('data-status', status);
+                returnRow.innerHTML = `
+                    <td class="px-lg py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                            <span class="font-bold text-on-surface">${nama}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
+                    <td class="px-lg py-3 text-right">
+                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                            + Pilih
+                        </button>
+                    </td>
+                `;
+                modalTableBody.appendChild(returnRow);
+            }
             
             // Hapus baris dari tabel utama dashboard
             targetRowToRelease.remove();
@@ -593,8 +788,7 @@
             updateStatistics();
             
             // Tutup modal konfirmasi
-            modalKonfirmasi.classList.remove('flex');
-            modalKonfirmasi.classList.add('hidden');
+            modalKonfirmasi.style.display = 'none';
             targetRowToRelease = null;
             targetNikToRelease = '';
         }

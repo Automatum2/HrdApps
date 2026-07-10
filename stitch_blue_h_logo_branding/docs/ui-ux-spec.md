@@ -68,11 +68,11 @@
   - Line chart rekap kehadiran bulanan
   - Donut chart status karyawan
 - **Tabel Karyawan Terbaru** (full width):
-  - Komponen: Tombol "+ Tambah Karyawan" (di kanan atas tabel) yang membuka modal pilihan karyawan global untuk di-assign ke departemen Manager.
+  - Komponen: Tombol "+ Tambah Anggota" (di kanan atas tabel) yang membuka modal pilihan karyawan global yang berstatus "Belum Ditempatkan".
   - Kolom: Nama, NIK, Jabatan, Department, Status, Action
 
 **Interaksi**:
-- Tombol "+ Tambah Karyawan": Membuka modal berisi dropdown karyawan terdaftar (dari database global) yang belum memiliki departemen, untuk kemudian dimasukkan ke departemen Manager ini.
+- Tombol "+ Tambah Anggota": Membuka modal berisi daftar karyawan baru yang "Belum Ditempatkan". Saat mengklik "+ Pilih" pada salah satu karyawan, sistem akan membuka **Modal Form Detail Penempatan** untuk meminta HR Manager mengisi **Jabatan Baru** dan memilih **Status Kerja** (Tetap/Kontrak/Magang) sebelum resmi masuk ke tim departemen tersebut.
 - Cards clickable (navigasi ke halaman terkait)
 - Chart interaktif (hover tooltip)
 - Tabel dengan search dan pagination
@@ -231,5 +231,5 @@
 - Data table: No, Nama, Email, Jabatan, Departemen, Gaji Pokok, Status, Aksi (Edit, Nonaktifkan)
 
 **Interaksi**:
-- Klik Tambah membuka modal form input detail data karyawan dan pengaturan Gaji Pokok.
+- Klik Tambah membuka modal form input data dasar karyawan (Nama Lengkap, Alamat Email, Gaji Pokok) tanpa perlu mengisi jabatan/departemen. Nilai awal jabatan diset menjadi "Belum Ditentukan" dan departemen diset "Belum Ditempatkan".
 - Klik Nonaktifkan mengubah status karyawan menjadi Nonaktif.

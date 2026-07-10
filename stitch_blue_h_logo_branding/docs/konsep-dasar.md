@@ -74,8 +74,8 @@ HRDApps adalah sistem informasi Human Resource Development berbasis web yang ber
 
 ### 5.3 Modul Manajemen Karyawan
 - Daftar karyawan dengan search, filter, pagination
-- Tambah karyawan baru secara utuh (data lengkap - dikelola oleh Super Admin)
-- Menambahkan karyawan yang sudah terdaftar secara global ke departemen kelolaan Manager (dikelola oleh HRD Manager di dashboard/panel mereka)
+- Pendaftaran karyawan baru tingkat dasar (Nama Lengkap, Alamat Email, dan Gaji Pokok - dikelola oleh Super Admin)
+- Penempatan karyawan baru yang terdaftar global ke departemen HRD dengan pengisian Jabatan Baru dan memilih Status Hubungan Kerja (dikelola oleh HRD Manager secara dinamis)
 - Edit data karyawan
 - Lihat detail karyawan
 - Hapus karyawan

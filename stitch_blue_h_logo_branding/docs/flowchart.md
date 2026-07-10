@@ -118,7 +118,7 @@ flowchart TD
 
 ---
 
-## 4. Alur CRUD Karyawan (Super Admin)
+## 4. Alur CRUD Karyawan (Super Admin & HR Manager)
 
 ```mermaid
 flowchart TD
@@ -126,9 +126,14 @@ flowchart TD
     B --> C{Aksi}
     
     C -->|Tambah| D[Form/Modal Tambah Karyawan]
-    D --> D1[Input Data: Nama, NIK, Jabatan, Gaji Pokok, dll]
-    D1 --> D2[Simpan ke Database]
+    D --> D1[Input Data Dasar: Nama, Email, Gaji Pokok]
+    D1 --> D2[Simpan Karyawan Baru - Status: Belum Ditempatkan]
     D2 --> B
+    
+    C -->|Penempatan oleh HR Manager| H[Modal Detail Penempatan Karyawan]
+    H --> H1[HR Manager Input Jabatan & Status Hubungan Kerja]
+    H1 --> H2[Karyawan Aktif di Departemen Manager]
+    H2 --> B
     
     C -->|Lihat Detail| E[Modal/Detail Karyawan]
     E --> B
@@ -142,8 +147,8 @@ flowchart TD
     G1 --> B
     G -->|Tidak| B
     
-    C -->|Cari| H[Filter & Search]
-    H --> B
+    C -->|Cari| H_Search[Filter & Search]
+    H_Search --> B
 
     style A fill:#f6ad55,stroke:#dd6b20,color:#333
     style C fill:#fc8181,stroke:#e53e3e,color:#fff
