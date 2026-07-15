@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['super_admin', 'admin', 'karyawan']);
+            $table->enum('role', ['super_admin', 'hr_manager', 'karyawan']);
             $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
             $table->timestamp('last_login')->nullable();
             $table->rememberToken();

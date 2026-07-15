@@ -86,6 +86,10 @@ Route::get('/backoffice/absensi', function () {
 })->name('backoffice.absensi');
 
 Route::get('/backoffice/penggajian', function () {
+    $role = session('user_role', 'manager');
+    if ($role === 'employee') {
+        return view('backoffice.slip_gaji_karyawan');
+    }
     return view('backoffice.penggajian');
 })->name('backoffice.penggajian');
 

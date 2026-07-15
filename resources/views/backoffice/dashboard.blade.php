@@ -5,9 +5,9 @@
 
 @section('content')
 <!-- Summary Grid -->
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-stagger">
     <!-- Card 1: Total Karyawan -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover:-translate-y-1 transition-transform flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Total Karyawan</p>
             <h3 class="text-display-lg font-display-lg text-on-background font-bold" id="stat-total-karyawan">3</h3>
@@ -17,7 +17,7 @@
         </div>
     </div>
     <!-- Card 2: Hadir Hari Ini -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover:-translate-y-1 transition-transform flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Hadir Hari Ini</p>
             <h3 class="text-display-lg font-display-lg text-tertiary font-bold" id="stat-hadir-karyawan">3</h3>
@@ -27,7 +27,7 @@
         </div>
     </div>
     <!-- Card 3: Belum Absen -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover:-translate-y-1 transition-transform flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Belum Absen</p>
             <h3 class="text-display-lg font-display-lg text-error font-bold" id="stat-belum-absen">0</h3>
@@ -37,7 +37,7 @@
         </div>
     </div>
     <!-- Card 4: Gaji Bulan Ini -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover:-translate-y-1 transition-transform flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Gaji Bulan Ini</p>
             <h3 class="text-display-lg font-display-lg text-primary font-bold" id="stat-estimasi-gaji">Rp 22.5jt</h3>
@@ -45,6 +45,35 @@
         <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">payments</span>
         </div>
+    </div>
+</section>
+
+<!-- Widget Absensi Manager -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow mb-6 mt-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-stagger relative overflow-hidden">
+    <!-- Ornamen Background -->
+    <div class="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
+    
+    <div class="flex items-center gap-5 z-10">
+        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary relative shadow-sm border border-primary/20">
+            <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+            <span class="absolute top-0 right-0 w-4 h-4 bg-error rounded-full border-2 border-white animate-pulse" id="status-dot"></span>
+        </div>
+        <div>
+            <h4 class="font-bold text-lg text-on-background">Absensi Kehadiran</h4>
+            <p class="text-xs text-on-surface-variant font-medium mt-1">Waktu Server: <span class="font-bold text-primary font-mono bg-primary/10 px-1.5 py-0.5 rounded" id="realtime-clock">--:--:-- WIB</span></p>
+            <p class="text-[11px] text-error font-bold mt-1" id="status-text">Anda belum melakukan Clock In hari ini.</p>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-3 w-full md:w-auto z-10">
+        <button class="flex-1 md:flex-none px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer btn-ripple group" onclick="alert('Mengakses Lokasi GPS dan Kamera Selfie... \n\n(Simulasi Clock-In Manager Berhasil!)')" id="btn-clockin">
+            <span class="material-symbols-outlined text-[18px] group-hover:animate-bounce">location_on</span>
+            Clock In
+        </button>
+        <button class="flex-1 md:flex-none px-6 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-bold text-sm bg-surface-container-low transition-all flex items-center justify-center gap-2 cursor-not-allowed opacity-50" disabled id="btn-clockout">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+            Clock Out
+        </button>
     </div>
 </section>
 
@@ -393,6 +422,22 @@
                 <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="assign-jabatan" name="assign-jabatan" placeholder="Contoh: QA Engineer atau HR Staff" type="text" required>
             </div>
             
+            <!-- Departemen Field -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-departemen">Departemen</label>
+                <div class="relative">
+                    <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="assign-departemen" name="assign-departemen" required>
+                        <option value="HRD">HRD</option>
+                        <option value="IT">IT</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operasional">Operasional</option>
+                        <option value="Legal">Legal</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                </div>
+            </div>
+            
             <!-- Status Hubungan Kerja Field -->
             <div class="space-y-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-status">Status Kerja</label>
@@ -557,7 +602,7 @@
                         `;
                         modalTableBody.appendChild(modalRow);
                     }
-                } else if (k.departemen === 'HRD') {
+                } else if (k.departemen !== 'Belum Ditempatkan') {
                     const existingInTable = tableAnggotaBody.querySelector(`tr[data-nik="${k.nik}"]`);
                     if (!existingInTable) {
                         const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
@@ -632,7 +677,7 @@
             const nik = activeAssignData.nik;
             const jabatan = document.getElementById('assign-jabatan').value;
             const status = document.getElementById('assign-status').value;
-            const dept = 'HRD'; // Asumsi departemen dinamis manajer HRD
+            const dept = document.getElementById('assign-departemen').value;
             
             const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             
@@ -852,5 +897,24 @@
             chartTooltip.classList.add('hidden');
         });
     });
+
+    // ==========================================
+    // Real-time Clock untuk Widget Absensi
+    // ==========================================
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const clockElement = document.getElementById('realtime-clock');
+        if(clockElement) {
+            clockElement.textContent = `${hours}:${minutes}:${seconds} WIB`;
+        }
+    }
+    
+    // Update jam setiap detik
+    setInterval(updateClock, 1000);
+    updateClock(); // Initialize immediately
 </script>
 @endpush

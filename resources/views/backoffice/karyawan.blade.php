@@ -84,7 +84,10 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-on-surface">Ahmad Fauzi</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1990010101</td>
-                    <td class="px-6 py-4 text-on-surface-variant">Senior Developer</td>
+                    <td class="px-6 py-4">
+                        <div class="text-on-surface-variant">Senior Developer</div>
+                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">4 Thn 2 Bln</div>
+                    </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">IT</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-container/10 text-primary">
@@ -110,7 +113,10 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-on-surface">Siti Nurhaliza</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1991051502</td>
-                    <td class="px-6 py-4 text-on-surface-variant">HR Officer</td>
+                    <td class="px-6 py-4">
+                        <div class="text-on-surface-variant">HR Officer</div>
+                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">2 Thn 5 Bln</div>
+                    </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">HRD</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-highest text-secondary">
@@ -136,7 +142,10 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-on-surface">Jane Doe</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1988112003</td>
-                    <td class="px-6 py-4 text-on-surface-variant">Sales Manager</td>
+                    <td class="px-6 py-4">
+                        <div class="text-on-surface-variant">Sales Manager</div>
+                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">5 Thn 8 Bln</div>
+                    </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">Sales</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-container/10 text-primary">
@@ -162,7 +171,10 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-on-surface">Diana Lestari</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1993031004</td>
-                    <td class="px-6 py-4 text-on-surface-variant">UX Designer</td>
+                    <td class="px-6 py-4">
+                        <div class="text-on-surface-variant">UX Designer</div>
+                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">1 Thn 11 Bln</div>
+                    </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">IT</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-highest text-secondary">
@@ -188,7 +200,10 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-on-surface">Eko Prasetyo</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1985082505</td>
-                    <td class="px-6 py-4 text-on-surface-variant">Finance Lead</td>
+                    <td class="px-6 py-4">
+                        <div class="text-on-surface-variant">Finance Lead</div>
+                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">8 Bulan</div>
+                    </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">Finance</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-container/10 text-tertiary">
@@ -409,6 +424,22 @@
                 <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="assign-jabatan" name="assign-jabatan" placeholder="Contoh: QA Engineer atau HR Staff" type="text" required>
             </div>
             
+            <!-- Departemen Field -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-departemen">Departemen</label>
+                <div class="relative">
+                    <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="assign-departemen" name="assign-departemen" required>
+                        <option value="HRD">HRD</option>
+                        <option value="IT">IT</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operasional">Operasional</option>
+                        <option value="Legal">Legal</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                </div>
+            </div>
+            
             <!-- Status Hubungan Kerja Field -->
             <div class="space-y-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-status">Status Kerja</label>
@@ -605,7 +636,7 @@
                         `;
                         modalTableBody.appendChild(modalRow);
                     }
-                } else if (k.departemen === 'HRD') {
+                } else if (k.departemen !== 'Belum Ditempatkan') {
                     const existingInTable = tableKaryawanBody.querySelector(`tr[data-nik="${k.nik}"]`);
                     if (!existingInTable) {
                         const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
@@ -687,7 +718,7 @@
             const nik = activeAssignData.nik;
             const jabatan = document.getElementById('assign-jabatan').value;
             const status = document.getElementById('assign-status').value;
-            const dept = 'HRD'; // Asumsi departemen dinamis manajer HRD
+            const dept = document.getElementById('assign-departemen').value;
             
             const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             const currentTotal = tableKaryawanBody.querySelectorAll('tr').length + 1;

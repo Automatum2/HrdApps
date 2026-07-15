@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('total_jam_kerja', 5, 2)->default(0);
             $table->decimal('jam_lembur', 5, 2)->default(0);
             $table->string('keterangan')->nullable();
+            $table->unique(['employee_id', 'tanggal']);
             $table->timestamps();
         });
     }

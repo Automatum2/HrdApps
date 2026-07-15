@@ -189,7 +189,7 @@
             
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-4">
-                    <button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80">
+                    <button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80 animate-bell-swing">
                         <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
                         <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
                     </button>
@@ -201,7 +201,7 @@
         </header>
 
         <!-- Canvas -->
-        <div class="p-8 space-y-8 max-w-container-max mx-auto w-full animate-page-in">
+        <div class="p-8 space-y-8 max-w-container-max mx-auto w-full animate-page-in animate-stagger">
             @yield('content')
         </div>
     </main>

@@ -15,7 +15,7 @@
 </div>
 
 <!-- Settings Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-stagger animate-page-in">
     <!-- Navigation Tabs (Left Column) -->
     <div class="lg:col-span-3 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-4 lg:pb-0 custom-scrollbar whitespace-nowrap">
         <!-- Tab 1: Profil -->
@@ -81,6 +81,86 @@
                             <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Jabatan</label>
                             <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="HR Manager">
                         </div>
+                    </div>
+                </div>
+
+                <!-- Bagian Data Pribadi & CV dengan Rich Text Editor -->
+                <div class="border-t border-outline-variant pt-6 mt-2">
+                    <div class="mb-4">
+                        <h4 class="font-bold text-sm text-on-surface">Data Pribadi & Riwayat Hidup (CV)</h4>
+                        <p class="text-[11px] text-on-surface-variant font-medium mt-1">
+                            Tuliskan ringkasan profesional Anda. Anda dapat menyeret (*drag & drop*) foto atau memasukkan *link* URL dokumen pribadi (KTP/NPWP/Kontrak).
+                        </p>
+                    </div>
+                    
+                    <!-- Editor Container -->
+                    <div class="rounded-xl border border-outline-variant overflow-hidden hover:border-primary/50 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+                        <div id="cv-editor" style="height: 300px; font-family: 'Inter', sans-serif;">
+                            <h2>Ringkasan Profesional</h2>
+                            <p>Saya adalah seorang profesional HR yang berpengalaman...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Lampiran Dokumen Pribadi (Downloadable) -->
+                    <div class="mt-6">
+                        <h5 class="font-bold text-xs text-on-surface mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-primary">attachment</span>
+                            Dokumen Pribadi Terlampir
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- KTP -->
+                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-error/10 text-error rounded-md">
+                                        <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-[10px] text-on-surface">KTP_BudiSantoso.pdf</p>
+                                        <p class="text-[9px] text-on-surface-variant">845 KB</p>
+                                    </div>
+                                </div>
+                                <a href="#" onclick="alert('Mendownload KTP...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                    <span class="material-symbols-outlined text-[16px]">download</span>
+                                </a>
+                            </div>
+                            
+                            <!-- BPJS -->
+                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-success/10 text-success rounded-md">
+                                        <span class="material-symbols-outlined text-sm">image</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-[10px] text-on-surface">Kartu_BPJS.jpg</p>
+                                        <p class="text-[9px] text-on-surface-variant">1.2 MB</p>
+                                    </div>
+                                </div>
+                                <a href="#" onclick="alert('Mendownload BPJS...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                    <span class="material-symbols-outlined text-[16px]">download</span>
+                                </a>
+                            </div>
+                            
+                            <!-- Kontrak Kerja -->
+                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-tertiary/10 text-tertiary rounded-md">
+                                        <span class="material-symbols-outlined text-sm">description</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-[10px] text-on-surface">PKWT_Kontrak_Kerja.pdf</p>
+                                        <p class="text-[9px] text-on-surface-variant">2.1 MB</p>
+                                    </div>
+                                </div>
+                                <a href="#" onclick="alert('Mendownload Kontrak Kerja...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                    <span class="material-symbols-outlined text-[16px]">download</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <button class="mt-3 w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-[10px] font-bold text-on-surface-variant hover:bg-primary/5 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer" onclick="alert('Membuka dialog upload file...')">
+                            <span class="material-symbols-outlined text-[14px]">cloud_upload</span>
+                            Upload Dokumen Baru
+                        </button>
                     </div>
                 </div>
             </div>
@@ -235,8 +315,8 @@
 
         <!-- Footer Actions -->
         <div class="flex items-center justify-end gap-3 pt-6 border-t border-outline-variant">
-            <button class="px-5 py-2.5 rounded-lg border border-outline-variant text-secondary font-bold text-xs hover:bg-surface-container-low transition-all cursor-pointer active:scale-95 bg-white shadow-sm" onclick="location.reload()">Batalkan</button>
-            <button class="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-xs hover:brightness-110 transition-all flex items-center gap-2 shadow cursor-pointer active:scale-95" id="btn-save-settings" onclick="savePulse(this)">
+            <button class="px-5 py-2.5 rounded-lg border border-outline-variant text-secondary font-bold text-xs hover:bg-surface-container-low transition-all cursor-pointer active:scale-95 bg-white shadow-sm btn-ripple" onclick="location.reload()">Batalkan</button>
+            <button class="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-xs hover:brightness-110 transition-all flex items-center gap-2 shadow cursor-pointer active:scale-95 btn-ripple" id="btn-save-settings" onclick="savePulse(this)">
                 <span>Simpan Perubahan</span>
                 <span class="material-symbols-outlined text-sm">check_circle</span>
             </button>
@@ -246,7 +326,79 @@
 @endsection
 
 @push('scripts')
+<!-- Include Quill stylesheet -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<!-- Include the Quill library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<style>
+    /* 
+     * PERBAIKAN BUG QUILL.JS vs TAILWIND CSS
+     * Tailwind Preflight kadang membuat kursor/caret menghilang di dalam span contenteditable.
+     * Solusi standar: memaksa span menjadi inline-block.
+     */
+    .ql-editor {
+        background-color: #ffffff; /* Kembali ke putih bersih yang elegan */
+        font-family: 'Inter', sans-serif;
+        min-height: 250px;
+        font-size: 15px;
+        /* Custom Mouse Pointer yang sangat tebal (menggantikan kursor I-beam bawaan OS yang tipis) */
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 24"><path d="M5 2h10v3h-3.5v14H15v3H5v-3h3.5V5H5V2z" fill="%230050cb" stroke="%23ffffff" stroke-width="1"/></svg>') 10 12, auto !important;
+    }
+    .ql-editor * {
+        cursor: inherit !important;
+    }
+    .ql-editor span {
+        display: inline-block;
+        min-width: 1px;
+    }
+    .ql-editor p {
+        margin-bottom: 0.5rem;
+    }
+    .ql-editor.ql-blank::before {
+        color: #94a3b8;
+        font-style: italic;
+    }
+    .ql-toolbar.ql-snow {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1 !important;
+        border-bottom: none !important;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+    }
+    .ql-container.ql-snow {
+        border: 1px solid #cbd5e1 !important;
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
+</style>
+
 <script>
+    // ==========================================
+    // 0. Inisialisasi Quill Editor (CV & Data Pribadi)
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        if(document.getElementById('cv-editor')) {
+            var quill = new Quill('#cv-editor', {
+                theme: 'snow',
+                placeholder: 'Tuliskan riwayat hidup dan letakkan link dokumen Anda di sini...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
+            
+            // Kustomisasi style toolbar bawaan Quill agar match dengan Tailwind
+            document.querySelector('.ql-toolbar').classList.add('bg-surface-container-low', 'border-b', 'border-outline-variant', 'border-0');
+            document.querySelector('.ql-container').classList.add('text-body-md', 'border-0');
+        }
+    });
+
     // ==========================================
     // 1. Logika Perpindahan Tab Panel
     // ==========================================
@@ -254,10 +406,16 @@
         // Sembunyikan seluruh panel pengaturan
         document.querySelectorAll('.settings-panel').forEach(panel => {
             panel.classList.add('hidden');
+            panel.classList.remove('animate-page-in'); // Reset animasi
         });
         
-        // Tampilkan panel yang dituju
-        document.getElementById('panel-' + tabId).classList.remove('hidden');
+        // Tampilkan panel yang dituju dengan animasi masuk
+        const targetPanel = document.getElementById('panel-' + tabId);
+        targetPanel.classList.remove('hidden');
+        
+        // Memaksa browser me-render ulang (reflow) agar animasi diulang dari awal
+        void targetPanel.offsetWidth; 
+        targetPanel.classList.add('animate-page-in');
 
         // Reset semua gaya tombol tab
         document.querySelectorAll('.tab-btn').forEach(btn => {

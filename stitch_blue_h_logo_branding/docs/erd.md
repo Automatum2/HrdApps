@@ -19,7 +19,7 @@ erDiagram
         string username
         string password
         string email
-        enum role "super_admin, admin, karyawan"
+        enum role "super_admin, hr_manager, karyawan"
         int employee_id FK
         datetime last_login
         datetime created_at
@@ -31,19 +31,21 @@ erDiagram
         string nik "Nomor Induk Karyawan"
         string nama_lengkap
         string email
-        string no_telepon
-        string alamat
-        string tempat_lahir
-        date tanggal_lahir
-        enum jenis_kelamin "L, P"
-        int department_id FK
-        int position_id FK
+        string no_telepon "nullable"
+        string alamat "nullable"
+        string tempat_lahir "nullable"
+        date tanggal_lahir "nullable"
+        enum jenis_kelamin "L, P - nullable"
+        int department_id FK "nullable"
+        int position_id FK "nullable"
+        enum status_kerja "tetap, kontrak, magang - nullable"
         decimal gaji_pokok
-        string no_rekening
-        string nama_bank
-        date tanggal_masuk
+        string no_rekening "nullable"
+        string nama_bank "nullable"
+        date tanggal_masuk "nullable"
+        date tanggal_kontrak_berakhir "nullable"
         enum status "aktif, nonaktif, cuti"
-        string foto
+        string foto "nullable"
         datetime created_at
         datetime updated_at
     }

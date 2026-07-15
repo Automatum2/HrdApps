@@ -72,7 +72,7 @@
   - Kolom: Nama, NIK, Jabatan, Department, Status, Action
 
 **Interaksi**:
-- Tombol "+ Tambah Anggota": Membuka modal berisi daftar karyawan baru yang "Belum Ditempatkan". Saat mengklik "+ Pilih" pada salah satu karyawan, sistem akan membuka **Modal Form Detail Penempatan** untuk meminta HR Manager mengisi **Jabatan Baru** dan memilih **Status Kerja** (Tetap/Kontrak/Magang) sebelum resmi masuk ke tim departemen tersebut.
+- Tombol "+ Tambah Anggota": Membuka modal berisi daftar karyawan baru yang "Belum Ditempatkan". Saat mengklik "+ Pilih" pada salah satu karyawan, sistem akan membuka **Modal Form Detail Penempatan** untuk meminta HR Manager mengisi **Jabatan Baru**, memilih **Departemen** (HRD/IT/Finance/Marketing/Operasional/Legal), dan memilih **Status Kerja** (Tetap/Kontrak/Magang) sebelum resmi masuk ke tim departemen tersebut.
 - Cards clickable (navigasi ke halaman terkait)
 - Chart interaktif (hover tooltip)
 - Tabel dengan search dan pagination

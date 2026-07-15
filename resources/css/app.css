@@ -214,3 +214,329 @@
 .animate-modal-pop {
     animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* ==========================================
+   5. Staggered Card Entrance (Kartu Muncul Berurutan)
+   ========================================== */
+@keyframes cardSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-stagger > * {
+    opacity: 0;
+    animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-stagger > *:nth-child(2) { animation-delay: 0.12s; }
+.animate-stagger > *:nth-child(3) { animation-delay: 0.19s; }
+.animate-stagger > *:nth-child(4) { animation-delay: 0.26s; }
+.animate-stagger > *:nth-child(5) { animation-delay: 0.33s; }
+.animate-stagger > *:nth-child(6) { animation-delay: 0.40s; }
+
+/* ==========================================
+   6. Counter Number Animation (Angka Statistik)
+   ========================================== */
+@keyframes countPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(10px);
+        filter: blur(4px);
+    }
+    60% {
+        transform: scale(1.08);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+.animate-count-pop {
+    animation: countPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ==========================================
+   7. Glowing Focus Ring (Input Field Bersinar)
+   ========================================== */
+.glow-focus-ring {
+    transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.glow-focus-ring:focus-within {
+    box-shadow:
+        0 0 0 3px rgba(0, 80, 203, 0.12),
+        0 0 20px -4px rgba(0, 80, 203, 0.15);
+    border-color: #0050cb;
+}
+
+/* ==========================================
+   8. Shimmer Loading Skeleton
+   ========================================== */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    background: linear-gradient(
+        90deg,
+        #f0f4ff 25%,
+        #dce9ff 37%,
+        #f0f4ff 63%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ==========================================
+   9. Table Row Slide In (Baris Tabel Masuk)
+   ========================================== */
+@keyframes rowSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-row-in tbody tr {
+    animation: rowSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-row-in tbody tr:nth-child(1) { animation-delay: 0.03s; }
+.animate-row-in tbody tr:nth-child(2) { animation-delay: 0.06s; }
+.animate-row-in tbody tr:nth-child(3) { animation-delay: 0.09s; }
+.animate-row-in tbody tr:nth-child(4) { animation-delay: 0.12s; }
+.animate-row-in tbody tr:nth-child(5) { animation-delay: 0.15s; }
+.animate-row-in tbody tr:nth-child(6) { animation-delay: 0.18s; }
+.animate-row-in tbody tr:nth-child(7) { animation-delay: 0.21s; }
+.animate-row-in tbody tr:nth-child(8) { animation-delay: 0.24s; }
+.animate-row-in tbody tr:nth-child(9) { animation-delay: 0.27s; }
+.animate-row-in tbody tr:nth-child(10) { animation-delay: 0.30s; }
+
+/* ==========================================
+   10. Notification Bell Bounce
+   ========================================== */
+@keyframes bellSwing {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(6deg); }
+    60% { transform: rotate(-4deg); }
+    75% { transform: rotate(2deg); }
+}
+
+.animate-bell-swing:hover .material-symbols-outlined {
+    animation: bellSwing 0.8s ease-in-out;
+    transform-origin: top center;
+    display: inline-block;
+}
+
+/* ==========================================
+   11. Sidebar Link Hover Glow
+   ========================================== */
+.sidebar-hover-glow {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-hover-glow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 3px;
+    height: 60%;
+    background: #0066ff;
+    border-radius: 0 4px 4px 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sidebar-hover-glow:hover::before {
+    transform: translateY(-50%) scaleY(1);
+}
+
+.sidebar-hover-glow:hover {
+    background: rgba(255, 255, 255, 0.06);
+    padding-left: 20px;
+}
+
+/* ==========================================
+   12. Ripple Effect pada Tombol
+   ========================================== */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease, height 0.5s ease, opacity 0.5s ease;
+    opacity: 0;
+}
+
+.btn-ripple:active::after {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    transition: 0s;
+}
+
+/* ==========================================
+   13. Badge Pulse (Status Aktif)
+   ========================================== */
+@keyframes statusPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 102, 69, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(0, 102, 69, 0);
+    }
+}
+
+.badge-pulse-active {
+    animation: statusPulse 2.5s ease-in-out infinite;
+}
+
+/* ==========================================
+   14. Gradient Border Animated (Card Premium)
+   ========================================== */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.card-gradient-border {
+    position: relative;
+    border: none;
+}
+
+.card-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #0050cb, #0066ff, #006645, #0050cb);
+    background-size: 300% 300%;
+    animation: gradientShift 6s ease infinite;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.card-gradient-border:hover::before {
+    opacity: 1;
+}
+
+/* ==========================================
+   15. Tooltip Fade (Micro-interaction)
+   ========================================== */
+.tooltip-fade {
+    position: relative;
+}
+
+.tooltip-fade::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #1e293b;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 999;
+}
+
+.tooltip-fade:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================
+   16. Chart Section Fade-Scale (Grafik Masuk)
+   ========================================== */
+@keyframes chartReveal {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+        filter: blur(4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+}
+
+.animate-chart-reveal {
+    animation: chartReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+/* ==========================================
+   17. Smooth Section Divider
+   ========================================== */
+.divider-gradient {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c2c6d8 30%, #c2c6d8 70%, transparent);
+    border: none;
+}
+
+/* ==========================================
+   18. Success Checkmark Pop
+   ========================================== */
+@keyframes checkmarkPop {
+    0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.3) rotate(0deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.animate-checkmark {
+    animation: checkmarkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}

@@ -3,12 +3,17 @@
 @section('title', 'Login - HRDApps Management System')
 
 @section('content')
+<!-- Floating Background Orbs -->
+<div class="floating-orb orb-1"></div>
+<div class="floating-orb orb-2"></div>
+<div class="floating-orb orb-3"></div>
+
 <!-- Login Container -->
-<main class="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-700">
+<main class="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
     <div class="login-card bg-surface-container-lowest rounded-xl p-xl flex flex-col items-center">
         <!-- Logo Section -->
         <div class="mb-lg flex flex-col items-center text-center">
-            <div class="w-20 h-20 mb-md rounded-full overflow-hidden bg-primary/5 flex items-center justify-center">
+            <div class="w-20 h-20 mb-md rounded-full overflow-hidden bg-primary/5 flex items-center justify-center logo-shine">
                 <img alt="HRDApps Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
             </div>
             <h1 class="font-display-lg text-display-lg text-primary tracking-tight">HRDApps</h1>
@@ -86,7 +91,7 @@
             </div>
             
             <!-- Submit Button -->
-            <button class="w-full bg-primary hover:bg-primary-container text-on-primary font-headline-md text-headline-md py-3 rounded-lg shadow-sm transform active:scale-[0.98] transition-all duration-200" type="submit">
+            <button class="w-full bg-primary hover:bg-primary-container text-on-primary font-headline-md text-headline-md py-3 rounded-lg shadow-sm transform active:scale-[0.98] transition-all duration-200 btn-ripple" type="submit">
                 Log In
             </button>
         </form>

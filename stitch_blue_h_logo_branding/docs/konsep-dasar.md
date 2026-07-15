@@ -67,15 +67,19 @@ HRDApps adalah sistem informasi Human Resource Development berbasis web yang ber
 - Tabel karyawan terbaru
 
 **Dashboard Karyawan:**
-- Status kehadiran hari ini
-- Jam masuk/keluar
-- Ringkasan slip gaji terakhir
-- Tombol Clock In / Clock Out
-
+- Status kehadiran hari ini (Hadir/Izin/Sakit/Cuti/Alpha)
+- Fitur **Clock In / Clock Out** terintegrasi dengan deteksi lokasi (Maps/GPS) dan pengambilan Foto Selfie
+- Form **Laporan Harian** terpadu (menggunakan Rich Text Editor seperti Quill/Summernote) yang diisi saat absensi
+- Batas maksimal pengajuan izin / cuti / sakit adalah H-1 sebelum hari H
+- Informasi masa kerja (tenure) karyawan di perusahaan yang dihitung secara dinamis dan otomatis berdasarkan *Tanggal Bergabung (Join Date)*.
+- Ringkasan slip gaji bulan terakhir
+- Menu **Pengaturan Data Pribadi & CV** (menggunakan Editor interaktif untuk *drag & drop* foto, prestasi, serta menyematkan *link* dokumen KTP/NPWP/Kontrak mandiri)
+- Ringkasan riwayat kehadiran bulanan (mirip rapor absensi akademik sekolah)
 ### 5.3 Modul Manajemen Karyawan
 - Daftar karyawan dengan search, filter, pagination
 - Pendaftaran karyawan baru tingkat dasar (Nama Lengkap, Alamat Email, dan Gaji Pokok - dikelola oleh Super Admin)
 - Penempatan karyawan baru yang terdaftar global ke departemen HRD dengan pengisian Jabatan Baru dan memilih Status Hubungan Kerja (dikelola oleh HRD Manager secara dinamis)
+- **Perhitungan Masa Kerja Otomatis:** Sistem akan mengkalkulasi masa kerja (*tenure*) setiap karyawan secara *real-time* menggunakan *library date* di backend (seperti Laravel Carbon) berdasarkan Tanggal Masuk (Join Date), tanpa perlu diupdate manual oleh HR.
 - Edit data karyawan
 - Lihat detail karyawan
 - Hapus karyawan
@@ -84,7 +88,10 @@ HRDApps adalah sistem informasi Human Resource Development berbasis web yang ber
 ### 5.4 Modul Absensi
 - Rekap kehadiran semua karyawan (Admin)
 - Filter berdasarkan tanggal, departemen, status
-- Clock In/Out dengan timestamp (Karyawan)
+- **Sistem Clock In/Out Karyawan**:
+  - Validasi lokasi berbasis GPS (Maps)
+  - Autentikasi foto wajah (Selfie) saat absen
+  - Penyatuan data **Laporan Harian** dengan data waktu kepulangan
 - Status kehadiran: Hadir, Izin, Sakit, Alpha, Cuti
 - Status kerja: WFO, WFH, WFF, WOD, WEH
 - Hitung total jam kerja dan lembur otomatis
@@ -121,7 +128,7 @@ HRDApps adalah sistem informasi Human Resource Development berbasis web yang ber
 7. **Distribusi** - Slip gaji tersedia di dashboard karyawan / kirim email / download PDF
 
 ### 5.6 Modul Laporan
-- Laporan Absensi (per bulan/periode)
+- **Laporan Terpadu Absensi & Kinerja** (Data jam kehadiran, lokasi, foto selfie, beserta ketikan Laporan Harian disatukan dalam satu tabel/view)
 - Laporan Penggajian (per bulan/periode)
 - Laporan Data Karyawan
 - Export ke PDF dan Excel
