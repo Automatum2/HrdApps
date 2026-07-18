@@ -105,3 +105,32 @@ Route::get('/backoffice/pengaturan', function () {
     return view('backoffice.pengaturan');
 })->name('backoffice.pengaturan');
 
+Route::post('/backoffice/pengaturan/upload-photo', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    if ($request->hasFile('photo')) {
+        $path = $request->file('photo')->store('photos', 'public');
+        session(['user_photo' => asset('storage/' . $path)]);
+        return redirect()->back()->with('success', 'Foto profil berhasil diunggah.');
+    }
+
+    return redirect()->back()->with('error', 'Gagal mengunggah foto profil.');
+})->name('backoffice.pengaturan.upload.photo');
+
+Route::post('/backoffice/pengaturan/upload-document', function (\Illuminate\Http\Request $request) {
+    return redirect()->back()->with('error', 'Fitur upload dokumen sedang ditunda.');
+})->name('backoffice.pengaturan.upload.document');
+
+Route::post('/backoffice/pengaturan/delete-document/{index}', function ($index) {
+    $documents = session('user_documents', []);
+    if (isset($documents[$index])) {
+        // Optionally, delete file from storage if needed. For now just removing from session.
+        unset($documents[$index]);
+        session(['user_documents' => array_values($documents)]);
+        return redirect()->back()->with('success', 'Dokumen berhasil dihapus.');
+    }
+    return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
+})->name('backoffice.pengaturan.delete.document');
+

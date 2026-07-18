@@ -14,6 +14,34 @@
     <p class="text-body-sm text-on-surface-variant">Kelola profil akun administrator, preferensi pemberitahuan, konfigurasi HR perusahaan, serta riwayat keamanan.</p>
 </div>
 
+@if(session('success'))
+<div class="mb-6 p-4 rounded-xl bg-success/10 border border-success/20 text-success flex items-center gap-3 animate-page-in">
+    <span class="material-symbols-outlined">check_circle</span>
+    <p class="font-medium text-sm">{{ session('success') }}</p>
+</div>
+@endif
+
+@if(session('error'))
+<div class="mb-6 p-4 rounded-xl bg-error/10 border border-error/20 text-error flex items-center gap-3 animate-page-in">
+    <span class="material-symbols-outlined">error</span>
+    <p class="font-medium text-sm">{{ session('error') }}</p>
+</div>
+@endif
+
+@if ($errors->any())
+<div class="mb-6 p-4 rounded-xl bg-error/10 border border-error/20 text-error flex flex-col gap-2 animate-page-in">
+    <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-medium text-sm">Terjadi kesalahan:</p>
+    </div>
+    <ul class="list-disc list-inside text-xs ml-8">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <!-- Settings Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-stagger animate-page-in">
     <!-- Navigation Tabs (Left Column) -->
@@ -61,12 +89,22 @@
                 
                 <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
                     <div class="relative group">
+                        @if(session('user_photo'))
+                        <div class="w-24 h-24 rounded-full shadow-sm border border-outline-variant overflow-hidden">
+                            <img src="{{ session('user_photo') }}" alt="Profile Photo" class="w-full h-full object-cover">
+                        </div>
+                        @else
                         <div class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl shadow-sm border border-outline-variant">
                             BS
                         </div>
-                        <button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer" onclick="alert('Unggah foto profil baru...')">
+                        @endif
+                        <form action="{{ route('backoffice.pengaturan.upload.photo') }}" method="POST" enctype="multipart/form-data" id="photo-upload-form">
+                            @csrf
+                            <input type="file" name="photo" id="photo-input" accept="image/*" class="sr-only" onchange="if(this.value) document.getElementById('photo-upload-form').submit()">
+                        </form>
+                        <label for="photo-input" class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center m-0">
                             <span class="material-symbols-outlined text-sm">photo_camera</span>
-                        </button>
+                        </label>
                     </div>
                     <div class="flex-1 grid grid-cols-1 gap-4 w-full">
                         <div class="space-y-1.5">
@@ -114,12 +152,12 @@
                                     <div class="p-2 bg-error/10 text-error rounded-md">
                                         <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
                                     </div>
-                                    <div>
-                                        <p class="font-bold text-[10px] text-on-surface">KTP_BudiSantoso.pdf</p>
+                                    <div class="overflow-hidden">
+                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">KTP_BudiSantoso.pdf</p>
                                         <p class="text-[9px] text-on-surface-variant">845 KB</p>
                                     </div>
                                 </div>
-                                <a href="#" onclick="alert('Mendownload KTP...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                <a href="#" onclick="alert('Mendownload KTP...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
                                     <span class="material-symbols-outlined text-[16px]">download</span>
                                 </a>
                             </div>
@@ -130,12 +168,12 @@
                                     <div class="p-2 bg-success/10 text-success rounded-md">
                                         <span class="material-symbols-outlined text-sm">image</span>
                                     </div>
-                                    <div>
-                                        <p class="font-bold text-[10px] text-on-surface">Kartu_BPJS.jpg</p>
+                                    <div class="overflow-hidden">
+                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">Kartu_BPJS.jpg</p>
                                         <p class="text-[9px] text-on-surface-variant">1.2 MB</p>
                                     </div>
                                 </div>
-                                <a href="#" onclick="alert('Mendownload BPJS...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                <a href="#" onclick="alert('Mendownload BPJS...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
                                     <span class="material-symbols-outlined text-[16px]">download</span>
                                 </a>
                             </div>
@@ -146,18 +184,18 @@
                                     <div class="p-2 bg-tertiary/10 text-tertiary rounded-md">
                                         <span class="material-symbols-outlined text-sm">description</span>
                                     </div>
-                                    <div>
-                                        <p class="font-bold text-[10px] text-on-surface">PKWT_Kontrak_Kerja.pdf</p>
+                                    <div class="overflow-hidden">
+                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">PKWT_Kontrak_Kerja.pdf</p>
                                         <p class="text-[9px] text-on-surface-variant">2.1 MB</p>
                                     </div>
                                 </div>
-                                <a href="#" onclick="alert('Mendownload Kontrak Kerja...')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
+                                <a href="#" onclick="alert('Mendownload Kontrak Kerja...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
                                     <span class="material-symbols-outlined text-[16px]">download</span>
                                 </a>
                             </div>
                         </div>
                         
-                        <button class="mt-3 w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-[10px] font-bold text-on-surface-variant hover:bg-primary/5 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer" onclick="alert('Membuka dialog upload file...')">
+                        <button type="button" onclick="alert('Fitur upload dokumen sedang ditunda.')" class="mt-3 w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-[10px] font-bold text-on-surface-variant hover:bg-primary/5 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer m-0">
                             <span class="material-symbols-outlined text-[14px]">cloud_upload</span>
                             Upload Dokumen Baru
                         </button>
