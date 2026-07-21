@@ -51,14 +51,23 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        @media (min-width: 1024px) {
+            .main-content-desktop {
+                margin-left: 260px;
+                width: calc(100% - 260px);
+            }
+        }
     </style>
     @stack('styles')
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen">
+    <!-- Overlay untuk Sidebar di Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity opacity-0 cursor-pointer"></div>
+
     <!-- Side Navigation Shell -->
-    <aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between">
+    <aside id="sidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between transition-transform duration-300 lg:translate-x-0 -translate-x-full">
         <div class="px-6 mb-10 flex items-center gap-3">
-            <img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
+            <img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="{{ asset('images/logo.svg') }}">
             <div>
                 <h1 class="font-headline-md text-headline-md font-extrabold text-white leading-none">HRDApps</h1>
                 <p class="text-[10px] text-white/70 uppercase tracking-widest mt-1">Management Portal</p>
@@ -139,7 +148,7 @@
         @php
             $userName = session('user_name', 'Budi Santoso');
             $userRole = session('user_role', 'manager');
-            $userPhoto = session('user_photo', 'https://lh3.googleusercontent.com/aida/AP1WRLs3mGjsESMPhmv8tzbwL4Cv8eybl3L-pVFuT7bSZKkYATCbB3SohTtuQWEIJDs_lr89hffZfJdshr0JX6-tHTDP0Q5kvayq-J4PoHfMmI2WZkUVxA2N0VBZS0aU3saEKTTh3VmVA36ZoHnDvLB1iKE8iL_q31WiqrXHIprZpUQt_qGXEWo-wL-jx_CZkSqMHy8mg2AR9Lfxbyvc-04EzQfgbgVhuWhp89YgVQXF0zjbCgKQFyA8qEgUjHo');
+            $userPhoto = session('user_photo', asset('images/avatar.svg'));
             
             if ($userRole === 'super_admin') {
                 $userTitle = 'Administrator';
@@ -176,10 +185,13 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="ml-sidebar-width flex flex-col min-h-screen">
+    <main class="main-content-desktop flex flex-col min-h-screen transition-all duration-300 w-full lg:w-auto">
         <!-- Top App Bar -->
-        <header class="flex items-center justify-between px-8 h-16 bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm bg-white">
+        <header class="flex items-center justify-between px-4 lg:px-8 h-16 bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm bg-white">
             <div class="flex items-center gap-4">
+                <button id="mobile-menu-btn" class="lg:hidden p-2 text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center">
+                    <span class="material-symbols-outlined text-2xl">menu</span>
+                </button>
                 <h2 class="font-headline-md text-headline-md text-primary font-bold">@yield('page_title', 'Dashboard')</h2>
                 <div class="relative hidden lg:block ml-4">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
@@ -202,11 +214,45 @@
 
         <!-- Canvas -->
         <div class="p-8 space-y-8 max-w-container-max mx-auto w-full animate-page-in animate-stagger">
+            @if(session('success'))
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
+                <strong class="font-bold">Berhasil!</strong>
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+            @endif
+            @if(session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+            @endif
+
             @yield('content')
         </div>
     </main>
 
     @stack('modals')
     @stack('scripts')
+    
+    <script>
+        // Toggle Sidebar for Mobile
+        const btnMenu = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        if (btnMenu) btnMenu.addEventListener('click', toggleSidebar);
+        if (overlay) overlay.addEventListener('click', toggleSidebar);
+    </script>
 </body>
 </html>

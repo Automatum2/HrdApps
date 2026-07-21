@@ -17,7 +17,7 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-on-surface-variant font-medium text-sm mb-1">Total Karyawan</p>
-                <h3 class="text-3xl font-bold text-on-background">156</h3>
+                <h3 class="text-3xl font-bold text-on-background">{{ $total_karyawan }}</h3>
             </div>
             <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                 <span class="material-symbols-outlined">group</span>
@@ -36,7 +36,7 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-on-surface-variant font-medium text-sm mb-1">Total HR Manager</p>
-                <h3 class="text-3xl font-bold text-on-background">5</h3>
+                <h3 class="text-3xl font-bold text-on-background">{{ $total_manager }}</h3>
             </div>
             <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-700">
                 <span class="material-symbols-outlined">manage_accounts</span>
@@ -52,7 +52,7 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-on-surface-variant font-medium text-sm mb-1">Total Departemen</p>
-                <h3 class="text-3xl font-bold text-on-background">8</h3>
+                <h3 class="text-3xl font-bold text-on-background">{{ $total_departemen }}</h3>
             </div>
             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-700">
                 <span class="material-symbols-outlined">domain</span>
@@ -85,50 +85,29 @@
                 </tr>
             </thead>
             <tbody class="text-sm font-medium text-slate-700 divide-y divide-slate-100">
+                @forelse($latest_managers as $manager)
                 <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-4 px-6 font-mono">12345678</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Budi Santoso</td>
-                    <td class="py-4 px-6 text-slate-600">budi.s@hrdapps.co.id</td>
-                    <td class="py-4 px-6 text-slate-600">Senior HR Manager</td>
-                    <td class="py-4 px-6">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
-                            Aktif
-                        </span>
-                    </td>
-                </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-4 px-6 font-mono">87654321</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Siti Nuraini</td>
-                    <td class="py-4 px-6 text-slate-600">siti.n@hrdapps.co.id</td>
+                    <td class="py-4 px-6 font-mono">{{ $manager->employee ? $manager->employee->nik : '-' }}</td>
+                    <td class="py-4 px-6 font-bold text-slate-800">{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}</td>
+                    <td class="py-4 px-6 text-slate-600">{{ $manager->email }}</td>
                     <td class="py-4 px-6 text-slate-600">HR Manager</td>
                     <td class="py-4 px-6">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
-                            Aktif
-                        </span>
+                        @if($manager->employee && $manager->employee->status === 'nonaktif')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                Nonaktif
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
+                                Aktif
+                            </span>
+                        @endif
                     </td>
                 </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-4 px-6 font-mono">13579246</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Andi Pratama</td>
-                    <td class="py-4 px-6 text-slate-600">andi.p@hrdapps.co.id</td>
-                    <td class="py-4 px-6 text-slate-600">Regional HR Head</td>
-                    <td class="py-4 px-6">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
-                            Aktif
-                        </span>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="5" class="py-6 text-center text-slate-500">Belum ada data HR Manager.</td>
                 </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-4 px-6 font-mono">24681357</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Rina Wijaya</td>
-                    <td class="py-4 px-6 text-slate-600">rina.w@hrdapps.co.id</td>
-                    <td class="py-4 px-6 text-slate-600">Junior HR Manager</td>
-                    <td class="py-4 px-6">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                            Onboarding
-                        </span>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

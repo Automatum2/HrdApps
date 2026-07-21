@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="mt-6 md:mt-0 relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-primary/20 shadow-xl overflow-hidden bg-slate-700">
-            <img class="w-full h-full object-cover" alt="Foto Profil" src="{{ session('user_photo', 'https://lh3.googleusercontent.com/aida-public/AB6AXuBjl_7eDbZzV-YmgYaDkKXw2utynUbqir9TM--UUb9IB5uqDHpneCJ85UyHiq_h0bjtdCPpdNJzEmRA2LjpAuGHaa6rQaIofl84ZS8otUmiQgfErEdxgewajk62eB0OnWvDCxKjcO1EYGVpLNek1llzamy9omOwgryH4Ge06KawUp8yimHFRZb52LL5b-w5SF81fNjx5jA5eH0Q4ZY4-16Tnrr32TDUK67uafVgmTcyeaLabciJ51Pe') }}">
+            <img class="w-full h-full object-cover" alt="Foto Profil" src="{{ session('user_photo') ?: asset('images/avatar.svg') }}">
         </div>
         <!-- Background Decoration -->
         <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
@@ -32,6 +32,7 @@
         </div>
         <div class="space-y-4">
             <!-- Box status (Default: Belum Absen) -->
+            @if(!$todayAttendance || !$todayAttendance->jam_masuk)
             <div class="flex items-center gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200 transition-all duration-300" id="status-box">
                 <div class="w-12 h-12 rounded-lg bg-slate-400 flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
                     <span class="material-symbols-outlined text-2xl" id="status-icon">pending_actions</span>
@@ -41,14 +42,39 @@
                     <p class="text-[12px] text-on-surface-variant" id="status-desc">Silakan lakukan absensi hari ini</p>
                 </div>
             </div>
+            @elseif(!$todayAttendance->jam_keluar)
+            <div class="flex items-center gap-4 p-4 bg-green-50 rounded-xl border border-green-200 transition-all duration-300" id="status-box">
+                <div class="w-12 h-12 rounded-lg bg-green-600 flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
+                    <span class="material-symbols-outlined text-2xl" id="status-icon">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-body-sm text-green-700 font-bold leading-tight transition-all duration-300" id="status-text">Sudah Absen Masuk</p>
+                    <p class="text-[12px] text-on-surface-variant" id="status-desc">{{ substr($todayAttendance->jam_masuk, 0, 5) }} WIB • {{ $todayAttendance->status_kerja }}</p>
+                </div>
+            </div>
+            @else
+            <div class="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/20 transition-all duration-300" id="status-box">
+                <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
+                    <span class="material-symbols-outlined text-2xl" id="status-icon">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-body-sm text-primary font-bold leading-tight transition-all duration-300" id="status-text">Sudah Absen Pulang</p>
+                    <p class="text-[12px] text-on-surface-variant" id="status-desc">Keluar pukul {{ substr($todayAttendance->jam_keluar, 0, 5) }} WIB</p>
+                </div>
+            </div>
+            @endif
             <div class="grid grid-cols-2 gap-3 text-center">
                 <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50">
                     <p class="text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Jam Masuk</p>
-                    <p class="font-bold text-on-surface text-lg transition-all duration-300" id="clock-in-time">--:--</p>
+                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_masuk ? 'text-tertiary-container' : 'text-on-surface' }} text-lg transition-all duration-300" id="clock-in-time">
+                        {{ $todayAttendance && $todayAttendance->jam_masuk ? substr($todayAttendance->jam_masuk, 0, 5) : '--:--' }}
+                    </p>
                 </div>
                 <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50">
                     <p class="text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Jam Keluar</p>
-                    <p class="font-bold text-on-surface text-lg transition-all duration-300" id="clock-out-time">--:--</p>
+                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_keluar ? 'text-primary' : 'text-on-surface' }} text-lg transition-all duration-300" id="clock-out-time">
+                        {{ $todayAttendance && $todayAttendance->jam_keluar ? substr($todayAttendance->jam_keluar, 0, 5) : '--:--' }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -57,14 +83,83 @@
 
 <!-- Action Buttons Section (Bento Float) -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <button class="hover-card-float group flex items-center justify-center gap-4 py-6 bg-primary text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all active:scale-[0.98] cursor-pointer" id="btn-clock-in">
-        <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">schedule</span>
-        <span>Clock In Sekarang</span>
+    @if(!$todayAttendance || !$todayAttendance->jam_masuk)
+        <!-- Belum Clock In -> Tampilkan Clock In -->
+        <a href="{{ route('attendance.index') }}" class="hover-card-float bg-primary shadow-primary/20 hover:bg-primary/90 cursor-pointer group flex items-center justify-center gap-4 py-6 text-white rounded-xl font-bold text-lg shadow-lg transition-all active:scale-[0.98]" id="btn-clock-in">
+            <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">schedule</span>
+            <span>Clock In Sekarang</span>
+        </a>
+    @elseif($todayAttendance && $todayAttendance->jam_masuk && !$todayAttendance->jam_keluar)
+        <!-- Sudah Clock In, Belum Clock Out -> Tampilkan Clock Out -->
+        <a href="{{ route('attendance.index') }}" onclick="return confirmEarlyClockOut(event)" class="hover-card-float bg-[#1e293b] shadow-slate-800/20 hover:bg-slate-800 cursor-pointer group flex items-center justify-center gap-4 py-6 text-white rounded-xl font-bold text-lg shadow-lg transition-all active:scale-[0.98]" id="btn-clock-out">
+            <span class="material-symbols-outlined text-3xl group-hover:-rotate-12 transition-transform">logout</span>
+            <span>Clock Out Sekarang</span>
+        </a>
+    @else
+        <!-- Sudah Clock In dan Clock Out -> Selesai -->
+        <div class="opacity-50 bg-slate-400 group flex items-center justify-center gap-4 py-6 text-white rounded-xl font-bold text-lg shadow-lg" style="pointer-events: none;">
+            <span class="material-symbols-outlined text-3xl">check_circle</span>
+            <span>Absensi Hari Ini Selesai</span>
+        </div>
+    @endif
+
+    <button class="hover-card-float group flex items-center justify-center gap-4 py-6 rounded-xl font-bold text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] cursor-pointer" style="background-color: #f59e0b; color: #ffffff;" id="btn-request-leave">
+        <span class="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">event_note</span>
+        <span>Ajukan Cuti / Izin</span>
     </button>
-    <button class="hover-card-float group flex items-center justify-center gap-4 py-6 bg-[#1e293b] text-white rounded-xl font-bold text-lg shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98] opacity-50 cursor-not-allowed" id="btn-clock-out" disabled>
-        <span class="material-symbols-outlined text-3xl group-hover:-rotate-12 transition-transform">logout</span>
-        <span>Clock Out Sekarang</span>
-    </button>
+</div>
+
+<!-- Inline Request Leave Form -->
+<div id="form-request-leave" class="hidden mt-6 bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-300 transform origin-top">
+    <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
+        <h3 class="font-title-sm text-lg font-bold text-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-500">event_note</span>
+            Formulir Pengajuan Cuti / Izin
+        </h3>
+        <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <form action="{{ route('attendance.leave') }}" method="POST" class="p-6">
+        @csrf
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Tipe Pengajuan</label>
+                    <select name="tipe" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white">
+                        <option value="">Pilih Tipe...</option>
+                        <option value="cuti">Cuti</option>
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-body-sm font-bold text-slate-700 mb-1">Tgl Mulai</label>
+                        <input type="date" name="tanggal_mulai" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                    </div>
+                    <div id="container-tanggal-selesai">
+                        <label class="block text-body-sm font-bold text-slate-700 mb-1">Tgl Selesai</label>
+                        <input type="date" name="tanggal_selesai" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col justify-between h-full">
+                <div>
+                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Keterangan / Alasan</label>
+                    <textarea name="keterangan" rows="4" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Tuliskan keterangan secara singkat..."></textarea>
+                </div>
+                <div class="mt-4 flex items-center justify-end gap-3">
+                    <button type="button" class="px-6 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
+                        Tutup
+                    </button>
+                    <button type="submit" class="px-6 py-2 text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 rounded-lg shadow-md transition-colors cursor-pointer">
+                        Kirim Pengajuan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Middle Section: Summary & Calendar -->
@@ -76,41 +171,41 @@
             <div class="hover-card-float p-4 bg-white rounded-xl border border-outline-variant shadow-sm hover:border-primary/30 transition-colors">
                 <p class="text-label-uppercase text-outline mb-2 text-xs font-bold tracking-wider">HADIR</p>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-tertiary-container" id="summary-hadir">14</span>
+                    <span class="text-3xl font-bold text-tertiary-container" id="summary-hadir">{{ sprintf('%02d', $hadirCount) }}</span>
                     <span class="text-body-sm text-outline text-xs">Hari</span>
                 </div>
                 <div class="mt-3 w-full bg-slate-100 rounded-full h-1.5">
-                    <div class="bg-tertiary-container h-1.5 rounded-full transition-all duration-500" style="width: 70%" id="summary-hadir-progress"></div>
+                    <div class="bg-tertiary-container h-1.5 rounded-full transition-all duration-500" style="width: {{ min(($hadirCount / 20) * 100, 100) }}%" id="summary-hadir-progress"></div>
                 </div>
             </div>
             <div class="hover-card-float p-4 bg-white rounded-xl border border-outline-variant shadow-sm hover:border-primary/30 transition-colors">
                 <p class="text-label-uppercase text-outline mb-2 text-xs font-bold tracking-wider">IZIN</p>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-primary">01</span>
+                    <span class="text-3xl font-bold text-primary" id="summary-izin">{{ sprintf('%02d', $izinCount) }}</span>
                     <span class="text-body-sm text-outline text-xs">Hari</span>
                 </div>
                 <div class="mt-3 w-full bg-slate-100 rounded-full h-1.5">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 5%"></div>
+                    <div class="bg-primary h-1.5 rounded-full transition-all duration-500" style="width: {{ min(($izinCount / 20) * 100, 100) }}%" id="summary-izin-progress"></div>
                 </div>
             </div>
             <div class="hover-card-float p-4 bg-white rounded-xl border border-outline-variant shadow-sm hover:border-primary/30 transition-colors">
                 <p class="text-label-uppercase text-outline mb-2 text-xs font-bold tracking-wider">SAKIT</p>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-secondary">00</span>
+                    <span class="text-3xl font-bold text-secondary" id="summary-sakit">{{ sprintf('%02d', $sakitCount) }}</span>
                     <span class="text-body-sm text-outline text-xs">Hari</span>
                 </div>
                 <div class="mt-3 w-full bg-slate-100 rounded-full h-1.5">
-                    <div class="bg-secondary h-1.5 rounded-full" style="width: 0%"></div>
+                    <div class="bg-secondary h-1.5 rounded-full transition-all duration-500" style="width: {{ min(($sakitCount / 20) * 100, 100) }}%" id="summary-sakit-progress"></div>
                 </div>
             </div>
             <div class="hover-card-float p-4 bg-white rounded-xl border border-outline-variant shadow-sm hover:border-primary/30 transition-colors">
                 <p class="text-label-uppercase text-outline mb-2 text-xs font-bold tracking-wider">ALPHA</p>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-error">00</span>
+                    <span class="text-3xl font-bold text-error">{{ sprintf('%02d', $alphaCount) }}</span>
                     <span class="text-body-sm text-outline text-xs">Hari</span>
                 </div>
                 <div class="mt-3 w-full bg-slate-100 rounded-full h-1.5">
-                    <div class="bg-error h-1.5 rounded-full" style="width: 0%"></div>
+                    <div class="bg-error h-1.5 rounded-full" style="width: {{ min(($alphaCount / 20) * 100, 100) }}%"></div>
                 </div>
             </div>
         </div>
@@ -272,85 +367,48 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-sm font-medium" id="attendance-history-table">
-                <!-- Data absen hari ini secara dinamis dimasukkan ke sini -->
-                <tr class="hover:bg-primary/5 transition-colors group hidden" id="today-row-real">
-                </tr>
-                
-                <!-- Riwayat sebelumnya -->
+                @forelse($historyAttendances as $att)
                 <tr class="hover:bg-primary/5 transition-colors group">
                     <td class="px-6 py-4 text-slate-800">
                         <div class="flex flex-col">
-                            <span class="font-bold">12 Jun 2026</span>
+                            <span class="font-bold">{{ \Carbon\Carbon::parse($att->tanggal)->format('d M Y') }}</span>
+                            @if($att->tanggal === \Carbon\Carbon::today()->toDateString())
+                                <span class="text-[11px] text-primary uppercase font-bold">Hari Ini</span>
+                            @endif
                         </div>
                     </td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">07:55:10</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">17:05:44</td>
+                    <td class="px-6 py-4 font-medium text-tertiary-container">{{ $att->jam_masuk ?: '--:--:--' }}</td>
+                    <td class="px-6 py-4 font-medium {{ $att->jam_keluar ? 'text-tertiary-container' : 'text-slate-400' }}">{{ $att->jam_keluar ?: '--:--:--' }}</td>
                     <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold">Hadir - WFO</span>
+                        @if($att->status_kehadiran === 'hadir')
+                            <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold">Hadir - {{ $att->status_kerja }}</span>
+                        @elseif($att->status_kehadiran === 'izin')
+                            <span class="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-[12px] font-bold">Izin</span>
+                        @else
+                            <span class="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-[12px] font-bold">{{ ucfirst($att->status_kehadiran) }}</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 text-slate-600">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
-                            <span>Kantor Pusat, Jakarta</span>
-                        </div>
+                        @if($att->lokasi_masuk)
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
+                                <span class="truncate max-w-[200px]">{{ $att->lokasi_masuk }}</span>
+                            </div>
+                        @else
+                            <span class="text-slate-400 italic">N/A</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi 12 Juni 2026: Waktu masuk: 07:55:10, Waktu keluar: 17:05:44. Lokasi: Kantor Pusat, Jakarta.')">
+                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi {{ $att->tanggal }}: Masuk: {{ $att->jam_masuk }}, Keluar: {{ $att->jam_keluar }}. Lokasi: {{ addslashes($att->lokasi_masuk) }}')">
                             <span class="material-symbols-outlined text-[20px]">info</span>
                         </button>
                     </td>
                 </tr>
-                <tr class="hover:bg-primary/5 transition-colors group">
-                    <td class="px-6 py-4 text-slate-800">
-                        <div class="flex flex-col">
-                            <span class="font-bold">11 Jun 2026</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">08:02:15</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">17:01:03</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold">Hadir - WFH</span>
-                    </td>
-                    <td class="px-6 py-4 text-slate-600">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px] text-primary">home_work</span>
-                            <span>Rumah (Remote)</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi 11 Juni 2026: Waktu masuk: 08:02:15, Waktu keluar: 17:01:03. Lokasi: Rumah (Remote).')">
-                            <span class="material-symbols-outlined text-[20px]">info</span>
-                        </button>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">Belum ada riwayat absensi.</td>
                 </tr>
-                <tr class="hover:bg-primary/5 transition-colors group">
-                    <td class="px-6 py-4 text-slate-800">10 Jun 2026</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">08:05:55</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">17:02:12</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold">Hadir - WFO</span>
-                    </td>
-                    <td class="px-6 py-4 text-slate-400 italic">N/A</td>
-                    <td class="px-6 py-4 text-center">
-                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi 10 Juni 2026: Waktu masuk: 08:05:55, Waktu keluar: 17:02:12. Lokasi: N/A.')">
-                            <span class="material-symbols-outlined text-[20px]">info</span>
-                        </button>
-                    </td>
-                </tr>
-                <tr class="hover:bg-primary/5 transition-colors group">
-                    <td class="px-6 py-4 text-slate-800">09 Jun 2026</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">08:12:44</td>
-                    <td class="px-6 py-4 font-medium text-tertiary-container">17:00:01</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold">Hadir - WFO</span>
-                    </td>
-                    <td class="px-6 py-4 text-slate-400 italic">N/A</td>
-                    <td class="px-6 py-4 text-center">
-                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi 09 Juni 2026: Waktu masuk: 08:12:44, Waktu keluar: 17:00:01. Lokasi: N/A.')">
-                            <span class="material-symbols-outlined text-[20px]">info</span>
-                        </button>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -359,139 +417,47 @@
 
 @push('scripts')
 <script>
+    function confirmEarlyClockOut(event) {
+        const currentHour = new Date().getHours();
+        // Asumsi jam pulang normal adalah jam 17:00 (5 PM)
+        if (currentHour < 17) {
+            const confirmed = confirm("Peringatan: Saat ini belum waktunya pulang kerja (17:00). Anda yakin ingin melakukan Clock Out lebih awal?");
+            if (!confirmed) {
+                event.preventDefault(); // Batalkan perpindahan halaman jika pengguna membatalkan
+                return false;
+            }
+        }
+        return true;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        const btnClockIn = document.getElementById('btn-clock-in');
-        const btnClockOut = document.getElementById('btn-clock-out');
-        const clockInTimeEl = document.getElementById('clock-in-time');
-        const clockOutTimeEl = document.getElementById('clock-out-time');
-        const statusBox = document.getElementById('status-box');
-        const statusIcon = document.getElementById('status-icon');
-        const statusIconContainer = document.getElementById('status-icon-container');
-        const statusText = document.getElementById('status-text');
-        const statusDesc = document.getElementById('status-desc');
-        const statusIconBadge = document.getElementById('status-icon-badge');
-        
-        const summaryHadir = document.getElementById('summary-hadir');
-        const summaryHadirProgress = document.getElementById('summary-hadir-progress');
-        const calendarTodayIndicator = document.getElementById('calendar-today-indicator');
-        const todayRowReal = document.getElementById('today-row-real');
-        
-        let checkedInTime = null;
-        
-        // Fungsi pembantu untuk memformat waktu 2 digit
-        const pad = (num) => String(num).padStart(2, '0');
-        
-        // 1. Logika Clock In
-        btnClockIn.addEventListener('click', () => {
-            const now = new Date();
-            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-            const timeShortStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            
-            checkedInTime = timeStr;
-            
-            // Perbarui Visual Jam Masuk
-            clockInTimeEl.innerText = timeShortStr;
-            clockInTimeEl.classList.add('text-tertiary-container');
-            
-            // Perbarui Box Status Kehadiran
-            statusBox.className = 'flex items-center gap-4 p-4 bg-green-50 rounded-xl border border-green-200 transition-all duration-300';
-            statusIconContainer.className = 'w-12 h-12 rounded-lg bg-green-600 flex items-center justify-center text-white transition-all duration-300';
-            statusIcon.innerText = 'check_circle';
-            statusText.className = 'text-body-sm text-green-700 font-bold leading-tight transition-all duration-300';
-            statusText.innerText = 'Sudah Absen Masuk';
-            statusDesc.innerText = `${timeShortStr} WIB • Kantor Pusat`;
-            
-            statusIconBadge.className = 'material-symbols-outlined text-green-600';
-            
-            // Disable Clock In, Enable Clock Out
-            btnClockIn.classList.add('opacity-50', 'cursor-not-allowed');
-            btnClockIn.disabled = true;
-            btnClockIn.classList.remove('hover-card-float');
-            
-            btnClockOut.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnClockOut.disabled = false;
-            btnClockOut.classList.add('hover-card-float');
-            
-            // Update widget ringkasan bulan ini
-            const currentHadir = parseInt(summaryHadir.innerText);
-            const newHadir = currentHadir + 1;
-            summaryHadir.innerText = pad(newHadir);
-            summaryHadirProgress.style.width = `${(newHadir / 20) * 100}%`;
-            
-            // Tambahkan dot hijau di kalender hari ini
-            calendarTodayIndicator.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-ping absolute"></div><div class="w-2.5 h-2.5 rounded-full bg-tertiary-container relative"></div>';
-            
-            // Tambahkan data baris ke tabel riwayat absensi teratas
-            const today = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            
-            todayRowReal.innerHTML = `
-                <td class="px-6 py-4 text-slate-800">
-                    <div class="flex flex-col">
-                        <span class="font-bold text-primary">${today}</span>
-                        <span class="text-[11px] text-primary uppercase font-bold">Hari Ini</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 font-bold text-tertiary-container" id="table-row-in-time">${timeStr}</td>
-                <td class="px-6 py-4 text-slate-400 font-bold" id="table-row-out-time">--:--:--</td>
-                <td class="px-6 py-4">
-                    <span class="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[12px] font-bold" id="table-row-badge">Hadir - WFO</span>
-                </td>
-                <td class="px-6 py-4 text-slate-600">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
-                        <span>Kantor Pusat, Jakarta</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" id="btn-info-today">
-                        <span class="material-symbols-outlined text-[20px]">info</span>
-                    </button>
-                </td>
-            `;
-            
-            todayRowReal.classList.remove('hidden');
-            
-            document.getElementById('btn-info-today').addEventListener('click', () => {
-                const outTime = document.getElementById('table-row-out-time').innerText;
-                alert(`Detail absensi Hari Ini: Waktu masuk: ${timeStr}, Waktu keluar: ${outTime}. Lokasi: Kantor Pusat, Jakarta.`);
+        const btnRequestLeave = document.getElementById('btn-request-leave');
+        const formRequestLeave = document.getElementById('form-request-leave');
+        if (btnRequestLeave && formRequestLeave) {
+            btnRequestLeave.addEventListener('click', () => {
+                formRequestLeave.classList.toggle('hidden');
             });
-            
-            alert('Absen Masuk (Clock In) berhasil dicatat!');
-        });
-        
-        // 2. Logika Clock Out
-        btnClockOut.addEventListener('click', () => {
-            const now = new Date();
-            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-            const timeShortStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            
-            // Perbarui Visual Jam Keluar
-            clockOutTimeEl.innerText = timeShortStr;
-            clockOutTimeEl.classList.add('text-primary');
-            
-            // Perbarui Box Status Kehadiran
-            statusBox.className = 'flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/20 transition-all duration-300';
-            statusIconContainer.className = 'w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white transition-all duration-300';
-            statusIcon.innerText = 'check_circle';
-            statusText.className = 'text-body-sm text-primary font-bold leading-tight transition-all duration-300';
-            statusText.innerText = 'Sudah Absen Pulang';
-            statusDesc.innerText = `Keluar pukul ${timeShortStr} WIB`;
-            
-            statusIconBadge.className = 'material-symbols-outlined text-primary';
-            
-            // Disable Clock Out
-            btnClockOut.classList.add('opacity-50', 'cursor-not-allowed');
-            btnClockOut.disabled = true;
-            btnClockOut.classList.remove('hover-card-float');
-            
-            // Update Jam Keluar di tabel riwayat
-            document.getElementById('table-row-out-time').innerText = timeStr;
-            document.getElementById('table-row-out-time').className = 'px-6 py-4 font-bold text-primary';
-            document.getElementById('table-row-badge').innerText = 'Selesai Kerja';
-            document.getElementById('table-row-badge').className = 'px-3 py-1 bg-primary/5 text-primary border border-primary/20 rounded-full text-[12px] font-bold';
-            
-            alert('Absen Keluar (Clock Out) berhasil dicatat! Selamat beristirahat.');
-        });
+        }
+
+        const tipeSelect = document.querySelector('select[name="tipe"]');
+        const containerTanggalSelesai = document.getElementById('container-tanggal-selesai');
+        const inputTanggalSelesai = document.querySelector('input[name="tanggal_selesai"]');
+        const containerMulai = document.querySelector('input[name="tanggal_mulai"]').parentElement;
+
+        if (tipeSelect && containerTanggalSelesai && inputTanggalSelesai) {
+            tipeSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'sakit') {
+                    containerTanggalSelesai.classList.add('hidden');
+                    inputTanggalSelesai.removeAttribute('required');
+                    inputTanggalSelesai.value = ''; // Reset the value
+                    containerMulai.classList.add('col-span-2'); // Make start date span full width
+                } else {
+                    containerTanggalSelesai.classList.remove('hidden');
+                    inputTanggalSelesai.setAttribute('required', 'required');
+                    containerMulai.classList.remove('col-span-2');
+                }
+            });
+        }
     });
 </script>
 @endpush

@@ -10,7 +10,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Total Karyawan</p>
-            <h3 class="text-display-lg font-display-lg text-on-background font-bold" id="stat-total-karyawan">3</h3>
+            <h3 class="text-display-lg font-display-lg text-on-background font-bold" id="stat-total-karyawan">{{ $total_karyawan }}</h3>
         </div>
         <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">group</span>
@@ -20,7 +20,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Hadir Hari Ini</p>
-            <h3 class="text-display-lg font-display-lg text-tertiary font-bold" id="stat-hadir-karyawan">3</h3>
+            <h3 class="text-display-lg font-display-lg text-tertiary font-bold" id="stat-hadir-karyawan">{{ $hadir_hari_ini }}</h3>
         </div>
         <div class="w-12 h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
@@ -30,7 +30,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Belum Absen</p>
-            <h3 class="text-display-lg font-display-lg text-error font-bold" id="stat-belum-absen">0</h3>
+            <h3 class="text-display-lg font-display-lg text-error font-bold" id="stat-belum-absen">{{ $belum_absen }}</h3>
         </div>
         <div class="w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
@@ -66,10 +66,10 @@
     </div>
     
     <div class="flex items-center gap-3 w-full md:w-auto z-10">
-        <button class="flex-1 md:flex-none px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer btn-ripple group" onclick="alert('Mengakses Lokasi GPS dan Kamera Selfie... \n\n(Simulasi Clock-In Manager Berhasil!)')" id="btn-clockin">
+        <a href="{{ route('attendance.index') }}" class="flex-1 md:flex-none px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer btn-ripple group">
             <span class="material-symbols-outlined text-[18px] group-hover:animate-bounce">location_on</span>
-            Clock In
-        </button>
+            Halaman Absensi
+        </a>
         <button class="flex-1 md:flex-none px-6 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-bold text-sm bg-surface-container-low transition-all flex items-center justify-center gap-2 cursor-not-allowed opacity-50" disabled id="btn-clockout">
             <span class="material-symbols-outlined text-[18px]">logout</span>
             Clock Out
@@ -148,7 +148,7 @@
                 <div class="absolute inset-0 rounded-full border-[18px] border-primary" style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);"></div>
                 <div class="absolute inset-0 rounded-full border-[18px] border-tertiary-fixed-dim" style="clip-path: polygon(50% 50%, 50% 0%, 0% 0%, 0% 20%);"></div>
                 <div class="text-center">
-                    <span class="text-headline-md font-display-lg block leading-none font-bold" id="donut-total">3</span>
+                    <span class="text-headline-md font-display-lg block leading-none font-bold" id="donut-total">{{ $total_karyawan }}</span>
                     <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Total</span>
                 </div>
             </div>
@@ -197,86 +197,41 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-anggota-body">
-                <!-- Row 1 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="101234567" data-status="Tetap">
+                @forelse($latest_employees as $emp)
+                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
                     <td class="px-8 py-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">AP</div>
-                            <span class="font-medium text-on-background">Andi Pratama</span>
+                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">
+                                {{ strtoupper(substr($emp->nama_lengkap ?? 'U', 0, 2)) }}
+                            </div>
+                            <span class="font-medium text-on-background">{{ $emp->nama_lengkap }}</span>
                         </div>
                     </td>
-                    <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">101234567</td>
-                    <td class="px-8 py-4 text-on-surface-variant">Software Engineer</td>
+                    <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">{{ $emp->nik }}</td>
+                    <td class="px-8 py-4 text-on-surface-variant">{{ $emp->jabatan ?? 'Karyawan' }}</td>
                     <td class="px-8 py-4">
-                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">IT</span>
+                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">{{ $emp->department->nama_departemen ?? 'Umum' }}</span>
                     </td>
                     <td class="px-8 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full bg-primary-container/10 text-primary text-xs font-bold">Tetap</span>
+                        <span class="px-3 py-1 rounded-full bg-primary-container/10 text-primary text-xs font-bold">{{ $emp->status_kerja ?? 'Tetap' }}</span>
                     </td>
                     <td class="px-8 py-4 text-right">
                         <div class="flex justify-end gap-2">
                             <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
-                            <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="Andi Pratama" data-nik="101234567"><span class="material-symbols-outlined text-lg">person_remove</span></button>
                         </div>
                     </td>
                 </tr>
-                <!-- Row 2 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="102345678" data-status="Kontrak">
-                    <td class="px-8 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">SS</div>
-                            <span class="font-medium text-on-background">Susi Susanti</span>
-                        </div>
-                    </td>
-                    <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">102345678</td>
-                    <td class="px-8 py-4 text-on-surface-variant">HR Specialist</td>
-                    <td class="px-8 py-4">
-                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">HRD</span>
-                    </td>
-                    <td class="px-8 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full bg-surface-container-highest text-secondary text-xs font-bold">Kontrak</span>
-                    </td>
-                    <td class="px-8 py-4 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
-                            <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="Susi Susanti" data-nik="102345678"><span class="material-symbols-outlined text-lg">person_remove</span></button>
-                        </div>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-8 py-6 text-center text-slate-500">Belum ada karyawan.</td>
                 </tr>
-                <!-- Row 3 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="102345679" data-status="Magang">
-                    <td class="px-8 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">BC</div>
-                            <span class="font-medium text-on-background">Budi Cahyono</span>
-                        </div>
-                    </td>
-                    <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">102345679</td>
-                    <td class="px-8 py-4 text-on-surface-variant">Finance Admin</td>
-                    <td class="px-8 py-4">
-                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">Finance</span>
-                    </td>
-                    <td class="px-8 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full bg-tertiary-container/10 text-tertiary text-xs font-bold">Magang</span>
-                    </td>
-                    <td class="px-8 py-4 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
-                            <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="Budi Cahyono" data-nik="102345679"><span class="material-symbols-outlined text-lg">person_remove</span></button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
     <div class="px-8 py-4 border-t border-outline-variant/10 flex items-center justify-between">
-        <p class="text-body-sm text-on-surface-variant" id="table-entries-info">Menampilkan 1 - 3 dari 3 entri</p>
+        <p class="text-body-sm text-on-surface-variant" id="table-entries-info">Menampilkan terbaru dari {{ $total_karyawan }} entri</p>
         <div class="flex gap-1">
-            <button class="p-2 px-3 text-xs font-semibold rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">Sebelumnya</button>
-            <button class="p-2 px-4 text-xs font-bold rounded-lg bg-primary text-on-primary cursor-pointer">1</button>
-            <button class="p-2 px-4 text-xs font-semibold rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">2</button>
-            <button class="p-2 px-4 text-xs font-semibold rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">3</button>
-            <button class="p-2 px-3 text-xs font-semibold rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">Berikutnya</button>
         </div>
     </div>
 </section>

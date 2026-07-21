@@ -5,6 +5,20 @@
 
 @section('content')
 <!-- Page Header -->
+@if(session('success'))
+<div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg relative" role="alert">
+    <span class="block sm:inline font-semibold">{{ session('success') }}</span>
+</div>
+@endif
+@if($errors->any())
+<div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+    <ul class="list-disc pl-5">
+        @foreach($errors->all() as $error)
+            <li class="font-semibold">{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
     <div>
         <nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm mb-1">
@@ -26,7 +40,7 @@
     <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
         <div class="flex items-center gap-3">
             <div class="font-bold text-on-surface text-base">Daftar Karyawan Global</div>
-            <span class="bg-primary/10 text-primary font-semibold px-3 py-0.5 rounded-full text-xs" id="total-karyawan-badge">4 Total</span>
+            <span class="bg-primary/10 text-primary font-semibold px-3 py-0.5 rounded-full text-xs" id="total-karyawan-badge">{{ $employees->count() }} Total</span>
         </div>
         <div class="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-lg">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
@@ -50,114 +64,44 @@
                 </tr>
             </thead>
             <tbody class="text-sm font-medium text-slate-700 divide-y divide-slate-100" id="karyawan-table-body">
-                <!-- Row 1 -->
-                <tr class="hover:bg-slate-50 transition-colors group" data-nama="Adi Saputra">
-                    <td class="py-4 px-6 text-on-surface-variant">1</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Adi Saputra</td>
-                    <td class="py-4 px-6 text-slate-600">adi.saputra@email.com</td>
-                    <td class="py-4 px-6 text-slate-600">Senior Developer</td>
-                    <td class="py-4 px-6 text-slate-600">Engineering</td>
-                    <td class="py-4 px-6 font-mono text-slate-600">Rp 8.500.000</td>
-                    <td class="py-4 px-6" id="status-k-1">
-                        <span class="status-badge-k inline-flex items-center bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                            Aktif
+                @forelse($employees as $index => $k)
+                <tr class="{{ $k->status === 'nonaktif' ? 'bg-slate-50 opacity-60 grayscale' : 'hover:bg-slate-50 group transition-colors' }}" data-nama="{{ $k->nama_lengkap }}">
+                    <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
+                    <td class="py-4 px-6 font-bold {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $k->nama_lengkap }}</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->email }}</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Belum Ditentukan</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Belum Ditempatkan</td>
+                    <td class="py-4 px-6 font-mono {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Rp {{ number_format($k->gaji_pokok, 0, ',', '.') }}</td>
+                    <td class="py-4 px-6" id="status-k-{{ $k->nik }}">
+                        <span class="status-badge-k inline-flex items-center {{ $k->status === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200' }} border px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
+                            {{ $k->status }}
                         </span>
                     </td>
                     <td class="py-4 px-6">
                         <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail" onclick="alert('Detail Karyawan Adi Saputra')">
-                                <span class="material-symbols-outlined text-[16px]">search</span>
-                            </button>
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Edit" onclick="alert('Edit Karyawan Adi Saputra')">
+                            @if($k->status === 'nonaktif')
+                                <button class="w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed flex items-center justify-center" title="Detail" disabled>
+                                    <span class="material-symbols-outlined text-[16px]">search</span>
+                                </button>
+                            @else
+                                <a href="{{ route('backoffice.super_admin.kelola_karyawan.show', $k->id) }}" class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail">
+                                    <span class="material-symbols-outlined text-[16px]">search</span>
+                                </a>
+                            @endif
+                            <button class="btn-edit-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors cursor-pointer' }} flex items-center justify-center" title="Edit" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}" data-gaji="{{ $k->gaji_pokok }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[16px]">edit</span>
                             </button>
-                            <button class="btn-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center cursor-pointer" title="Hapus / Nonaktifkan" data-id="1" data-nama="Adi Saputra">
+                            <button class="btn-delete-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-red-200 text-red-500 hover:bg-red-50 transition-colors cursor-pointer' }} flex items-center justify-center" title="Hapus / Nonaktifkan" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[16px]">delete</span>
                             </button>
                         </div>
                     </td>
                 </tr>
-                <!-- Row 2 -->
-                <tr class="hover:bg-slate-50 transition-colors group" data-nama="Budi Santoso">
-                    <td class="py-4 px-6 text-on-surface-variant">2</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Budi Santoso</td>
-                    <td class="py-4 px-6 text-slate-600">budi.santoso@email.com</td>
-                    <td class="py-4 px-6 text-slate-600">UI/UX Designer</td>
-                    <td class="py-4 px-6 text-slate-600">Product</td>
-                    <td class="py-4 px-6 font-mono text-slate-600">Rp 7.200.000</td>
-                    <td class="py-4 px-6" id="status-k-2">
-                        <span class="status-badge-k inline-flex items-center bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail" onclick="alert('Detail Karyawan Budi Santoso')">
-                                <span class="material-symbols-outlined text-[16px]">search</span>
-                            </button>
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Edit" onclick="alert('Edit Karyawan Budi Santoso')">
-                                <span class="material-symbols-outlined text-[16px]">edit</span>
-                            </button>
-                            <button class="btn-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center cursor-pointer" title="Hapus / Nonaktifkan" data-id="2" data-nama="Budi Santoso">
-                                <span class="material-symbols-outlined text-[16px]">delete</span>
-                            </button>
-                        </div>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center py-6 text-slate-500 italic">Belum ada karyawan</td>
                 </tr>
-                <!-- Row 3 -->
-                <tr class="hover:bg-slate-50 transition-colors group" data-nama="Citra Rahayu">
-                    <td class="py-4 px-6 text-on-surface-variant">3</td>
-                    <td class="py-4 px-6 font-bold text-slate-400">Citra Rahayu</td>
-                    <td class="py-4 px-6 text-slate-400">citra.rahayu@email.com</td>
-                    <td class="py-4 px-6 text-slate-400 font-normal">HR Specialist</td>
-                    <td class="py-4 px-6 text-slate-400 font-normal">Human Resources</td>
-                    <td class="py-4 px-6 font-mono text-slate-400">Rp 9.000.000</td>
-                    <td class="py-4 px-6" id="status-k-3">
-                        <span class="status-badge-k inline-flex items-center bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                            Nonaktif
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail" onclick="alert('Detail Karyawan Citra Rahayu')">
-                                <span class="material-symbols-outlined text-[16px]">search</span>
-                            </button>
-                            <button class="w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed" disabled title="Edit">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
-                            </button>
-                            <button class="w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed" disabled title="Nonaktifkan">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Row 4 -->
-                <tr class="hover:bg-slate-50 transition-colors group" data-nama="Deni Kurniawan">
-                    <td class="py-4 px-6 text-on-surface-variant">4</td>
-                    <td class="py-4 px-6 font-bold text-slate-800">Deni Kurniawan</td>
-                    <td class="py-4 px-6 text-slate-600">deni.k@email.com</td>
-                    <td class="py-4 px-6 text-slate-600">Marketing Lead</td>
-                    <td class="py-4 px-6 text-slate-600">Marketing</td>
-                    <td class="py-4 px-6 font-mono text-slate-600">Rp 10.500.000</td>
-                    <td class="py-4 px-6" id="status-k-4">
-                        <span class="status-badge-k inline-flex items-center bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail" onclick="alert('Detail Karyawan Deni Kurniawan')">
-                                <span class="material-symbols-outlined text-[16px]">search</span>
-                            </button>
-                            <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Edit" onclick="alert('Edit Karyawan Deni Kurniawan')">
-                                <span class="material-symbols-outlined text-[16px]">edit</span>
-                            </button>
-                            <button class="btn-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center cursor-pointer" title="Hapus / Nonaktifkan" data-id="4" data-nama="Deni Kurniawan">
-                                <span class="material-symbols-outlined text-[16px]">delete</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -165,7 +109,7 @@
     <!-- Pagination Footer -->
     <div class="p-6 border-t border-outline-variant bg-white flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
         <div id="showing-range-info">
-            Menampilkan 1 hingga 4 dari 4 entri
+            Menampilkan {{ $employees->count() }} entri
         </div>
         <div class="flex gap-1">
             <button class="px-3 py-1.5 border border-slate-200 rounded text-slate-400 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50" disabled>Sebelumnya</button>
@@ -192,7 +136,8 @@
         </div>
         
         <!-- Form Content -->
-        <form id="form-karyawan" class="p-6 space-y-4 overflow-y-auto">
+        <form id="form-karyawan" class="p-6 space-y-4 overflow-y-auto" method="POST" action="{{ route('backoffice.super_admin.kelola_karyawan.store') }}">
+            @csrf
             <!-- Nama Field -->
             <div class="space-y-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
@@ -218,11 +163,17 @@
                 Batal
             </button>
             <button type="submit" form="form-karyawan" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
-                Simpan Karyawan
+                Simpan
             </button>
         </div>
     </div>
 </div>
+
+<!-- Form tersembunyi untuk Delete Karyawan -->
+<form id="form-delete-karyawan" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 
 <!-- MODAL: Dialog Konfirmasi Hapus/Nonaktifkan -->
 <div class="bg-slate-900/60 backdrop-blur-sm" id="modal-delete-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
@@ -269,109 +220,64 @@
         
         // 1. Tampilkan / Tutup Modal
         btnTambahKaryawan.addEventListener('click', () => {
+            document.getElementById('modal-tambah-karyawan').querySelector('h3').innerText = 'Tambah Karyawan';
+            formKaryawan.action = "{{ route('backoffice.super_admin.kelola_karyawan.store') }}";
+            formKaryawan.innerHTML = `
+                @csrf
+                <div class="space-y-1">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" type="text" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" type="email" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji">Gaji Pokok</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 font-mono" id="gaji" name="gaji" type="number" required>
+                </div>
+            `;
             modalTambahKaryawan.style.display = 'flex';
-            document.getElementById('nama').focus();
         });
         
         const tutupModal = () => {
             modalTambahKaryawan.style.display = 'none';
-            formKaryawan.reset();
         };
         
         btnCloseModal.addEventListener('click', tutupModal);
         btnCancelModal.addEventListener('click', tutupModal);
         
-        // Format Rupiah
-        const formatRupiah = (val) => {
-            return 'Rp ' + parseFloat(val).toLocaleString('id-ID');
-        };
-        
-        // Load data karyawan dari localStorage
-        const loadKaryawanDariStorage = () => {
-            const listKaryawanStr = localStorage.getItem('karyawan_baru');
-            if (listKaryawanStr) {
-                const listKaryawan = JSON.parse(listKaryawanStr);
-                listKaryawan.forEach((k) => {
-                    const existingRow = karyawanTableBody.querySelector(`tr[data-nik="${k.nik}"]`);
-                    if (!existingRow) {
-                        const totalRows = karyawanTableBody.querySelectorAll('tr').length;
-                        const newIndex = totalRows + 1;
-                        
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'hover:bg-slate-50 transition-colors group';
-                        newRow.setAttribute('data-nama', k.nama);
-                        newRow.setAttribute('data-nik', k.nik);
-                        
-                        const displayJabatan = k.departemen === 'Belum Ditempatkan' ? '<span class="text-slate-400 italic font-normal">Belum Ditentukan</span>' : k.jabatan;
-                        const displayDepartemen = k.departemen === 'Belum Ditempatkan' ? '<span class="text-slate-400 italic font-normal">Belum Ditempatkan</span>' : k.departemen;
-                        
-                        newRow.innerHTML = `
-                            <td class="py-4 px-6 text-on-surface-variant">${newIndex}</td>
-                            <td class="py-4 px-6 font-bold text-slate-800">${k.nama}</td>
-                            <td class="py-4 px-6 text-slate-600">${k.email}</td>
-                            <td class="py-4 px-6 text-slate-600">${displayJabatan}</td>
-                            <td class="py-4 px-6 text-slate-600">${displayDepartemen}</td>
-                            <td class="py-4 px-6 font-mono text-slate-600">${formatRupiah(k.gaji)}</td>
-                            <td class="py-4 px-6" id="status-k-${k.nik}">
-                                <span class="status-badge-k inline-flex items-center bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                                    Aktif
-                                </span>
-                            </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail" onclick="alert('Detail Karyawan ${k.nama}')">
-                                        <span class="material-symbols-outlined text-[16px]">search</span>
-                                    </button>
-                                    <button class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Edit" onclick="alert('Edit Karyawan ${k.nama}')">
-                                        <span class="material-symbols-outlined text-[16px]">edit</span>
-                                    </button>
-                                    <button class="btn-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center cursor-pointer" title="Hapus / Nonaktifkan" data-id="${k.nik}" data-nama="${k.nama}">
-                                        <span class="material-symbols-outlined text-[16px]">delete</span>
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        karyawanTableBody.appendChild(newRow);
-                    }
-                });
-                
-                const finalTotal = karyawanTableBody.querySelectorAll('tr').length;
-                totalKaryawanBadge.innerText = `${finalTotal} Total`;
-                showingRangeInfo.innerText = `Menampilkan 1 hingga ${finalTotal} dari ${finalTotal} entri`;
+        karyawanTableBody.addEventListener('click', (e) => {
+            const btnEdit = e.target.closest('.btn-edit-karyawan');
+            if (btnEdit) {
+                const id = btnEdit.getAttribute('data-id');
+                const nama = btnEdit.getAttribute('data-nama');
+                const email = btnEdit.getAttribute('data-email');
+                const gaji = btnEdit.getAttribute('data-gaji');
+
+                document.getElementById('modal-tambah-karyawan').querySelector('h3').innerText = 'Edit Karyawan';
+                formKaryawan.action = `/backoffice/super-admin/kelola-karyawan/${id}`;
+                formKaryawan.innerHTML = `
+                    @csrf
+                    @method('PUT')
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
+                        <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" value="${nama}" type="text" required>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
+                        <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" value="${email}" type="email" required>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji">Gaji Pokok</label>
+                        <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 font-mono" id="gaji" name="gaji" value="${gaji}" type="number" required>
+                    </div>
+                `;
+                modalTambahKaryawan.style.display = 'flex';
             }
-        };
-        
-        loadKaryawanDariStorage();
-        
-        // 2. Submit Form Tambah Karyawan (Mockup)
-        formKaryawan.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const nama = document.getElementById('nama').value;
-            const email = document.getElementById('email').value;
-            const gaji = document.getElementById('gaji').value;
-            
-            const generateNik = 'EMP-' + String(Math.floor(1000 + Math.random() * 9000));
-            
-            const listKaryawanStr = localStorage.getItem('karyawan_baru') || '[]';
-            const listKaryawan = JSON.parse(listKaryawanStr);
-            const karyawanBaruObj = {
-                nik: generateNik,
-                nama: nama,
-                email: email,
-                gaji: gaji,
-                jabatan: 'Belum Ditentukan',
-                departemen: 'Belum Ditempatkan',
-                status: 'Magang'
-            };
-            listKaryawan.push(karyawanBaruObj);
-            localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
-            
-            loadKaryawanDariStorage();
-            
-            alert(`Karyawan ${nama} berhasil ditambahkan!`);
-            tutupModal();
         });
+        
+        // Removed LS mockup
         
         // 3. Logika Filter Pencarian
         searchKaryawan.addEventListener('input', (e) => {
@@ -409,39 +315,9 @@
         
         btnDeleteConfirmAct.addEventListener('click', () => {
             if (activeDeleteId) {
-                const statusCol = document.getElementById(`status-k-${activeDeleteId}`);
-                const badge = statusCol.querySelector('.status-badge-k');
-                const namaKaryawan = deleteKaryawanNama.innerText;
-                
-                // Ubah status jadi nonaktif di tabel
-                badge.className = 'status-badge-k inline-flex items-center bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide';
-                badge.innerText = 'Nonaktif';
-                
-                // Ubah baris tabel visual menjadi redup/deactive
-                const row = statusCol.closest('tr');
-                row.querySelector('td:nth-child(2)').className = 'py-4 px-6 font-bold text-slate-400';
-                row.querySelectorAll('td:not(:nth-child(2)):not(:nth-child(7)):not(:last-child)').forEach(col => {
-                    col.className = 'py-4 px-6 text-slate-400';
-                });
-                
-                // Disable tombol aksi edit & delete
-                const btnEdit = row.querySelector('button[title="Edit"]');
-                const btnDel = row.querySelector('.btn-delete-karyawan');
-                
-                if (btnEdit) {
-                    btnEdit.className = 'w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed';
-                    btnEdit.disabled = true;
-                    btnEdit.removeAttribute('onclick');
-                }
-                if (btnDel) {
-                    btnDel.className = 'w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed';
-                    btnDel.disabled = true;
-                    btnDel.classList.remove('btn-delete-karyawan');
-                }
-                
-                alert(`Karyawan ${namaKaryawan} berhasil dinonaktifkan.`);
-                modalDeleteConfirm.style.display = 'none';
-                activeDeleteId = null;
+                const formDelete = document.getElementById('form-delete-karyawan');
+                formDelete.action = `/backoffice/super-admin/kelola-karyawan/${activeDeleteId}`;
+                formDelete.submit();
             }
         });
     });

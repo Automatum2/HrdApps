@@ -13,8 +13,8 @@
     <div class="login-card bg-surface-container-lowest rounded-xl p-xl flex flex-col items-center">
         <!-- Logo Section -->
         <div class="mb-lg flex flex-col items-center text-center">
-            <div class="w-20 h-20 mb-md rounded-full overflow-hidden bg-primary/5 flex items-center justify-center logo-shine">
-                <img alt="HRDApps Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvpFHUCy_Yq6LtQqNmX6ag1aIQKY-BWSHyohEUquy3wK6mK85LadnnQrcjTEKOl-u_Di5Vu_1inn1-FwSS_RsfRS_lxkWf7dUun0xT-mZ4hif9k1elklSKL6tnImnswj7HdtCeFyE7ZDzAGtf2O8_P3wIDQBduk0NNjEqw58GjppC2mqBIK_gipbo4FFeiiuaNQLvWr-HV4Ke8Zho1gzNOMGkijIz0wKaS-Soge8ZsRPwXNtquAQwv47ow">
+            <div class="w-20 h-20 mb-md rounded-full overflow-hidden bg-primary flex items-center justify-center logo-shine shadow-lg border-2 border-primary-container">
+                <span class="text-white text-4xl font-extrabold font-display" style="font-family: 'Inter', sans-serif;">H</span>
             </div>
             <h1 class="font-display-lg text-display-lg text-primary tracking-tight">HRDApps</h1>
             <p class="font-body-md text-body-md text-secondary mt-1">Human Resource Digital Apps</p>
@@ -26,8 +26,20 @@
         </div>
         
         <!-- Form -->
-        <form class="w-full space-y-md" action="{{ route('login.post') }}" method="POST" onsubmit="event.preventDefault();">
+        <form class="w-full space-y-md" action="{{ route('login.post') }}" method="POST">
             @csrf
+            
+            @if($errors->any())
+                <div class="bg-error/10 text-error px-4 py-2 rounded-lg text-sm mb-4">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
             
             <!-- Username Field -->
             <div class="space-y-base">
@@ -66,20 +78,7 @@
                 </div>
             </div>
 
-            <!-- Role Dropdown -->
-            <div class="space-y-base">
-                <label class="font-label-uppercase text-label-uppercase text-on-surface-variant px-1" for="role">Masuk Sebagai</label>
-                <div class="relative group">
-                    <select class="w-full appearance-none px-md py-sm border border-outline-variant rounded-lg bg-white font-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer" id="role" name="role">
-                        <option value="manager">HRD Manager (Budi Santoso)</option>
-                        <option value="employee">Karyawan (Ahmad Fadillah)</option>
-                        <option value="super_admin">Super Admin (Admin Utama)</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none text-secondary">
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </div>
-                </div>
-            </div>
+
             
             <!-- Options -->
             <div class="flex items-center justify-between py-1">
@@ -114,29 +113,7 @@
 </main>
 
 <script>
-    // Simple interactivity for the login button
-    document.querySelector('button[type="submit"]').addEventListener('click', function(e) {
-        const form = document.querySelector('form');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-        
-        const btn = e.currentTarget;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Authenticating...</span>';
-        btn.disabled = true;
-        btn.classList.add('opacity-80', 'cursor-not-allowed');
-
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
-            
-            // Submit form to Laravel POST route
-            form.submit();
-        }, 1500);
-    });
+    // Interactivity removed since we want real form submission
 
     // Toggle focus state visuals for custom input wrappers if needed
     const inputs = document.querySelectorAll('input');

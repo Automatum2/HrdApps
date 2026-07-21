@@ -29,12 +29,12 @@
 @endif
 
 @if ($errors->any())
-<div class="mb-6 p-4 rounded-xl bg-error/10 border border-error/20 text-error flex flex-col gap-2 animate-page-in">
+<div class="mb-6 p-4 rounded-xl bg-error/10 border border-error/20 text-error flex flex-col gap-2 animate-page-in shadow-sm sticky top-4 z-50">
     <div class="flex items-center gap-3">
         <span class="material-symbols-outlined">error</span>
-        <p class="font-medium text-sm">Terjadi kesalahan:</p>
+        <p class="font-bold text-sm">Terjadi Kesalahan Upload:</p>
     </div>
-    <ul class="list-disc list-inside text-xs ml-8">
+    <ul class="list-disc list-inside text-xs ml-8 font-medium">
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
         @endforeach
@@ -62,6 +62,7 @@
                 <span class="block text-[10px] text-on-surface-variant font-medium">Preferensi waspada</span>
             </div>
         </button>
+        @if(session('user_role') !== 'employee')
         <!-- Tab 3: Konfigurasi HR -->
         <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-konfigurasi" onclick="switchTab('konfigurasi')">
             <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">business_center</span>
@@ -70,6 +71,7 @@
                 <span class="block text-[10px] text-on-surface-variant font-medium">Parameter sistem</span>
             </div>
         </button>
+        @endif
         <!-- Tab 4: Keamanan -->
         <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-keamanan" onclick="switchTab('keamanan')">
             <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">security</span>
@@ -89,35 +91,46 @@
                 
                 <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
                     <div class="relative group">
-                        @if(session('user_photo'))
+                        @php
+                            $photoUrl = session('user_photo');
+                            if (!$photoUrl && isset($user) && $user->employee && $user->employee->foto) {
+                                $photoUrl = asset('storage/' . $user->employee->foto);
+                            }
+                        @endphp
+                        @if($photoUrl)
                         <div class="w-24 h-24 rounded-full shadow-sm border border-outline-variant overflow-hidden">
-                            <img src="{{ session('user_photo') }}" alt="Profile Photo" class="w-full h-full object-cover">
+                            <img src="{{ $photoUrl }}" alt="Profile Photo" class="w-full h-full object-cover">
                         </div>
                         @else
-                        <div class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl shadow-sm border border-outline-variant">
-                            BS
+                        <div class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl shadow-sm border border-outline-variant uppercase">
+                            {{ substr($user->employee->nama_lengkap ?? $user->username, 0, 2) }}
                         </div>
                         @endif
-                        <form action="{{ route('backoffice.pengaturan.upload.photo') }}" method="POST" enctype="multipart/form-data" id="photo-upload-form">
+                        <form action="{{ route('backoffice.pengaturan.upload.photo') }}" method="POST" enctype="multipart/form-data" id="photo-upload-form" class="absolute inset-0">
                             @csrf
-                            <input type="file" name="photo" id="photo-input" accept="image/*" class="sr-only" onchange="if(this.value) document.getElementById('photo-upload-form').submit()">
+                            <input type="file" name="photo" id="photo-input" accept="image/*" class="sr-only" onchange="handlePhotoSelect(this)">
+                            <label for="photo-input" class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center m-0">
+                                <span id="photo-camera-icon" class="material-symbols-outlined text-sm">photo_camera</span>
+                            </label>
                         </form>
-                        <label for="photo-input" class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center m-0">
-                            <span class="material-symbols-outlined text-sm">photo_camera</span>
-                        </label>
                     </div>
-                    <div class="flex-1 grid grid-cols-1 gap-4 w-full">
+                    
+                    <button type="submit" form="photo-upload-form" id="save-photo-btn" class="hidden mt-2 px-3 py-1 bg-success text-white text-[10px] font-bold rounded-full shadow-sm hover:brightness-110 flex items-center justify-center gap-1 active:scale-95">
+                        <span class="material-symbols-outlined text-[12px]">check</span> Simpan Foto
+                    </button>
+                    
+                    <div class="flex-1 grid grid-cols-1 gap-4 w-full mt-4 md:mt-0">
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Lengkap</label>
-                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="Budi Santoso">
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="{{ $user->employee->nama_lengkap ?? $user->username }}">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Alamat Email</label>
-                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="budi.santoso@hrdapps.co.id">
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="{{ $user->employee->email ?? $user->email }}">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Jabatan</label>
-                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="HR Manager">
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="{{ $user->employee->position->nama ?? ($user->role == 'super_admin' ? 'Administrator' : 'Manajer HRD') }}">
                         </div>
                     </div>
                 </div>
@@ -146,59 +159,73 @@
                             Dokumen Pribadi Terlampir
                         </h5>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <!-- KTP -->
-                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-error/10 text-error rounded-md">
-                                        <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                            @if(isset($user->employee) && $user->employee->documents->count() > 0)
+                                @foreach($user->employee->documents as $doc)
+                                <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        @if($doc->file_type == 'pdf')
+                                        <div class="p-2 bg-error/10 text-error rounded-md">
+                                            <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                        </div>
+                                        @elseif(in_array($doc->file_type, ['jpg', 'jpeg', 'png']))
+                                        <div class="p-2 bg-success/10 text-success rounded-md">
+                                            <span class="material-symbols-outlined text-sm">image</span>
+                                        </div>
+                                        @else
+                                        <div class="p-2 bg-tertiary/10 text-tertiary rounded-md">
+                                            <span class="material-symbols-outlined text-sm">description</span>
+                                        </div>
+                                        @endif
+                                        <div class="overflow-hidden">
+                                            <p class="font-bold text-[10px] text-on-surface truncate w-32" title="{{ $doc->file_name }}">{{ $doc->file_name }}</p>
+                                            <p class="text-[9px] text-on-surface-variant">{{ $doc->file_size < 1024 ? $doc->file_size . ' KB' : round($doc->file_size / 1024, 1) . ' MB' }}</p>
+                                        </div>
                                     </div>
-                                    <div class="overflow-hidden">
-                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">KTP_BudiSantoso.pdf</p>
-                                        <p class="text-[9px] text-on-surface-variant">845 KB</p>
-                                    </div>
-                                </div>
-                                <a href="#" onclick="alert('Mendownload KTP...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
-                                    <span class="material-symbols-outlined text-[16px]">download</span>
-                                </a>
-                            </div>
-                            
-                            <!-- BPJS -->
-                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-success/10 text-success rounded-md">
-                                        <span class="material-symbols-outlined text-sm">image</span>
-                                    </div>
-                                    <div class="overflow-hidden">
-                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">Kartu_BPJS.jpg</p>
-                                        <p class="text-[9px] text-on-surface-variant">1.2 MB</p>
-                                    </div>
-                                </div>
-                                <a href="#" onclick="alert('Mendownload BPJS...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
-                                    <span class="material-symbols-outlined text-[16px]">download</span>
-                                </a>
-                            </div>
-                            
-                            <!-- Kontrak Kerja -->
-                            <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-lowest hover:border-primary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-tertiary/10 text-tertiary rounded-md">
-                                        <span class="material-symbols-outlined text-sm">description</span>
-                                    </div>
-                                    <div class="overflow-hidden">
-                                        <p class="font-bold text-[10px] text-on-surface truncate w-32">PKWT_Kontrak_Kerja.pdf</p>
-                                        <p class="text-[9px] text-on-surface-variant">2.1 MB</p>
+                                    <div class="flex items-center gap-1">
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary" title="Download">
+                                            <span class="material-symbols-outlined text-[16px]">download</span>
+                                        </a>
+                                        <form action="{{ route('backoffice.pengaturan.delete.document', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-error hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-error" title="Hapus">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
-                                <a href="#" onclick="alert('Mendownload Kontrak Kerja...')" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary">
-                                    <span class="material-symbols-outlined text-[16px]">download</span>
-                                </a>
-                            </div>
+                                @endforeach
+                            @else
+                                <div class="col-span-full p-4 border border-dashed border-outline-variant rounded-lg text-center text-on-surface-variant text-xs font-medium">
+                                    Belum ada dokumen yang diunggah.
+                                </div>
+                            @endif
                         </div>
                         
-                        <button type="button" onclick="alert('Fitur upload dokumen sedang ditunda.')" class="mt-3 w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-[10px] font-bold text-on-surface-variant hover:bg-primary/5 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer m-0">
-                            <span class="material-symbols-outlined text-[14px]">cloud_upload</span>
-                            Upload Dokumen Baru
-                        </button>
+                        <form action="{{ route('backoffice.pengaturan.upload.document') }}" method="POST" enctype="multipart/form-data" id="document-upload-form" class="mt-4 p-5 border border-outline-variant rounded-xl bg-surface-container-low flex flex-col items-center justify-center border-dashed text-center">
+                            @csrf
+                            <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3">
+                                <span class="material-symbols-outlined text-2xl">upload_file</span>
+                            </div>
+                            <h6 class="text-sm font-bold text-on-surface mb-1">Upload Dokumen Baru</h6>
+                            <p class="text-[10px] text-on-surface-variant mb-4">Pilih file dari perangkat Anda, lalu klik Simpan.</p>
+                            
+                            <input type="file" name="document[]" id="document-input" accept=".pdf,.jpg,.jpeg,.png" multiple class="sr-only" onchange="handleDocSelect(this)">
+                            
+                            <div class="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
+                                <label for="document-input" class="px-6 py-2.5 bg-surface-container border border-outline-variant text-on-surface text-xs font-bold rounded-lg hover:bg-surface-container-high transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                                    <span class="material-symbols-outlined text-[16px]">folder_open</span>
+                                    <span id="upload-btn-text" class="max-w-[150px] truncate">Pilih File...</span>
+                                </label>
+                                
+                                <button type="submit" id="submit-doc-btn" class="hidden px-6 py-2.5 bg-primary text-white text-xs font-bold rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                                    <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+                                    Mulai Upload
+                                </button>
+                            </div>
+                            
+                            <p class="text-[9px] text-on-surface-variant mt-4 font-medium px-4 py-1.5 bg-white rounded-full border border-outline-variant">Format didukung: PDF, JPG, PNG (Maks. 5 MB)</p>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -255,6 +282,7 @@
             </div>
         </div>
 
+        @if(session('user_role') !== 'employee')
         <!-- Panel 3: Konfigurasi HR (Hidden by default) -->
         <div class="settings-panel space-y-6 hidden" id="panel-konfigurasi">
             <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
@@ -295,6 +323,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Panel 4: Keamanan (Hidden by default) -->
         <div class="settings-panel space-y-6 hidden" id="panel-keamanan">
@@ -436,6 +465,34 @@
             document.querySelector('.ql-container').classList.add('text-body-md', 'border-0');
         }
     });
+
+    // ==========================================
+    // Fungsi Handle Pemilihan File (UX)
+    // ==========================================
+    function handlePhotoSelect(input) {
+        if (input.files && input.files[0]) {
+            // Tampilkan tombol simpan
+            document.getElementById('save-photo-btn').classList.remove('hidden');
+            // Ubah warna ikon kamera
+            document.getElementById('photo-camera-icon').classList.add('text-success');
+        }
+    }
+
+    function handleDocSelect(input) {
+        if (input.files && input.files.length > 0) {
+            // Tampilkan nama file atau jumlah file
+            if (input.files.length === 1) {
+                document.getElementById('upload-btn-text').innerText = input.files[0].name;
+            } else {
+                document.getElementById('upload-btn-text').innerText = input.files.length + " file terpilih";
+            }
+            // Munculkan tombol submit
+            document.getElementById('submit-doc-btn').classList.remove('hidden');
+        } else {
+            document.getElementById('upload-btn-text').innerText = "Pilih File...";
+            document.getElementById('submit-doc-btn').classList.add('hidden');
+        }
+    }
 
     // ==========================================
     // 1. Logika Perpindahan Tab Panel

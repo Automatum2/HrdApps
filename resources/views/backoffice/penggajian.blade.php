@@ -13,7 +13,7 @@
             <span class="text-primary font-semibold text-xs">Proses Bulanan</span>
         </nav>
         <div class="flex items-center gap-3">
-            <h2 class="font-bold text-headline-md text-on-surface">Proses Penggajian - Juni 2026</h2>
+            <h2 class="font-bold text-headline-md text-on-surface">Proses Penggajian - {{ $monthName }}</h2>
             <span class="px-3 py-0.5 bg-surface-container-highest text-primary font-bold text-[10px] rounded-full uppercase tracking-wider border border-primary/20" id="badge-proses-status">Draft</span>
         </div>
     </div>
@@ -35,7 +35,7 @@
     <div class="lg:col-span-2 bg-white rounded-xl border border-outline-variant p-6 shadow-sm flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-xs mb-2">Total Gaji Bersih</p>
-            <h3 class="font-bold text-[28px] text-on-surface tracking-tight" id="widget-total-gaji">Rp 88.980.000</h3>
+            <h3 class="font-bold text-[28px] text-on-surface tracking-tight" id="widget-total-gaji">Rp {{ number_format($totalGajiBersih, 0, ',', '.') }}</h3>
             <div class="flex items-center gap-2 mt-2 text-tertiary font-semibold text-xs">
                 <span class="material-symbols-outlined text-sm">trending_up</span>
                 <span>2.4% vs Bulan Lalu</span>
@@ -49,7 +49,7 @@
     <div class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-xs mb-2">Total Penerima Gaji</p>
-            <h3 class="font-bold text-[28px] text-on-surface tracking-tight" id="widget-total-karyawan">5</h3>
+            <h3 class="font-bold text-[28px] text-on-surface tracking-tight" id="widget-total-karyawan">{{ count($payrolls) }}</h3>
             <p class="text-on-surface-variant text-xs mt-2 font-medium">Semua Departemen</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
@@ -156,168 +156,59 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/40 font-body-sm text-body-sm" id="table-payroll-body">
-                <!-- Row 1 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-status="Draft">
-                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">1</td>
+                @forelse($payrolls as $index => $payroll)
+                <tr class="hover:bg-primary/5 transition-colors group" data-status="{{ $payroll['status'] }}">
+                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">JD</div>
+                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">{{ strtoupper(substr($payroll['employee']->nama_lengkap, 0, 2)) }}</div>
                             <div>
-                                <p class="font-bold text-on-surface text-sm">John Doe</p>
-                                <p class="text-[10px] text-on-surface-variant">Senior Engineer</p>
+                                <p class="font-bold text-on-surface text-sm">{{ $payroll['employee']->nama_lengkap }}</p>
+                                <p class="text-[10px] text-on-surface-variant">{{ $payroll['employee']->position->nama ?? 'Staff' }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 15.000.000</td>
-                    <td class="px-6 py-4 text-tertiary font-mono">+Rp 2.500.000</td>
-                    <td class="px-6 py-4 text-error font-mono">-Rp 500.000</td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 1.000.000</td>
-                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp 18.000.000</td>
+                    <td class="px-6 py-4 text-on-surface font-mono">Rp {{ number_format($payroll['gajiPokok'], 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-tertiary font-mono">+Rp {{ number_format($payroll['totalTunjangan'], 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-error font-mono">-Rp {{ number_format($payroll['totalPotongan'], 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-on-surface font-mono">Rp 0</td>
+                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp {{ number_format($payroll['gajiBersih'], 0, ',', '.') }}</td>
                     <td class="px-6 py-4">
-                        <span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-outline-variant/10">Draft</span>
+                        @if($payroll['status'] == 'Approved')
+                            <span class="px-2.5 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-tertiary/20">Approved</span>
+                        @else
+                            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-outline-variant/10">{{ $payroll['status'] }}</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' John Doe \nGaji Pokok: Rp 15.000.000\nTunjangan: Rp 2.500.000\nPotongan: Rp 500.000\nLembur: Rp 1.000.000\nGaji Bersih: Rp 18.000.000\n\nStatus: Draft')">
+                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' {{ $payroll['employee']->nama_lengkap }} \nGaji Pokok: Rp {{ number_format($payroll['gajiPokok'], 0, ',', '.') }}\nTunjangan: Rp {{ number_format($payroll['totalTunjangan'], 0, ',', '.') }}\nPotongan: Rp {{ number_format($payroll['totalPotongan'], 0, ',', '.') }}\nLembur: Rp 0\nGaji Bersih: Rp {{ number_format($payroll['gajiBersih'], 0, ',', '.') }}\n\nStatus: {{ $payroll['status'] }}')">
                                 <span class="material-symbols-outlined text-sm">visibility</span>
                             </button>
-                            <button class="btn-approve-single p-1.5 bg-white border border-outline-variant text-tertiary rounded hover:bg-tertiary hover:text-white transition-all shadow-sm cursor-pointer active:scale-90" title="Setujui Slip Gaji">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                            </button>
+                            @if($payroll['status'] == 'Approved')
+                                <button class="p-1.5 bg-white border border-outline-variant text-[#A1A1AA] rounded cursor-not-allowed opacity-50" title="Telah Disetujui" disabled>
+                                    <span class="material-symbols-outlined text-sm">done</span>
+                                </button>
+                            @else
+                                <button class="btn-approve-single p-1.5 bg-white border border-outline-variant text-tertiary rounded hover:bg-tertiary hover:text-white transition-all shadow-sm cursor-pointer active:scale-90" title="Setujui Slip Gaji">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
-                <!-- Row 2 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-status="Draft">
-                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">2</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">JS</div>
-                            <div>
-                                <p class="font-bold text-on-surface text-sm">Jane Smith</p>
-                                <p class="text-[10px] text-on-surface-variant">UI Designer</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 12.000.000</td>
-                    <td class="px-6 py-4 text-tertiary font-mono">+Rp 2.000.000</td>
-                    <td class="px-6 py-4 text-error font-mono">-Rp 400.000</td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 800.000</td>
-                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp 14.400.000</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-outline-variant/10">Draft</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' Jane Smith \nGaji Pokok: Rp 12.000.000\nTunjangan: Rp 2.000.000\nPotongan: Rp 400.000\nLembur: Rp 800.000\nGaji Bersih: Rp 14.400.000\n\nStatus: Draft')">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                            </button>
-                            <button class="btn-approve-single p-1.5 bg-white border border-outline-variant text-tertiary rounded hover:bg-tertiary hover:text-white transition-all shadow-sm cursor-pointer active:scale-90" title="Setujui Slip Gaji">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                            </button>
-                        </div>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="9" class="px-6 py-8 text-center text-on-surface-variant">Tidak ada data penggajian bulan ini.</td>
                 </tr>
-                <!-- Row 3 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-status="Approved">
-                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">3</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">MB</div>
-                            <div>
-                                <p class="font-bold text-on-surface text-sm">Michael Brown</p>
-                                <p class="text-[10px] text-on-surface-variant">Product Manager</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 20.000.000</td>
-                    <td class="px-6 py-4 text-tertiary font-mono">+Rp 3.000.000</td>
-                    <td class="px-6 py-4 text-error font-mono">-Rp 600.000</td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 1.200.000</td>
-                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp 23.600.000</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2.5 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-tertiary/20">Approved</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' Michael Brown \nGaji Pokok: Rp 20.000.000\nTunjangan: Rp 3.000.000\nPotongan: Rp 600.000\nLembur: Rp 1.200.000\nGaji Bersih: Rp 23.600.000\n\nStatus: Approved')">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                            </button>
-                            <button class="p-1.5 bg-white border border-outline-variant text-[#A1A1AA] rounded cursor-not-allowed opacity-50" title="Telah Disetujui" disabled>
-                                <span class="material-symbols-outlined text-sm">done</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Row 4 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-status="Draft">
-                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">4</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">ED</div>
-                            <div>
-                                <p class="font-bold text-on-surface text-sm">Emily Davis</p>
-                                <p class="text-[10px] text-on-surface-variant">HR Specialist</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 18.000.000</td>
-                    <td class="px-6 py-4 text-tertiary font-mono">+Rp 2.800.000</td>
-                    <td class="px-6 py-4 text-error font-mono">-Rp 550.000</td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 1.100.000</td>
-                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp 21.350.000</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-outline-variant/10">Draft</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' Emily Davis \nGaji Pokok: Rp 18.000.000\nTunjangan: Rp 2.800.000\nPotongan: Rp 550.000\nLembur: Rp 1.100.000\nGaji Bersih: Rp 21.350.000\n\nStatus: Draft')">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                            </button>
-                            <button class="btn-approve-single p-1.5 bg-white border border-outline-variant text-tertiary rounded hover:bg-tertiary hover:text-white transition-all shadow-sm cursor-pointer active:scale-90" title="Setujui Slip Gaji">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Row 5 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-status="Draft">
-                    <td class="px-6 py-4 text-on-surface font-semibold font-mono">5</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">DW</div>
-                            <div>
-                                <p class="font-bold text-on-surface text-sm">David Wilson</p>
-                                <p class="text-[10px] text-on-surface-variant">Accountant</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 16.500.000</td>
-                    <td class="px-6 py-4 text-tertiary font-mono">+Rp 2.600.000</td>
-                    <td class="px-6 py-4 text-error font-mono">-Rp 520.000</td>
-                    <td class="px-6 py-4 text-on-surface font-mono">Rp 1.050.000</td>
-                    <td class="px-6 py-4 font-bold text-on-surface font-mono">Rp 19.630.000</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider badge-status border border-outline-variant/10">Draft</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip" onclick="alert(' David Wilson \nGaji Pokok: Rp 16.500.000\nTunjangan: Rp 2.600.000\nPotongan: Rp 520.000\nLembur: Rp 1.050.000\nGaji Bersih: Rp 19.630.000\n\nStatus: Draft')">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                            </button>
-                            <button class="btn-approve-single p-1.5 bg-white border border-outline-variant text-tertiary rounded hover:bg-tertiary hover:text-white transition-all shadow-sm cursor-pointer active:scale-90" title="Setujui Slip Gaji">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
     
     <!-- Pagination -->
     <div class="px-6 py-4 bg-white border-t border-outline-variant flex items-center justify-between">
-        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-entries">1-5</span> dari <span class="font-bold text-on-surface">5</span> karyawan</p>
+        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-entries">{{ count($payrolls) > 0 ? '1-'.count($payrolls) : '0' }}</span> dari <span class="font-bold text-on-surface">{{ count($payrolls) }}</span> karyawan</p>
         <div class="flex items-center gap-2">
             <button class="p-2 border border-outline-variant rounded hover:bg-surface-container-low transition-all disabled:opacity-50 cursor-pointer" disabled>
                 <span class="material-symbols-outlined text-lg">chevron_left</span>

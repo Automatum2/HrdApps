@@ -131,7 +131,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between shadow-sm overflow-hidden relative">
         <div class="z-10">
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Hadir</p>
-            <h4 class="text-headline-md font-bold text-tertiary-container mt-1" id="stat-hadir">142</h4>
+            <h4 class="text-headline-md font-bold text-tertiary-container mt-1" id="stat-hadir">{{ $stats['hadir'] }}</h4>
         </div>
         <div class="bg-tertiary-container/10 p-3 rounded-full z-10 text-tertiary">
             <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
@@ -142,7 +142,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between shadow-sm overflow-hidden relative">
         <div class="z-10">
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Izin</p>
-            <h4 class="text-headline-md font-bold text-[#F59E0B] mt-1" id="stat-izin">5</h4>
+            <h4 class="text-headline-md font-bold text-[#F59E0B] mt-1" id="stat-izin">{{ $stats['izin'] }}</h4>
         </div>
         <div class="bg-[#F59E0B]/10 p-3 rounded-full z-10 text-[#F59E0B]">
             <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">description</span>
@@ -153,7 +153,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between shadow-sm overflow-hidden relative">
         <div class="z-10">
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Sakit</p>
-            <h4 class="text-headline-md font-bold text-[#F97316] mt-1" id="stat-sakit">3</h4>
+            <h4 class="text-headline-md font-bold text-[#F97316] mt-1" id="stat-sakit">{{ $stats['sakit'] }}</h4>
         </div>
         <div class="bg-[#F97316]/10 p-3 rounded-full z-10 text-[#F97316]">
             <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">medical_services</span>
@@ -164,7 +164,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between shadow-sm overflow-hidden relative">
         <div class="z-10">
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Alpha</p>
-            <h4 class="text-headline-md font-bold text-error mt-1" id="stat-alpha">2</h4>
+            <h4 class="text-headline-md font-bold text-error mt-1" id="stat-alpha">{{ $stats['alpha'] }}</h4>
         </div>
         <div class="bg-error/10 p-3 rounded-full z-10 text-error">
             <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">cancel</span>
@@ -175,7 +175,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between shadow-sm overflow-hidden relative">
         <div class="z-10">
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Cuti</p>
-            <h4 class="text-headline-md font-bold text-primary mt-1" id="stat-cuti">4</h4>
+            <h4 class="text-headline-md font-bold text-primary mt-1" id="stat-cuti">{{ $stats['cuti'] }}</h4>
         </div>
         <div class="bg-primary/10 p-3 rounded-full z-10 text-primary">
             <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">beach_access</span>
@@ -215,114 +215,41 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-absensi-body">
-                <!-- Row 1 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1001" data-dept="HRD" data-status="Hadir" data-kerja="WFO">
-                    <td class="px-6 py-4">1</td>
+                @forelse($attendances as $index => $att)
+                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $att->employee->nik ?? '' }}" data-dept="{{ $att->employee->department->nama_departemen ?? 'Umum' }}" data-status="{{ ucfirst($att->status_kehadiran) }}" data-kerja="{{ $att->status_kerja }}">
+                    <td class="px-6 py-4">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">BS</div>
-                            <span class="font-bold text-on-surface">Budi Santoso</span>
+                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                                {{ strtoupper(substr($att->employee->nama_lengkap ?? 'U', 0, 2)) }}
+                            </div>
+                            <span class="font-bold text-on-surface">{{ $att->employee->nama_lengkap ?? 'Unknown' }}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant">1001</td>
-                    <td class="px-6 py-4 text-on-surface-variant">19/06/2026</td>
-                    <td class="px-6 py-4 font-bold text-on-surface">08:02</td>
-                    <td class="px-6 py-4 font-bold text-on-surface">17:05</td>
+                    <td class="px-6 py-4 font-mono text-on-surface-variant">{{ $att->employee->nik ?? '-' }}</td>
+                    <td class="px-6 py-4 text-on-surface-variant">{{ \Carbon\Carbon::parse($att->tanggal)->format('d/m/Y') }}</td>
+                    <td class="px-6 py-4 font-bold text-on-surface">{{ $att->jam_masuk ? substr($att->jam_masuk, 0, 5) : '--:--' }}</td>
+                    <td class="px-6 py-4 font-bold text-on-surface">{{ $att->jam_keluar ? substr($att->jam_keluar, 0, 5) : '--:--' }}</td>
                     <td class="px-6 py-4">
-                        <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">WFO</span>
+                        <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">{{ $att->status_kerja }}</span>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <span class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold">Hadir</span>
+                        <span class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold">{{ ucfirst($att->status_kehadiran) }}</span>
                     </td>
-                    <td class="px-6 py-4 text-center font-mono text-on-surface">09:03</td>
+                    <td class="px-6 py-4 text-center font-mono text-on-surface">{{ $att->total_jam_kerja ? $att->total_jam_kerja . ' Jam' : '--' }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                            <button class="p-1 hover:bg-surface-container-high rounded text-secondary transition-colors cursor-pointer" title="Edit"><span class="material-symbols-outlined text-lg">edit</span></button>
+                            <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Lihat Foto" onclick="showFotoModal('{{ $att->foto_masuk ? asset('storage/' . $att->foto_masuk) : '' }}', '{{ $att->foto_keluar ? asset('storage/' . $att->foto_keluar) : '' }}', '{{ $att->lokasi_masuk }}', '{{ $att->lokasi_keluar }}')">
+                                <span class="material-symbols-outlined text-lg">image</span>
+                            </button>
                         </div>
                     </td>
                 </tr>
-                <!-- Row 2 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1002" data-dept="IT" data-status="Izin" data-kerja="OFF">
-                    <td class="px-6 py-4">2</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-xs">SA</div>
-                            <span class="font-bold text-on-surface">Siti Aminah</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant">1002</td>
-                    <td class="px-6 py-4 text-on-surface-variant">19/06/2026</td>
-                    <td class="px-6 py-4 text-on-surface-variant/40">--:--</td>
-                    <td class="px-6 py-4 text-on-surface-variant/40">--:--</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-outline-variant text-on-surface-variant px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">OFF</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="bg-[#FEF3C7] text-[#92400E] px-3 py-1 rounded-full text-[10px] font-bold">Izin</span>
-                    </td>
-                    <td class="px-6 py-4 text-center font-mono text-on-surface-variant/40">--</td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                            <button class="p-1 hover:bg-surface-container-high rounded text-secondary transition-colors cursor-pointer" title="Edit"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        </div>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="10" class="px-6 py-8 text-center text-slate-500">Belum ada riwayat absensi.</td>
                 </tr>
-                <!-- Row 3 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1003" data-dept="IT" data-status="Hadir" data-kerja="WFO">
-                    <td class="px-6 py-4">3</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">AP</div>
-                            <span class="font-bold text-on-surface">Andi Pratama</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant">1003</td>
-                    <td class="px-6 py-4 text-on-surface-variant">19/06/2026</td>
-                    <td class="px-6 py-4 font-bold text-on-surface">07:55</td>
-                    <td class="px-6 py-4 font-bold text-on-surface">17:01</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">WFO</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold">Hadir</span>
-                    </td>
-                    <td class="px-6 py-4 text-center font-mono text-on-surface">09:06</td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                            <button class="p-1 hover:bg-surface-container-high rounded text-secondary transition-colors cursor-pointer" title="Edit"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Row 4 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1004" data-dept="Finance" data-status="Sakit" data-kerja="OFF">
-                    <td class="px-6 py-4">4</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-800 flex items-center justify-center font-bold text-xs">DL</div>
-                            <span class="font-bold text-on-surface">Dewi Lestari</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant">1004</td>
-                    <td class="px-6 py-4 text-on-surface-variant">19/06/2026</td>
-                    <td class="px-6 py-4 text-on-surface-variant/40">--:--</td>
-                    <td class="px-6 py-4 text-on-surface-variant/40">--:--</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-outline-variant text-on-surface-variant px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">OFF</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="bg-[#FEE2E2] text-error px-3 py-1 rounded-full text-[10px] font-bold">Sakit</span>
-                    </td>
-                    <td class="px-6 py-4 text-center font-mono text-on-surface-variant/40">--</td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                            <button class="p-1 hover:bg-surface-container-high rounded text-secondary transition-colors cursor-pointer" title="Edit"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -339,6 +266,44 @@
             <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors cursor-pointer">
                 <span class="material-symbols-outlined text-lg">chevron_right</span>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Foto Absensi -->
+<div id="modal-foto" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-surface border border-outline-variant rounded-xl shadow-2xl p-6 w-full max-w-2xl transform scale-95 transition-transform duration-300">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-title-md text-title-md text-on-surface font-bold">Bukti Foto & Lokasi Absensi</h3>
+            <button onclick="closeModal()" class="text-on-surface-variant hover:text-error transition-colors cursor-pointer p-1">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-primary text-center">Foto Masuk</p>
+                <div class="w-full h-48 bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    <img id="img-masuk" src="" class="w-full h-full object-cover hidden" alt="Foto Masuk" />
+                    <p id="img-masuk-none" class="text-xs text-slate-400">Tidak ada foto</p>
+                </div>
+                <p id="lokasi-masuk" class="text-xs text-on-surface-variant text-center font-mono break-all"></p>
+                <a id="maps-masuk" href="#" target="_blank" class="block text-center text-xs text-primary hover:underline hidden mt-1">Lihat di Google Maps</a>
+            </div>
+            
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-primary text-center">Foto Keluar</p>
+                <div class="w-full h-48 bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    <img id="img-keluar" src="" class="w-full h-full object-cover hidden" alt="Foto Keluar" />
+                    <p id="img-keluar-none" class="text-xs text-slate-400">Tidak ada foto</p>
+                </div>
+                <p id="lokasi-keluar" class="text-xs text-on-surface-variant text-center font-mono break-all"></p>
+                <a id="maps-keluar" href="#" target="_blank" class="block text-center text-xs text-primary hover:underline hidden mt-1">Lihat di Google Maps</a>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <button onclick="closeModal()" class="bg-surface-container border border-outline px-4 py-2 rounded-lg font-bold hover:bg-slate-100 transition-colors cursor-pointer text-sm">Tutup</button>
         </div>
     </div>
 </div>
@@ -443,9 +408,77 @@
         btnAll.click(); // Reset ke Semua
     });
     
+    
     // Inisialisasi visual counter awal
-    const initRowsCount = tableBody.querySelectorAll('tr').length;
-    totalEntriesTop.innerText = initRowsCount;
-    totalCountFooter.innerText = initRowsCount;
+    const initRowsCount = tableBody.querySelectorAll('tr:not(.hidden)').length;
+    showingCountFooter.innerText = initRowsCount;
+    totalCountFooter.innerText = tableBody.querySelectorAll('tr').length;
+    
+    // ==========================================
+    // Modal Foto Absensi
+    // ==========================================
+    window.showFotoModal = (fotoMasuk, fotoKeluar, lokasiMasuk, lokasiKeluar) => {
+        const modal = document.getElementById('modal-foto');
+        const imgMasuk = document.getElementById('img-masuk');
+        const imgMasukNone = document.getElementById('img-masuk-none');
+        const imgKeluar = document.getElementById('img-keluar');
+        const imgKeluarNone = document.getElementById('img-keluar-none');
+        
+        const textLokasiMasuk = document.getElementById('lokasi-masuk');
+        const textLokasiKeluar = document.getElementById('lokasi-keluar');
+        const mapsMasuk = document.getElementById('maps-masuk');
+        const mapsKeluar = document.getElementById('maps-keluar');
+        
+        if (fotoMasuk) {
+            imgMasuk.src = fotoMasuk;
+            imgMasuk.classList.remove('hidden');
+            imgMasukNone.classList.add('hidden');
+        } else {
+            imgMasuk.src = '';
+            imgMasuk.classList.add('hidden');
+            imgMasukNone.classList.remove('hidden');
+        }
+        
+        if (fotoKeluar) {
+            imgKeluar.src = fotoKeluar;
+            imgKeluar.classList.remove('hidden');
+            imgKeluarNone.classList.add('hidden');
+        } else {
+            imgKeluar.src = '';
+            imgKeluar.classList.add('hidden');
+            imgKeluarNone.classList.remove('hidden');
+        }
+        
+        textLokasiMasuk.innerText = lokasiMasuk || 'Tidak ada lokasi';
+        if (lokasiMasuk) {
+            mapsMasuk.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lokasiMasuk)}`;
+            mapsMasuk.classList.remove('hidden');
+        } else {
+            mapsMasuk.classList.add('hidden');
+        }
+        
+        textLokasiKeluar.innerText = lokasiKeluar || 'Tidak ada lokasi';
+        if (lokasiKeluar) {
+            mapsKeluar.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lokasiKeluar)}`;
+            mapsKeluar.classList.remove('hidden');
+        } else {
+            mapsKeluar.classList.add('hidden');
+        }
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.children[0].classList.remove('scale-95');
+        }, 10);
+    };
+    
+    window.closeModal = () => {
+        const modal = document.getElementById('modal-foto');
+        modal.classList.add('opacity-0');
+        modal.children[0].classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    };
 </script>
 @endpush
