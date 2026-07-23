@@ -45,7 +45,7 @@ Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
     return redirect()->route('login')->with('success', 'Password Anda berhasil diatur. Silakan login menggunakan username Anda.');
 })->name('password.update');
 
-Route::get('/backoffice/dashboard', function () {
+Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request) {
     $role = session('user_role', 'manager');
     if ($role === 'super_admin') {
         $total_karyawan = \App\Models\Employee::count();
@@ -56,15 +56,63 @@ Route::get('/backoffice/dashboard', function () {
         return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'total_manager', 'latest_managers', 'total_departemen'));
     } elseif ($role === 'employee') {
         $employeeId = session('employee_id');
-        $todayAttendance = \App\Models\Attendance::where('employee_id', $employeeId)->where('tanggal', \Carbon\Carbon::today()->toDateString())->first();
-        $historyAttendances = \App\Models\Attendance::where('employee_id', $employeeId)->orderBy('tanggal', 'desc')->take(5)->get();
-        $currentMonth = \Carbon\Carbon::now()->month;
-        $hadirCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->where('status_kehadiran', 'hadir')->count();
-        $izinCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->where('status_kehadiran', 'izin')->count();
-        $sakitCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->where('status_kehadiran', 'sakit')->count();
-        $alphaCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->where('status_kehadiran', 'alpha')->count();
+        $employee = \App\Models\Employee::where('id', $employeeId)->orWhere('nik', $employeeId)->first();
         
-        return view('backoffice.dashboard_karyawan', compact('todayAttendance', 'historyAttendances', 'hadirCount', 'izinCount', 'sakitCount', 'alphaCount'));
+        $masaKerja = 'N/A';
+        if ($employee && $employee->tanggal_masuk) {
+            $joinDate = \Carbon\Carbon::parse($employee->tanggal_masuk);
+            $now = \Carbon\Carbon::now();
+            $diff = $joinDate->diff($now);
+            
+            $parts = [];
+            if ($diff->y > 0) $parts[] = $diff->y . ' Tahun';
+            if ($diff->m > 0) $parts[] = $diff->m . ' Bulan';
+            
+            if (empty($parts)) {
+                $masaKerja = $diff->d . ' Hari';
+            } else {
+                $masaKerja = implode(', ', $parts);
+            }
+        }
+        
+        $lastMonth = \Carbon\Carbon::now()->subMonth();
+        $lastPayroll = null;
+        if ($employee) {
+            $lastPayroll = \App\Http\Controllers\PayrollController::calculatePayroll($employee, $lastMonth->month, $lastMonth->year);
+        }
+
+        $todayAttendance = \App\Models\Attendance::where('employee_id', $employeeId)->where('tanggal', \Carbon\Carbon::today()->toDateString())->first();
+        $currentMonth = $request->input('month', \Carbon\Carbon::now()->month);
+        $currentYear = $request->input('year', \Carbon\Carbon::now()->year);
+        
+        $historyAttendances = \App\Models\Attendance::where('employee_id', $employeeId)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+            
+        $hadirCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'hadir')->count();
+        $izinCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'izin')->count();
+        $sakitCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'sakit')->count();
+        $alphaCount = \App\Models\Attendance::where('employee_id', $employeeId)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'alpha')->count();
+        
+        $cutiDanIzinTerpakai = \App\Models\Attendance::where('employee_id', $employeeId)
+            ->whereYear('tanggal', $currentYear)
+            ->whereIn('status_kehadiran', ['izin', 'cuti'])
+            ->count();
+        $sisaCutiTahunan = max(0, ($employee->kuota_cuti ?? 12) - $cutiDanIzinTerpakai);
+        
+        $monthlyAttendances = \App\Models\Attendance::where('employee_id', $employeeId)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->get()
+            ->keyBy('tanggal');
+            
+        $targetDate = \Carbon\Carbon::create($currentYear, $currentMonth, 1);
+        $firstDayOfMonth = $targetDate->dayOfWeekIso; // 1 = Senin, 7 = Minggu
+        $daysInMonth = $targetDate->daysInMonth;
+        
+        return view('backoffice.dashboard_karyawan', compact('todayAttendance', 'historyAttendances', 'hadirCount', 'izinCount', 'sakitCount', 'alphaCount', 'masaKerja', 'lastPayroll', 'lastMonth', 'sisaCutiTahunan', 'monthlyAttendances', 'currentMonth', 'currentYear', 'daysInMonth', 'firstDayOfMonth'));
     }
     
     // Manager Dashboard (default fallback for 'manager')
@@ -143,6 +191,7 @@ Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
 
 use App\Http\Controllers\PayrollController;
 Route::get('/backoffice/penggajian', [PayrollController::class, 'index'])->name('backoffice.penggajian');
+Route::get('/backoffice/penggajian/download-pdf/{id}', [PayrollController::class, 'downloadPdf'])->name('backoffice.penggajian.download.pdf');
 
 Route::get('/backoffice/laporan', function () {
     // Proteksi Role: Hanya dapat diakses oleh Manager
@@ -159,6 +208,52 @@ Route::get('/backoffice/pengaturan', function () {
     }
     return view('backoffice.pengaturan', compact('user'));
 })->name('backoffice.pengaturan');
+Route::post('/backoffice/pengaturan/cv', function (\Illuminate\Http\Request $request) {
+    $user = \Illuminate\Support\Facades\Auth::user();
+    if ($user && $user->employee) {
+        $user->employee->cv_text = $request->input('cv_text');
+        $user->employee->save();
+        return redirect()->back()->with('success', 'Data Pribadi & Riwayat Hidup berhasil disimpan.');
+    }
+    return redirect()->back()->with('error', 'Gagal menyimpan data. Akun tidak memiliki profil karyawan.');
+})->name('backoffice.pengaturan.cv');
+
+Route::post('/backoffice/pengaturan/notifikasi', function (\Illuminate\Http\Request $request) {
+    $user = \Illuminate\Support\Facades\Auth::user();
+    if ($user) {
+        $preferences = [
+            'laporan_absensi' => $request->has('notif_laporan_absensi'),
+            'peringatan_penggajian' => $request->has('notif_peringatan_penggajian'),
+            'permohonan_cuti' => $request->has('notif_permohonan_cuti'),
+        ];
+        $user->notification_preferences = json_encode($preferences);
+        $user->save();
+        return redirect()->back()->with('success', 'Preferensi pemberitahuan berhasil diperbarui.');
+    }
+    return redirect()->back()->with('error', 'Gagal menyimpan preferensi notifikasi.');
+})->name('backoffice.pengaturan.notifikasi');
+
+Route::post('/backoffice/pengaturan/password', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|min:8|confirmed',
+    ], [
+        'current_password.required' => 'Kata sandi saat ini wajib diisi.',
+        'new_password.required' => 'Kata sandi baru wajib diisi.',
+        'new_password.min' => 'Kata sandi baru minimal 8 karakter.',
+        'new_password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
+    ]);
+
+    $user = \Illuminate\Support\Facades\Auth::user();
+    if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+        return redirect()->back()->with('error', 'Kata sandi saat ini tidak sesuai.');
+    }
+
+    $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
+    $user->save();
+
+    return redirect()->back()->with('success', 'Kata sandi berhasil diperbarui.');
+})->name('backoffice.pengaturan.password');
 
 Route::post('/backoffice/pengaturan/upload-document', function (\Illuminate\Http\Request $request) {
     \Illuminate\Support\Facades\Log::info('Upload document route hit. Files:', $_FILES);

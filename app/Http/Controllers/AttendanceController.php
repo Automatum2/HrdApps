@@ -126,27 +126,48 @@ class AttendanceController extends Controller
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'tipe' => 'required|in:izin,sakit,cuti',
-            'keterangan' => 'required|string'
+            'keterangan' => 'required|string',
+            'dokumen_pendukung' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
         ]);
 
         $employeeId = session('employee_id', '00001221');
-        $mulai = Carbon::parse($request->tanggal_mulai);
-        $selesai = Carbon::parse($request->tanggal_selesai);
+        $mulai = Carbon::parse($request->tanggal_mulai)->startOfDay();
+        $selesai = Carbon::parse($request->tanggal_selesai)->startOfDay();
+        $besok = Carbon::tomorrow()->startOfDay();
+
+        // Validasi H-1: Cuti harus diajukan minimal sehari sebelumnya
+        if ($request->tipe === 'cuti' && $mulai->lt($besok)) {
+            return back()->with('error', 'Gagal: Batas maksimal pengajuan cuti adalah H-1 sebelum hari H.');
+        }
 
         // Menghitung jumlah hari yang diajukan
         $daysRequested = $mulai->diffInDays($selesai) + 1;
 
-        // Membatasi Izin dan Cuti maksimal 1 hari per bulan
+        // Membatasi Izin dan Cuti berdasarkan sisa Kuota Tahunan
         if (in_array($request->tipe, ['izin', 'cuti'])) {
-            $existingLeaveThisMonth = Attendance::where('employee_id', $employeeId)
-                ->whereMonth('tanggal', $mulai->month)
+            $employee = \App\Models\Employee::find($employeeId);
+            $kuotaCuti = $employee ? ($employee->kuota_cuti ?? 12) : 12;
+
+            $existingLeaveThisYear = Attendance::where('employee_id', $employeeId)
                 ->whereYear('tanggal', $mulai->year)
                 ->whereIn('status_kehadiran', ['izin', 'cuti'])
                 ->count();
 
-            if ($existingLeaveThisMonth + $daysRequested > 1) {
-                return back()->with('error', 'Gagal: Jatah izin/cuti maksimal hanya 1 hari per bulan. Anda sudah menggunakan ' . $existingLeaveThisMonth . ' hari bulan ini.');
+            if ($existingLeaveThisYear + $daysRequested > $kuotaCuti) {
+                return back()->with('error', 'Gagal: Sisa kuota cuti/izin tahunan Anda tidak mencukupi. Sisa kuota Anda tahun ini: ' . max(0, $kuotaCuti - $existingLeaveThisYear) . ' hari, dan Anda mengajukan ' . $daysRequested . ' hari.');
             }
+        }
+
+        $dokumenPath = null;
+        if ($request->hasFile('dokumen_pendukung')) {
+            $file = $request->file('dokumen_pendukung');
+            $fileName = 'doc_' . $employeeId . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = storage_path('app/public/documents');
+            if (!file_exists($path)) {
+                mkdir($path, 0755, true);
+            }
+            $file->move($path, $fileName);
+            $dokumenPath = 'documents/' . $fileName;
         }
 
         for ($date = clone $mulai; $date->lte($selesai); $date->addDay()) {
@@ -161,11 +182,17 @@ class AttendanceController extends Controller
                 $attendance->status_kerja = 'WFO'; 
                 $attendance->status_kehadiran = $request->tipe;
                 $attendance->keterangan = $request->keterangan;
+                if ($dokumenPath) {
+                    $attendance->dokumen_pendukung = $dokumenPath;
+                }
                 $attendance->save();
             } else {
                 if ($attendance->status_kehadiran != 'hadir') {
                     $attendance->status_kehadiran = $request->tipe;
                     $attendance->keterangan = $request->keterangan;
+                    if ($dokumenPath) {
+                        $attendance->dokumen_pendukung = $dokumenPath;
+                    }
                     $attendance->save();
                 }
             }

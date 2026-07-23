@@ -34,14 +34,7 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto w-full">
-    <!-- Breadcrumb -->
-    <nav class="no-print flex items-center gap-2 text-on-surface-variant mb-md font-body-sm">
-        <span class="hover:text-primary cursor-pointer">Payroll</span>
-        <span class="material-symbols-outlined text-sm">chevron_right</span>
-        <span class="hover:text-primary cursor-pointer">Proses Bulanan</span>
-        <span class="material-symbols-outlined text-sm">chevron_right</span>
-        <span class="text-primary font-bold">Slip Gaji</span>
-    </nav>
+
     
     <!-- Page Header -->
     <div class="no-print flex flex-col md:flex-row md:items-center justify-between gap-4 mb-xl">
@@ -54,10 +47,10 @@
                 <span class="material-symbols-outlined text-sm">print</span>
                 Print
             </button>
-            <button class="flex items-center gap-2 px-md py-2 bg-primary text-on-primary rounded-lg font-body-md font-bold hover:bg-primary-container transition-all shadow-md active:scale-95 btn-ripple">
+            <a href="{{ route('backoffice.penggajian.download.pdf', ['id' => $employee->id]) }}" class="flex items-center gap-2 px-md py-2 bg-primary text-on-primary rounded-lg font-body-md font-bold hover:bg-primary-container transition-all shadow-md active:scale-95 btn-ripple">
                 <span class="material-symbols-outlined text-sm">download</span>
                 Download PDF
-            </button>
+            </a>
         </div>
     </div>
     

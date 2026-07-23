@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'HRDApps Management Portal')</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.svg') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,8 +54,19 @@
         }
         @media (min-width: 1024px) {
             .main-content-desktop {
-                margin-left: 260px;
-                width: calc(100% - 260px);
+                margin-left: 260px !important;
+                width: calc(100% - 260px) !important;
+            }
+            .sidebar-mobile-hidden {
+                transform: translateX(0) !important;
+            }
+        }
+        @media (max-width: 1023px) {
+            .sidebar-mobile-hidden {
+                transform: translateX(-100%);
+            }
+            .sidebar-mobile-visible {
+                transform: translateX(0) !important;
             }
         }
     </style>
@@ -65,13 +77,18 @@
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity opacity-0 cursor-pointer"></div>
 
     <!-- Side Navigation Shell -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between transition-transform duration-300 lg:translate-x-0 -translate-x-full">
-        <div class="px-6 mb-10 flex items-center gap-3">
-            <img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="{{ asset('images/logo.svg') }}">
-            <div>
-                <h1 class="font-headline-md text-headline-md font-extrabold text-white leading-none">HRDApps</h1>
-                <p class="text-[10px] text-white/70 uppercase tracking-widest mt-1">Management Portal</p>
+    <aside id="sidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-[#1e293b] border-r border-outline-variant flex flex-col py-4 z-50 justify-between transition-transform duration-300 sidebar-mobile-hidden">
+        <div class="px-6 mb-10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img alt="HRDApps Logo" class="w-10 h-10 rounded-lg shadow-lg" src="{{ asset('images/logo.svg') }}">
+                <div>
+                    <h1 class="font-headline-md text-headline-md font-extrabold text-white leading-none">HRDApps</h1>
+                    <p class="text-[10px] text-white/70 uppercase tracking-widest mt-1">Management Portal</p>
+                </div>
             </div>
+            <button id="close-sidebar-btn" class="lg:hidden text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
         </div>
 
         <nav class="flex-1 space-y-1 overflow-y-auto px-2">
@@ -146,16 +163,27 @@
         </nav>
 
         @php
-            $userName = session('user_name', 'Budi Santoso');
+            $user = \Illuminate\Support\Facades\Auth::user();
             $userRole = session('user_role', 'manager');
-            $userPhoto = session('user_photo', asset('images/avatar.svg'));
             
+            // Dapatkan nama lengkap asli dari database atau fallback ke username/session
+            $userName = ($user && $user->employee) ? $user->employee->nama_lengkap : session('user_name', 'Budi Santoso');
+            
+            // Dapatkan foto
+            if ($user && $user->employee && $user->employee->foto) {
+                $userPhoto = asset('storage/' . $user->employee->foto);
+            } else {
+                $userPhoto = null;
+            }
+            
+            // Dapatkan ID
             if ($userRole === 'super_admin') {
                 $userTitle = 'Administrator';
             } elseif ($userRole === 'manager') {
                 $userTitle = 'Manager HRD';
             } else {
-                $userTitle = 'Employee ID: ' . session('employee_id', '00001221');
+                $employeeId = ($user && $user->employee) ? $user->employee->nik : session('employee_id', '00001221');
+                $userTitle = 'Employee ID: ' . $employeeId;
             }
         @endphp
         <div class="px-2 mt-auto mb-2">
@@ -171,6 +199,7 @@
                 <div class="overflow-hidden">
                     <p class="text-sm font-bold text-white truncate">{{ $userName }}</p>
                     <p class="text-[10px] text-white/70 uppercase tracking-wider truncate">{{ $userTitle }}</p>
+                    <!-- debug: {{ $userPhoto }} | user: {{ $user ? $user->username : 'none' }} | has_employee: {{ $user && $user->employee ? 'yes' : 'no' }} | foto: {{ $user && $user->employee ? $user->employee->foto : 'none' }} -->
                 </div>
             </div>
             
@@ -185,7 +214,7 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="main-content-desktop flex flex-col min-h-screen transition-all duration-300 w-full lg:w-auto">
+    <main id="main-content" class="flex flex-col min-h-screen transition-all duration-300 w-full main-content-desktop">
         <!-- Top App Bar -->
         <header class="flex items-center justify-between px-4 lg:px-8 h-16 bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm bg-white">
             <div class="flex items-center gap-4">
@@ -193,13 +222,16 @@
                     <span class="material-symbols-outlined text-2xl">menu</span>
                 </button>
                 <h2 class="font-headline-md text-headline-md text-primary font-bold">@yield('page_title', 'Dashboard')</h2>
+                {{-- Fitur Search (Dimatikan sementara) 
                 <div class="relative hidden lg:block ml-4">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
                     <input class="bg-surface-container-low border border-outline-variant rounded-full pl-10 pr-5 py-2 text-body-md w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none text-on-surface" placeholder="Search data..." type="text">
                 </div>
+                --}}
             </div>
             
             <div class="flex items-center gap-6">
+                {{-- Fitur Notifikasi & Bantuan (Dimatikan sementara) 
                 <div class="flex items-center gap-4">
                     <button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80 animate-bell-swing">
                         <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
@@ -209,6 +241,7 @@
                         <span class="material-symbols-outlined text-on-surface-variant">help</span>
                     </button>
                 </div>
+                --}}
             </div>
         </header>
 
@@ -237,11 +270,12 @@
     <script>
         // Toggle Sidebar for Mobile
         const btnMenu = document.getElementById('mobile-menu-btn');
+        const btnClose = document.getElementById('close-sidebar-btn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
 
         function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('sidebar-mobile-visible');
             if (overlay.classList.contains('hidden')) {
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.remove('opacity-0'), 10);
@@ -252,6 +286,7 @@
         }
 
         if (btnMenu) btnMenu.addEventListener('click', toggleSidebar);
+        if (btnClose) btnClose.addEventListener('click', toggleSidebar);
         if (overlay) overlay.addEventListener('click', toggleSidebar);
     </script>
 </body>

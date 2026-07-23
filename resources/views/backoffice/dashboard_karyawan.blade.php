@@ -10,14 +10,27 @@
     <div class="lg:col-span-2 relative overflow-hidden rounded-xl bg-[#1e293b] text-white p-8 flex flex-col md:flex-row items-center justify-between shadow-lg border border-outline-variant">
         <div class="relative z-10 space-y-2 text-center md:text-left">
             <p class="font-body-md opacity-80">Selamat Datang,</p>
-            <h3 class="font-display-lg text-3xl font-extrabold tracking-tight">{{ session('user_name', 'Ahmad Fadillah') }}</h3>
+            <h3 class="font-display-lg text-3xl font-extrabold tracking-tight">{{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nama_lengkap : session('user_name', 'Ahmad Fadillah') }}</h3>
             <div class="flex items-center gap-4 mt-4 justify-center md:justify-start">
                 <span class="px-3 py-1 bg-primary text-white rounded-full text-[12px] font-bold tracking-wide uppercase">Tetap Produktif!</span>
-                <span class="text-body-sm opacity-70">Employee ID : {{ session('employee_id', '00001221') }}</span>
+                <span class="text-body-sm opacity-70">Employee ID : {{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nik : session('employee_id', '00001221') }}</span>
+                @if(isset($masaKerja))
+                <span class="text-body-sm opacity-70 border-l border-white/30 pl-4">Masa Kerja: <span class="font-bold">{{ $masaKerja }}</span></span>
+                @endif
+                @if(isset($sisaCutiTahunan))
+                <span class="text-body-sm opacity-70 border-l border-white/30 pl-4">Sisa Cuti: <span class="font-bold text-amber-400">{{ $sisaCutiTahunan }} Hari</span></span>
+                @endif
             </div>
         </div>
         <div class="mt-6 md:mt-0 relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-primary/20 shadow-xl overflow-hidden bg-slate-700">
-            <img class="w-full h-full object-cover" alt="Foto Profil" src="{{ session('user_photo') ?: asset('images/avatar.svg') }}">
+            @php
+                $user = \Illuminate\Support\Facades\Auth::user();
+                $dashboardPhoto = asset('images/avatar.svg');
+                if ($user && $user->employee && $user->employee->foto) {
+                    $dashboardPhoto = asset('storage/' . $user->employee->foto);
+                }
+            @endphp
+            <img class="w-full h-full object-cover" alt="Foto Profil" src="{{ $dashboardPhoto }}">
         </div>
         <!-- Background Decoration -->
         <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
@@ -32,7 +45,17 @@
         </div>
         <div class="space-y-4">
             <!-- Box status (Default: Belum Absen) -->
-            @if(!$todayAttendance || !$todayAttendance->jam_masuk)
+            @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
+            <div class="flex items-center gap-4 p-4 bg-primary/10 rounded-xl border border-primary/20 transition-all duration-300" id="status-box">
+                <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
+                    <span class="material-symbols-outlined text-2xl" id="status-icon">event_available</span>
+                </div>
+                <div>
+                    <p class="text-body-sm text-primary font-bold leading-tight transition-all duration-300 uppercase" id="status-text">Status: {{ $todayAttendance->status_kehadiran }}</p>
+                    <p class="text-[12px] text-on-surface-variant" id="status-desc">{{ $todayAttendance->keterangan ?? 'Tidak ada keterangan' }}</p>
+                </div>
+            </div>
+            @elseif(!$todayAttendance || !$todayAttendance->jam_masuk)
             <div class="flex items-center gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200 transition-all duration-300" id="status-box">
                 <div class="w-12 h-12 rounded-lg bg-slate-400 flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
                     <span class="material-symbols-outlined text-2xl" id="status-icon">pending_actions</span>
@@ -83,7 +106,13 @@
 
 <!-- Action Buttons Section (Bento Float) -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    @if(!$todayAttendance || !$todayAttendance->jam_masuk)
+    @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
+        <!-- Sedang Cuti/Izin/Sakit -->
+        <div class="opacity-80 bg-primary/20 group flex items-center justify-center gap-4 py-6 text-primary rounded-xl font-bold text-lg shadow-lg border border-primary/30" style="pointer-events: none;">
+            <span class="material-symbols-outlined text-3xl">event_available</span>
+            <span class="uppercase">Status Hari Ini: {{ $todayAttendance->status_kehadiran }}</span>
+        </div>
+    @elseif(!$todayAttendance || !$todayAttendance->jam_masuk)
         <!-- Belum Clock In -> Tampilkan Clock In -->
         <a href="{{ route('attendance.index') }}" class="hover-card-float bg-primary shadow-primary/20 hover:bg-primary/90 cursor-pointer group flex items-center justify-center gap-4 py-6 text-white rounded-xl font-bold text-lg shadow-lg transition-all active:scale-[0.98]" id="btn-clock-in">
             <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">schedule</span>
@@ -104,23 +133,23 @@
     @endif
 
     <button class="hover-card-float group flex items-center justify-center gap-4 py-6 rounded-xl font-bold text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] cursor-pointer" style="background-color: #f59e0b; color: #ffffff;" id="btn-request-leave">
-        <span class="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">event_note</span>
-        <span>Ajukan Cuti / Izin</span>
+        <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">event_busy</span>
+        <span>Lapor Ketidakhadiran</span>
     </button>
 </div>
 
 <!-- Inline Request Leave Form -->
 <div id="form-request-leave" class="hidden mt-6 bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-300 transform origin-top">
     <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
-        <h3 class="font-title-sm text-lg font-bold text-slate-800 flex items-center gap-2">
-            <span class="material-symbols-outlined text-amber-500">event_note</span>
-            Formulir Pengajuan Cuti / Izin
+        <h3 class="font-title-sm text-title-sm font-bold text-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">edit_document</span>
+            Lapor Ketidakhadiran (Cuti/Izin/Sakit)
         </h3>
         <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
-    <form action="{{ route('attendance.leave') }}" method="POST" class="p-6">
+    <form action="{{ route('attendance.leave') }}" method="POST" class="p-6" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="space-y-4">
@@ -143,17 +172,21 @@
                         <input type="date" name="tanggal_selesai" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                     </div>
                 </div>
+                <div id="container-dokumen">
+                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Dokumen Pendukung <span class="text-xs font-normal text-slate-400">(Surat Dokter dll)</span></label>
+                    <input type="file" name="dokumen_pendukung" accept="image/*,.pdf" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                </div>
             </div>
             <div class="lg:col-span-2 flex flex-col justify-between h-full">
                 <div>
                     <label class="block text-body-sm font-bold text-slate-700 mb-1">Keterangan / Alasan</label>
-                    <textarea name="keterangan" rows="4" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Tuliskan keterangan secara singkat..."></textarea>
+                    <textarea name="keterangan" rows="6" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Tuliskan keterangan secara singkat..."></textarea>
                 </div>
                 <div class="mt-4 flex items-center justify-end gap-3">
                     <button type="button" class="px-6 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
                         Tutup
                     </button>
-                    <button type="submit" class="px-6 py-2 text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 rounded-lg shadow-md transition-colors cursor-pointer">
+                    <button type="submit" class="px-6 py-2 text-sm font-bold text-white rounded-lg shadow-md transition-colors cursor-pointer" style="background-color: #f59e0b;">
                         Kirim Pengajuan
                     </button>
                 </div>
@@ -162,12 +195,12 @@
     </form>
 </div>
 
-<!-- Middle Section: Summary & Calendar -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Middle Section: Summary & Payroll -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
     <!-- Monthly Summary Bento -->
-    <div class="lg:col-span-4 space-y-6">
+    <div class="lg:col-span-2 space-y-4">
         <h4 class="font-title-sm text-title-sm font-semibold text-lg">Ringkasan Bulan Ini</h4>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="hover-card-float p-4 bg-white rounded-xl border border-outline-variant shadow-sm hover:border-primary/30 transition-colors">
                 <p class="text-label-uppercase text-outline mb-2 text-xs font-bold tracking-wider">HADIR</p>
                 <div class="flex items-baseline gap-2">
@@ -209,122 +242,118 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Additional Widget: Next Holiday -->
-        <div class="hover-card-float p-6 bg-primary/5 border border-primary/20 rounded-xl relative overflow-hidden group">
-            <div class="relative z-10">
-                <p class="text-label-uppercase text-primary font-bold mb-1 text-xs tracking-wider">LIBUR BERIKUTNYA</p>
-                <h5 class="text-title-sm font-bold text-slate-800 text-lg">Idul Adha 1447 H</h5>
-                <p class="text-body-sm text-on-surface-variant text-sm mt-1">Selasa, 16 Juni 2026</p>
-            </div>
-            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-primary/5 group-hover:scale-110 transition-transform">event_upcoming</span>
-        </div>
     </div>
     
-    <!-- Monthly Calendar -->
-    <div class="lg:col-span-8 bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
-        <div class="p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container-low/30">
+    @if(isset($lastPayroll))
+    <div class="space-y-4">
+        <h4 class="font-title-sm text-title-sm font-semibold text-lg opacity-0 hidden lg:block">&nbsp;</h4>
+        <!-- Additional Widget: Last Payroll -->
+        <div class="hover-card-float p-6 bg-white border border-outline-variant rounded-xl relative overflow-hidden group shadow-sm hover:border-primary/30 transition-colors h-[calc(100%-2rem)]">
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-label-uppercase text-outline font-bold mb-1 text-xs tracking-wider">GAJI TERAKHIR ({{ $lastMonth->translatedFormat('F Y') }})</p>
+                    <a href="{{ route('backoffice.penggajian') }}" class="text-primary hover:text-primary/70 transition-colors" title="Lihat Slip Gaji Lengkap">
+                        <span class="material-symbols-outlined text-xl">open_in_new</span>
+                    </a>
+                </div>
+                <h5 class="text-title-sm font-bold text-2xl text-slate-800">Rp {{ number_format($lastPayroll['gajiBersih'], 0, ',', '.') }}</h5>
+                <div class="flex gap-4 mt-4 pt-4 border-t border-outline-variant/30">
+                    <div>
+                        <p class="text-[10px] text-outline uppercase tracking-wider font-semibold">Pendapatan</p>
+                        <p class="text-sm font-bold text-green-500 mt-0.5">+Rp {{ number_format($lastPayroll['gajiKotor'], 0, ',', '.') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-outline uppercase tracking-wider font-semibold">Potongan</p>
+                        <p class="text-sm font-bold text-red-500 mt-0.5">-Rp {{ number_format($lastPayroll['totalPotongan'], 0, ',', '.') }}</p>
+                    </div>
+                </div>
+            </div>
+            <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[100px] text-slate-100 group-hover:scale-110 transition-transform">payments</span>
+        </div>
+    </div>
+    @endif
+</div>
+
+<!-- Bottom Section: Calendar -->
+<div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col mb-6">
+    <div class="p-6 border-b border-outline-variant flex flex-col md:flex-row items-center justify-between bg-surface-container-low/30 gap-4">
             <div>
                 <h4 class="font-title-sm text-title-sm font-semibold text-lg">Kalender Absensi</h4>
-                <p class="text-body-sm text-on-surface-variant text-sm mt-1">Rekam kehadiran Juni 2026</p>
+                <p class="text-body-sm text-on-surface-variant text-sm mt-1">Rekam kehadiran {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->translatedFormat('F Y') }}</p>
             </div>
             <div class="flex items-center gap-2">
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-slate-50 active:scale-95 transition-all"><span class="material-symbols-outlined">chevron_left</span></button>
-                <span class="px-4 py-2 font-bold text-on-surface">Juni 2026</span>
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-slate-50 active:scale-95 transition-all"><span class="material-symbols-outlined">chevron_right</span></button>
+                @php
+                    $prevMonth = $currentMonth == 1 ? 12 : $currentMonth - 1;
+                    $prevYear = $currentMonth == 1 ? $currentYear - 1 : $currentYear;
+                    $nextMonth = $currentMonth == 12 ? 1 : $currentMonth + 1;
+                    $nextYear = $currentMonth == 12 ? $currentYear + 1 : $currentYear;
+                @endphp
+                <a href="{{ route('backoffice.dashboard', ['month' => $prevMonth, 'year' => $prevYear]) }}" class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-slate-50 active:scale-95 transition-all"><span class="material-symbols-outlined">chevron_left</span></a>
+                <span class="px-4 py-2 font-bold text-on-surface">{{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->translatedFormat('F Y') }}</span>
+                <a href="{{ route('backoffice.dashboard', ['month' => $nextMonth, 'year' => $nextYear]) }}" class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-slate-50 active:scale-95 transition-all"><span class="material-symbols-outlined">chevron_right</span></a>
             </div>
         </div>
         <div class="p-6 flex-1">
             <!-- Calendar Grid -->
             <div class="grid grid-cols-7 mb-4 font-bold text-xs uppercase text-center">
-                <div class="text-error py-2">Min</div>
                 <div class="text-slate-500 py-2">Sen</div>
                 <div class="text-slate-500 py-2">Sel</div>
                 <div class="text-slate-500 py-2">Rab</div>
                 <div class="text-slate-500 py-2">Kam</div>
                 <div class="text-slate-500 py-2">Jum</div>
-                <div class="text-slate-500 py-2">Jum</div>
+                <div class="text-slate-500 py-2">Sab</div>
+                <div class="text-error py-2">Min</div>
             </div>
             <div class="grid grid-cols-7 gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200">
-                <!-- 1 Juni 2026 - 15 Juni 2026 -->
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">1</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">2</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">3</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-primary"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">4</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">5</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">6</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">7</span></div>
+                @php
+                    $today = \Carbon\Carbon::today();
+                @endphp
                 
-                <!-- Minggu 2 -->
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">8</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">9</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">10</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">11</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors relative">
-                    <span class="text-body-sm text-slate-400">12</span>
-                    <div class="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-                </div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">13</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">14</span></div>
+                {{-- Padding empty cells for the start of the month --}}
+                @for ($i = 1; $i < $firstDayOfMonth; $i++)
+                    <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300"></span></div>
+                @endfor
                 
-                <!-- Hari Ini (15 Juni) -->
-                <div class="bg-primary/5 aspect-square p-2 group border-2 border-primary relative" id="calendar-today">
-                    <span class="text-body-sm font-bold text-primary">15</span>
-                    <div class="absolute bottom-2 right-2 flex gap-1" id="calendar-today-indicator">
-                        <!-- Indikator dot hijau jika sudah absen -->
+                {{-- Days of the month --}}
+                @for ($day = 1; $day <= $daysInMonth; $day++)
+                    @php
+                        $currentDate = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
+                        $dateString = $currentDate->toDateString();
+                        $isToday = $currentDate->isSameDay($today);
+                        $isWeekend = $currentDate->isWeekend();
+                        
+                        $attendance = $monthlyAttendances->get($dateString);
+                        
+                        $bgColor = $isToday ? 'bg-primary/5 border-2 border-primary' : ($isWeekend ? 'bg-slate-100' : 'bg-white');
+                        $textColor = $isToday ? 'text-primary font-bold' : ($isWeekend ? 'text-slate-400' : 'text-slate-500');
+                    @endphp
+                    
+                    <div class="{{ $bgColor }} aspect-square p-2 group {{ !$isWeekend ? 'hover:bg-slate-50 transition-colors' : '' }} relative">
+                        <span class="text-body-sm {{ $textColor }}">{{ $day }}</span>
+                        
+                        @if ($attendance)
+                            <div class="absolute bottom-2 right-2 flex gap-1">
+                                @if ($attendance->status_kehadiran == 'hadir')
+                                    <div class="w-2.5 h-2.5 rounded-full bg-tertiary-container" title="Hadir"></div>
+                                @elseif (in_array($attendance->status_kehadiran, ['izin', 'cuti']))
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary" title="{{ ucfirst($attendance->status_kehadiran) }}"></div>
+                                @elseif ($attendance->status_kehadiran == 'sakit')
+                                    <div class="w-2.5 h-2.5 rounded-full bg-secondary" title="Sakit"></div>
+                                @elseif ($attendance->status_kehadiran == 'alpha')
+                                    <div class="w-2.5 h-2.5 rounded-full bg-error" title="Alpha"></div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
-                </div>
+                @endfor
                 
-                <!-- Hari Seterusnya -->
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">16</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">17</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">18</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">19</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">20</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">21</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">22</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">23</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">24</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">25</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">26</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">27</span></div>
-                <div class="bg-slate-100 aspect-square p-2"><span class="text-body-sm text-slate-300">28</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">29</span></div>
-                <div class="bg-white aspect-square p-2 group hover:bg-slate-50 transition-colors"><span class="text-body-sm">30</span></div>
-                
-                <!-- Padding grid sisa -->
-                <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300">1</span></div>
-                <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300">2</span></div>
-                <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300">3</span></div>
-                <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300">4</span></div>
-                <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300">5</span></div>
+                {{-- Padding empty cells for the end of the month --}}
+                @php
+                    $lastDayOfWeek = \Carbon\Carbon::create($currentYear, $currentMonth, $daysInMonth)->dayOfWeekIso;
+                @endphp
+                @for ($i = $lastDayOfWeek; $i < 7; $i++)
+                    <div class="bg-slate-100 aspect-square p-2 opacity-30"><span class="text-body-sm text-slate-300"></span></div>
+                @endfor
             </div>
             
             <div class="mt-6 flex flex-wrap gap-4 items-center justify-center text-[12px]">
@@ -341,17 +370,8 @@
 <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
     <div class="p-6 border-b border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h4 class="font-title-sm text-title-sm font-semibold text-lg">Riwayat Absensi Terakhir</h4>
-            <p class="text-body-sm text-on-surface-variant text-sm mt-1">Menampilkan 5 rekaman terakhir aktivitas Anda</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <button class="px-4 py-2 text-body-sm font-bold border border-outline-variant rounded-lg hover:bg-slate-100 transition-all flex items-center gap-2 cursor-pointer">
-                <span class="material-symbols-outlined text-sm">filter_list</span>
-                <span>Filter</span>
-            </button>
-            <button class="px-4 py-2 text-body-sm font-bold text-primary border border-primary/20 bg-primary/5 rounded-lg hover:bg-primary/10 transition-all cursor-pointer">
-                <span>Lihat Semua Riwayat</span>
-            </button>
+            <h4 class="font-title-sm text-title-sm font-semibold text-lg">Riwayat Absensi</h4>
+            <p class="text-body-sm text-on-surface-variant text-sm mt-1">Menampilkan aktivitas absensi pada bulan {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->translatedFormat('F Y') }}</p>
         </div>
     </div>
     <div class="overflow-x-auto">
@@ -442,19 +462,14 @@
         const tipeSelect = document.querySelector('select[name="tipe"]');
         const containerTanggalSelesai = document.getElementById('container-tanggal-selesai');
         const inputTanggalSelesai = document.querySelector('input[name="tanggal_selesai"]');
-        const containerMulai = document.querySelector('input[name="tanggal_mulai"]').parentElement;
+        const inputTanggalMulai = document.querySelector('input[name="tanggal_mulai"]');
+        const containerMulai = inputTanggalMulai.parentElement;
 
-        if (tipeSelect && containerTanggalSelesai && inputTanggalSelesai) {
-            tipeSelect.addEventListener('change', (e) => {
-                if (e.target.value === 'sakit') {
-                    containerTanggalSelesai.classList.add('hidden');
-                    inputTanggalSelesai.removeAttribute('required');
-                    inputTanggalSelesai.value = ''; // Reset the value
-                    containerMulai.classList.add('col-span-2'); // Make start date span full width
-                } else {
-                    containerTanggalSelesai.classList.remove('hidden');
-                    inputTanggalSelesai.setAttribute('required', 'required');
-                    containerMulai.classList.remove('col-span-2');
+        if (tipeSelect && containerTanggalSelesai && inputTanggalSelesai && inputTanggalMulai) {
+            // Otomatis isi Tgl Selesai dengan Tgl Mulai (1 hari)
+            inputTanggalMulai.addEventListener('change', (e) => {
+                if (!inputTanggalSelesai.value || inputTanggalSelesai.value <= e.target.value) {
+                    inputTanggalSelesai.value = e.target.value;
                 }
             });
         }

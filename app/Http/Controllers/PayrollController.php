@@ -47,6 +47,29 @@ class PayrollController extends Controller
         return view('backoffice.penggajian', compact('payrolls', 'totalGajiBersih', 'monthName'));
     }
 
+    public function downloadPdf($id)
+    {
+        $employee = Employee::with('department', 'position')->find($id);
+        
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Karyawan tidak ditemukan.');
+        }
+
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        
+        $data = self::calculatePayroll($employee, $currentMonth, $currentYear);
+        $data['monthName'] = Carbon::now()->translatedFormat('F Y');
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('backoffice.pdf.slip_gaji', $data);
+        $pdf->setPaper('A4', 'portrait');
+        
+        $fileName = 'Slip_Gaji_' . str_replace(' ', '_', $employee->nama_lengkap) . '_' . date('M_Y') . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+
     public static function calculatePayroll($employee, $month, $year)
     {
         $gajiPokok = $employee->gaji_pokok ?? 0;

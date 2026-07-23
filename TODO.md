@@ -20,7 +20,7 @@ Berikut adalah rekap halaman untuk Karyawan (*Employee Role*) yang sudah selesai
 
 ### ⏳ Belum Selesai (To-Do)
 - [x] **Modul Penggajian / Slip Gaji:** Halaman untuk melihat detail dan rincian gaji bulanan. (Selesai)
-- [ ] **Modul Riwayat Lengkap Absensi:** Halaman kalender / daftar tabel untuk melihat riwayat absen lengkap di bulan-bulan sebelumnya.
+- [x] **Modul Riwayat Lengkap Absensi:** Halaman kalender / daftar tabel untuk melihat riwayat absen lengkap di bulan-bulan sebelumnya.
 - [ ] **Rekap Absensi (Khusus Manager):** Fitur dan halaman bagi Manager untuk melihat, memantau, dan memvalidasi data absensi (jam masuk/keluar & foto/lokasi) dari *seluruh* karyawan.
 - [x] **Pengaturan Profil & Akun:** Halaman bagi karyawan untuk mengganti profil dan *upload* dokumen. (Selesai)
   - *Catatan Teknis Upload File:* 

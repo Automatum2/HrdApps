@@ -6,11 +6,6 @@
 @section('content')
 <!-- Header Section -->
 <div class="mb-6">
-    <nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm mb-1">
-        <a class="hover:text-primary transition-colors text-xs" href="{{ route('backoffice.dashboard') }}">Beranda</a>
-        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <span class="text-primary font-semibold text-xs">Pengaturan</span>
-    </nav>
     <p class="text-body-sm text-on-surface-variant">Kelola profil akun administrator, preferensi pemberitahuan, konfigurasi HR perusahaan, serta riwayat keamanan.</p>
 </div>
 
@@ -92,8 +87,8 @@
                 <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
                     <div class="relative group">
                         @php
-                            $photoUrl = session('user_photo');
-                            if (!$photoUrl && isset($user) && $user->employee && $user->employee->foto) {
+                            $photoUrl = null;
+                            if (isset($user) && $user->employee && $user->employee->foto) {
                                 $photoUrl = asset('storage/' . $user->employee->foto);
                             }
                         @endphp
@@ -145,12 +140,20 @@
                     </div>
                     
                     <!-- Editor Container -->
-                    <div class="rounded-xl border border-outline-variant overflow-hidden hover:border-primary/50 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
-                        <div id="cv-editor" style="height: 300px; font-family: 'Inter', sans-serif;">
-                            <h2>Ringkasan Profesional</h2>
-                            <p>Saya adalah seorang profesional HR yang berpengalaman...</p>
+                    <form action="{{ route('backoffice.pengaturan.cv') }}" method="POST" id="cv-form">
+                        @csrf
+                        <input type="hidden" name="cv_text" id="cv_text_input">
+                        <div class="rounded-xl border border-outline-variant overflow-hidden hover:border-primary/50 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+                            <div id="cv-editor" style="height: 300px; font-family: 'Inter', sans-serif;">
+                                {!! $user->employee->cv_text ?? '<h2>Ringkasan Profesional</h2><p>Tuliskan ringkasan pengalaman dan skill Anda di sini...</p>' !!}
+                            </div>
                         </div>
-                    </div>
+                        <div class="mt-4 flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                                Simpan Profil CV
+                            </button>
+                        </div>
+                    </form>
                     
                     <!-- Lampiran Dokumen Pribadi (Downloadable) -->
                     <div class="mt-6">
@@ -182,7 +185,7 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary" title="Download">
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" download="{{ $doc->file_name }}" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-white transition-colors cursor-pointer text-on-surface-variant group-hover:text-primary" title="Download">
                                             <span class="material-symbols-outlined text-[16px]">download</span>
                                         </a>
                                         <form action="{{ route('backoffice.pengaturan.delete.document', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
@@ -235,50 +238,66 @@
         <div class="settings-panel space-y-6 hidden" id="panel-notifikasi">
             <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
                 <h3 class="font-bold text-sm text-on-surface mb-6">Preferensi Pemberitahuan</h3>
-                <div class="space-y-4">
-                    <!-- Item 1 -->
-                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
-                        <div class="flex gap-4 items-center">
-                            <span class="material-symbols-outlined text-primary text-xl">event_available</span>
-                            <div>
-                                <p class="font-bold text-xs text-on-surface">Laporan Absensi</p>
-                                <p class="text-[10px] text-on-surface-variant font-medium">Terima rekap harian absensi karyawan.</p>
+                
+                @php
+                    $prefs = json_decode($user->notification_preferences, true) ?? [];
+                    $laporan_absensi = $prefs['laporan_absensi'] ?? true;
+                    $peringatan_penggajian = $prefs['peringatan_penggajian'] ?? true;
+                    $permohonan_cuti = $prefs['permohonan_cuti'] ?? false;
+                @endphp
+                
+                <form action="{{ route('backoffice.pengaturan.notifikasi') }}" method="POST">
+                    @csrf
+                    <div class="space-y-4">
+                        <!-- Item 1 -->
+                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                            <div class="flex gap-4 items-center">
+                                <span class="material-symbols-outlined text-primary text-xl">event_available</span>
+                                <div>
+                                    <p class="font-bold text-xs text-on-surface">Laporan Absensi</p>
+                                    <p class="text-[10px] text-on-surface-variant font-medium">Terima rekap harian absensi karyawan.</p>
+                                </div>
                             </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="notif_laporan_absensi" class="sr-only peer" {{ $laporan_absensi ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input checked class="sr-only peer" type="checkbox">
-                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-                    <!-- Item 2 -->
-                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
-                        <div class="flex gap-4 items-center">
-                            <span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
-                            <div>
-                                <p class="font-bold text-xs text-on-surface">Peringatan Penggajian</p>
-                                <p class="text-[10px] text-on-surface-variant font-medium">Notifikasi saat periode payroll dimulai.</p>
+                        <!-- Item 2 -->
+                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                            <div class="flex gap-4 items-center">
+                                <span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
+                                <div>
+                                    <p class="font-bold text-xs text-on-surface">Peringatan Penggajian</p>
+                                    <p class="text-[10px] text-on-surface-variant font-medium">Notifikasi saat periode payroll dimulai.</p>
+                                </div>
                             </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="notif_peringatan_penggajian" class="sr-only peer" {{ $peringatan_penggajian ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input checked class="sr-only peer" type="checkbox">
-                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-                    <!-- Item 3 -->
-                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
-                        <div class="flex gap-4 items-center">
-                            <span class="material-symbols-outlined text-primary text-xl">time_to_leave</span>
-                            <div>
-                                <p class="font-bold text-xs text-on-surface">Permohonan Cuti</p>
-                                <p class="text-[10px] text-on-surface-variant font-medium">Pemberitahuan real-time untuk pengajuan cuti.</p>
+                        <!-- Item 3 -->
+                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg gap-4">
+                            <div class="flex gap-4 items-center">
+                                <span class="material-symbols-outlined text-primary text-xl">time_to_leave</span>
+                                <div>
+                                    <p class="font-bold text-xs text-on-surface">Permohonan Cuti</p>
+                                    <p class="text-[10px] text-on-surface-variant font-medium">Pemberitahuan real-time untuk pengajuan cuti.</p>
+                                </div>
                             </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="notif_permohonan_cuti" class="sr-only peer" {{ $permohonan_cuti ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input class="sr-only peer" type="checkbox">
-                            <div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
                     </div>
-                </div>
+                    <div class="mt-6 flex justify-end">
+                        <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                            Simpan Preferensi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -328,17 +347,29 @@
         <!-- Panel 4: Keamanan (Hidden by default) -->
         <div class="settings-panel space-y-6 hidden" id="panel-keamanan">
             <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
-                <h3 class="font-bold text-sm text-on-surface mb-6">Otentikasi Dua Faktor (2FA)</h3>
-                <div class="flex items-start gap-4 p-4 border-2 border-dashed border-outline-variant rounded-xl mb-6 bg-surface-container-low">
-                    <div class="bg-primary/10 p-3 rounded-lg text-primary">
-                        <span class="material-symbols-outlined text-3xl">vibration</span>
+                <h3 class="font-bold text-sm text-on-surface mb-6">Keamanan Akun</h3>
+                <!-- Ubah Kata Sandi -->
+                <h4 class="font-bold text-xs text-on-surface mb-4">Ubah Kata Sandi</h4>
+                <form action="{{ route('backoffice.pengaturan.password') }}" method="POST" class="mb-8">
+                    @csrf
+                    <div class="space-y-4 max-w-md">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Kata Sandi Saat Ini</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs" type="password" name="current_password" required placeholder="Masukkan kata sandi saat ini">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Kata Sandi Baru</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs" type="password" name="new_password" required placeholder="Masukkan kata sandi baru (min. 8 karakter)">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Konfirmasi Kata Sandi Baru</label>
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none text-xs" type="password" name="new_password_confirmation" required placeholder="Ulangi kata sandi baru">
+                        </div>
+                        <button type="submit" class="px-6 py-2 mt-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                            Perbarui Kata Sandi
+                        </button>
                     </div>
-                    <div>
-                        <p class="font-bold text-xs text-on-surface">Tingkatkan Keamanan Akun Anda</p>
-                        <p class="text-[10px] text-on-surface-variant mb-3 font-medium">Gunakan aplikasi autentikator untuk mendapatkan kode verifikasi saat login.</p>
-                        <button class="px-4 py-2 bg-primary text-white rounded-lg font-bold text-xs hover:brightness-110 active:scale-95 transition-all cursor-pointer" onclick="alert('Mengaktifkan verifikasi Dua Faktor...')">Aktifkan 2FA</button>
-                    </div>
-                </div>
+                </form>
                 
                 <h4 class="font-bold text-xs text-on-surface mb-4">Riwayat Login Terakhir</h4>
                 <div class="overflow-x-auto custom-scrollbar">
@@ -463,6 +494,14 @@
             // Kustomisasi style toolbar bawaan Quill agar match dengan Tailwind
             document.querySelector('.ql-toolbar').classList.add('bg-surface-container-low', 'border-b', 'border-outline-variant', 'border-0');
             document.querySelector('.ql-container').classList.add('text-body-md', 'border-0');
+            
+            // Tangkap isi editor sebelum submit
+            var cvForm = document.getElementById('cv-form');
+            if (cvForm) {
+                cvForm.onsubmit = function() {
+                    document.getElementById('cv_text_input').value = quill.root.innerHTML;
+                };
+            }
         }
     });
 

@@ -63,21 +63,6 @@
                 </div>
             </div>
             
-            <!-- Status Kerja Dropdown -->
-            <div class="space-y-base">
-                <label class="font-label-uppercase text-label-uppercase text-on-surface-variant px-1" for="status">Status Kerja</label>
-                <div class="relative group">
-                    <select class="w-full appearance-none px-md py-sm border border-outline-variant rounded-lg bg-white font-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer" id="status" name="status">
-                        <option value="WFO">WFO</option>
-                        <option value="WFH">WFH</option>
-                        <option value="WFF">WFF</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none text-secondary">
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </div>
-                </div>
-            </div>
-
 
             
             <!-- Options -->
