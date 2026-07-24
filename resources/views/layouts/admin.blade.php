@@ -60,6 +60,9 @@
             .sidebar-mobile-hidden {
                 transform: translateX(0) !important;
             }
+            #mobile-menu-btn, #close-sidebar-btn {
+                display: none !important;
+            }
         }
         @media (max-width: 1023px) {
             .sidebar-mobile-hidden {
@@ -190,9 +193,9 @@
             <!-- Profil Singkat User -->
             <div class="px-4 py-4 mb-2 mx-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
                 @if($userPhoto)
-                    <img alt="{{ $userName }}" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="{{ $userPhoto }}">
+                    <img alt="{{ $userName }}" class="w-10 h-10 shrink-0 rounded-full border border-outline-variant object-cover" src="{{ $userPhoto }}">
                 @else
-                    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg border border-white/10 shadow-sm">
+                    <div class="w-10 h-10 shrink-0 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg border border-white/10 shadow-sm">
                         {{ strtoupper(substr($userName, 0, 1)) }}
                     </div>
                 @endif

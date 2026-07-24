@@ -17,7 +17,7 @@ class EmployeeController extends Controller
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman ini hanya untuk Super Admin.');
         }
 
-        $employees = Employee::orderBy('id', 'desc')->get();
+        $employees = Employee::orderBy('id', 'desc')->paginate(10);
         return view('backoffice.super_admin_kelola_karyawan', compact('employees'));
     }
 
@@ -71,8 +71,9 @@ class EmployeeController extends Controller
             'employee_id' => $employee->id
         ]);
 
-        // Send activation/reset password link
-        Password::broker()->sendResetLink(['email' => $user->email]);
+        // Send activation link
+        $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
+        $user->notify(new \App\Notifications\AccountActivation($token));
 
         return redirect()->back()->with('success', 'Karyawan ' . $employee->nama_lengkap . ' berhasil ditambahkan dan email aktivasi telah dikirim.');
     }

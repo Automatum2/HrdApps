@@ -21,13 +21,16 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 // Rute untuk aktivasi / reset password dari link email
 Route::get('/reset-password/{token}', function (string $token) {
     $email = request()->query('email');
+    $type = request()->query('type', 'reset'); // Ambil parameter type, default: reset
     $user = \App\Models\User::where('email', $email)->first();
     $username = $user ? $user->username : 'Tidak ditemukan';
     
     return view('auth.reset-password', [
         'token' => $token, 
         'email' => $email,
-        'username' => $username
+        'username' => $username,
+        'type' => $type
+
     ]);
 })->name('password.reset');
 Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
@@ -49,11 +52,26 @@ Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request)
     $role = session('user_role', 'manager');
     if ($role === 'super_admin') {
         $total_karyawan = \App\Models\Employee::count();
+        
+        // Hitung persentase kenaikan karyawan dari bulan lalu
+        $karyawan_bulan_ini = \App\Models\Employee::whereMonth('created_at', now()->month)
+                                                    ->whereYear('created_at', now()->year)
+                                                    ->count();
+        $karyawan_bulan_lalu = \App\Models\Employee::whereMonth('created_at', now()->subMonth()->month)
+                                                    ->whereYear('created_at', now()->subMonth()->year)
+                                                    ->count();
+                                                    
+        if ($karyawan_bulan_lalu > 0) {
+            $kenaikan_karyawan = round((($karyawan_bulan_ini - $karyawan_bulan_lalu) / $karyawan_bulan_lalu) * 100, 1);
+        } else {
+            $kenaikan_karyawan = $karyawan_bulan_ini > 0 ? 100 : 0;
+        }
+
         $total_manager = \App\Models\User::where('role', 'hr_manager')->count();
         $latest_managers = \App\Models\User::where('role', 'hr_manager')->with('employee')->orderBy('id', 'desc')->take(5)->get();
         $total_departemen = \Illuminate\Support\Facades\DB::table('departments')->count();
 
-        return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'total_manager', 'latest_managers', 'total_departemen'));
+        return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'kenaikan_karyawan', 'total_manager', 'latest_managers', 'total_departemen'));
     } elseif ($role === 'employee') {
         $employeeId = session('employee_id');
         $employee = \App\Models\Employee::where('id', $employeeId)->orWhere('nik', $employeeId)->first();
@@ -119,9 +137,32 @@ Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request)
     $total_karyawan = \App\Models\Employee::count();
     $hadir_hari_ini = \App\Models\Attendance::where('tanggal', \Carbon\Carbon::today()->toDateString())->where('status_kehadiran', 'hadir')->count();
     $belum_absen = max(0, $total_karyawan - $hadir_hari_ini);
-    $latest_employees = \App\Models\Employee::with('department')->orderBy('created_at', 'desc')->take(5)->get();
+    $latest_employees = \App\Models\Employee::with('department', 'position')->orderBy('created_at', 'desc')->take(5)->get();
     
-    return view('backoffice.dashboard', compact('total_karyawan', 'hadir_hari_ini', 'belum_absen', 'latest_employees'));
+    // Calculate total payroll for current month
+    $currentMonth = \Carbon\Carbon::now()->month;
+    $currentYear = \Carbon\Carbon::now()->year;
+    $employees = \App\Models\Employee::with('department', 'position')->get();
+    $total_gaji_bulan_ini = 0;
+    
+    $status_tetap = 0;
+    $status_kontrak = 0;
+    $status_magang = 0;
+    
+    foreach ($employees as $emp) {
+        $data = \App\Http\Controllers\PayrollController::calculatePayroll($emp, $currentMonth, $currentYear);
+        $total_gaji_bulan_ini += $data['gajiBersih'];
+        
+        $status = strtolower($emp->status_kerja ?? 'tetap');
+        if ($status === 'tetap') $status_tetap++;
+        elseif ($status === 'kontrak') $status_kontrak++;
+        else $status_magang++;
+    }
+    
+    // For Modal Tambah Karyawan Baru (assign department)
+    $unassigned_employees = \App\Models\Employee::whereNull('department_id')->orWhere('department_id', 0)->get();
+    
+    return view('backoffice.dashboard', compact('total_karyawan', 'hadir_hari_ini', 'belum_absen', 'latest_employees', 'total_gaji_bulan_ini', 'status_tetap', 'status_kontrak', 'status_magang', 'unassigned_employees'));
 })->name('backoffice.dashboard');
 
 
@@ -141,12 +182,58 @@ Route::delete('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeControlle
 Route::get('/backoffice/super-admin/kelola-karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.super_admin.kelola_karyawan.show');
 
 Route::get('/backoffice/karyawan', function () {
-    // Proteksi Role: Hanya dapat diakses oleh Manager
-    if (session('user_role', 'manager') !== 'manager') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman Karyawan hanya dapat diakses oleh Manager.');
+    // Only HR Manager or Super Admin should access
+    $role = session('user_role');
+    if ($role === 'employee') {
+        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
     }
-    return view('backoffice.karyawan');
+    
+    // Hanya tampilkan yang sudah di-assign (department_id tidak null dan > 0)
+    $employees = \App\Models\Employee::whereNotNull('department_id')
+                    ->where('department_id', '>', 0)
+                    ->with(['department', 'position'])
+                    ->orderBy('created_at', 'desc')->get();
+                    
+    $unassigned_employees = \App\Models\Employee::whereNull('department_id')
+                    ->orWhere('department_id', 0)
+                    ->orderBy('created_at', 'desc')->get();
+    
+    return view('backoffice.karyawan', compact('employees', 'unassigned_employees'));
 })->name('backoffice.karyawan');
+
+Route::post('/backoffice/karyawan/lepas', function (\Illuminate\Http\Request $request) {
+    if (session('user_role') === 'employee') {
+        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+    }
+    $emp = \App\Models\Employee::where('nik', $request->nik)->first();
+    if ($emp) {
+        $emp->department_id = null;
+        $emp->save();
+        return redirect()->back()->with('success', 'Karyawan berhasil dilepas dari departemen.');
+    }
+    return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
+})->name('backoffice.karyawan.lepas');
+
+Route::post('/backoffice/karyawan/assign', function (\Illuminate\Http\Request $request) {
+    if (session('user_role') === 'employee') {
+        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+    }
+    $emp = \App\Models\Employee::where('nik', $request->nik)->first();
+    if ($emp) {
+        // Find department by name
+        $dept = \Illuminate\Support\Facades\DB::table('departments')->where('nama_departemen', $request->departemen)->first();
+        if ($dept) {
+            $emp->department_id = $dept->id;
+        } else {
+            // Default to 1 if not found for testing purposes, or handle properly
+            $emp->department_id = 1;
+        }
+        $emp->status_kerja = $request->status;
+        $emp->save();
+        return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan.');
+    }
+    return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
+})->name('backoffice.karyawan.assign');
 
 Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
     // Proteksi Role: Hanya dapat diakses oleh Manager
@@ -189,16 +276,79 @@ Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
     return view('backoffice.absensi', compact('attendances', 'stats', 'departments', 'dari', 'sampai'));
 })->name('backoffice.absensi');
 
+Route::get('/backoffice/absensi/export', function (\Illuminate\Http\Request $request) {
+    if (session('user_role', 'manager') !== 'manager') {
+        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+    }
+    
+    $query = \App\Models\Attendance::with('employee.department');
+    
+    $dari = $request->input('dari_tanggal', \Carbon\Carbon::now()->startOfMonth()->toDateString());
+    $sampai = $request->input('sampai_tanggal', \Carbon\Carbon::now()->endOfMonth()->toDateString());
+    $query->whereBetween('tanggal', [$dari, $sampai]);
+    
+    if ($request->filled('departemen_id')) {
+        $query->whereHas('employee', function($q) use ($request) {
+            $q->where('department_id', $request->departemen_id);
+        });
+    }
+    
+    if ($request->filled('status')) {
+        $query->where('status_kehadiran', $request->status);
+    }
+    
+    $attendances = $query->orderBy('tanggal', 'desc')->get();
+    
+    $csvFileName = 'Laporan_Absensi_' . $dari . '_sd_' . $sampai . '.csv';
+    $headers = [
+        "Content-type"        => "text/csv",
+        "Content-Disposition" => "attachment; filename=$csvFileName",
+        "Pragma"              => "no-cache",
+        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+        "Expires"             => "0"
+    ];
+    
+    $columns = ['No', 'Nama Karyawan', 'NIK', 'Departemen', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status Kehadiran', 'Total Jam Kerja'];
+    
+    $callback = function() use($attendances, $columns) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+        
+        $rowNumber = 1;
+        foreach ($attendances as $att) {
+            fputcsv($file, [
+                $rowNumber++,
+                $att->employee->nama_lengkap ?? '-',
+                $att->employee->nik ?? '-',
+                $att->employee->department->nama_departemen ?? 'Umum',
+                $att->tanggal,
+                $att->jam_masuk ?? '--:--',
+                $att->jam_keluar ?? '--:--',
+                ucfirst($att->status_kehadiran),
+                $att->total_jam_kerja ?? '--'
+            ]);
+        }
+        fclose($file);
+    };
+    
+    return response()->stream($callback, 200, $headers);
+})->name('backoffice.absensi.export');
+
 use App\Http\Controllers\PayrollController;
 Route::get('/backoffice/penggajian', [PayrollController::class, 'index'])->name('backoffice.penggajian');
 Route::get('/backoffice/penggajian/download-pdf/{id}', [PayrollController::class, 'downloadPdf'])->name('backoffice.penggajian.download.pdf');
 
 Route::get('/backoffice/laporan', function () {
-    // Proteksi Role: Hanya dapat diakses oleh Manager
-    if (session('user_role', 'manager') !== 'manager') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman Laporan hanya dapat diakses oleh Manager.');
+    // Only HR Manager or Super Admin should access
+    $role = session('user_role');
+    if ($role === 'employee') {
+        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
     }
-    return view('backoffice.laporan');
+    
+    // Simulate fetching latest generated reports from DB
+    $recent_reports = []; // Empty for now, would be fetched from a Reports table
+    
+    return view('backoffice.laporan', compact('recent_reports'));
 })->name('backoffice.laporan');
 
 Route::get('/backoffice/pengaturan', function () {

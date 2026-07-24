@@ -81,7 +81,7 @@
                     <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
                     <td class="py-4 px-6 font-bold {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}</td>
                     <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $manager->email }}</td>
-                    <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">HR Manager</td>
+                    <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $manager->employee && $manager->employee->position ? $manager->employee->position->nama_jabatan : 'HR Manager' }}</td>
                     <td class="py-4 px-6" id="status-col-{{ $manager->id }}">
                         @if($manager->employee && $manager->employee->status === 'nonaktif')
                             <span class="status-badge inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] leading-none uppercase tracking-wide">
@@ -120,17 +120,8 @@
         </table>
     </div>
     <!-- Table Pagination/Footer -->
-    <div class="p-6 border-t border-outline-variant bg-white flex justify-between items-center text-slate-500 text-xs font-semibold">
-        <span id="showing-entries-info">Menampilkan {{ $managers->count() }} data</span>
-        <div class="flex items-center gap-1">
-            <button class="p-1.5 rounded border border-slate-200 hover:bg-slate-50 text-slate-400 disabled:opacity-50" disabled>
-                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-            </button>
-            <span class="text-primary px-2 font-bold">1</span>
-            <button class="p-1.5 rounded border border-slate-200 hover:bg-slate-50 text-slate-400 disabled:opacity-50" disabled>
-                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-            </button>
-        </div>
+    <div class="p-6 border-t border-outline-variant bg-white">
+        {{ $managers->links() }}
     </div>
 </div>
 @endsection
@@ -176,10 +167,11 @@
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="jabatan">Jabatan</label>
                 <div class="relative">
                     <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan" name="jabatan">
-                        <option value="Senior HR Manager">Senior HR Manager</option>
-                        <option value="HR Manager">HR Manager</option>
-                        <option value="Regional HR Head">Regional HR Head</option>
-                        <option value="Junior HR Manager">Junior HR Manager</option>
+                        @forelse($positions as $pos)
+                            <option value="{{ $pos->nama_jabatan }}">{{ $pos->nama_jabatan }}</option>
+                        @empty
+                            <option value="HR Manager">HR Manager</option>
+                        @endforelse
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                 </div>
@@ -234,7 +226,11 @@
                     <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="jabatan">Jabatan</label>
                     <div class="relative">
                         <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan" name="jabatan">
-                            <option value="HR Manager">HR Manager</option>
+                            @forelse($positions as $pos)
+                                <option value="{{ $pos->nama_jabatan }}">{{ $pos->nama_jabatan }}</option>
+                            @empty
+                                <option value="HR Manager">HR Manager</option>
+                            @endforelse
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                     </div>

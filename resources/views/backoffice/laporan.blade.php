@@ -122,51 +122,29 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/40 font-body-sm text-body-sm" id="table-laporan-body">
-                    <!-- Row 1 -->
+                    @forelse($recent_reports as $index => $report)
                     <tr class="hover:bg-primary/5 transition-colors group">
-                        <td class="py-4 px-6 text-center text-on-surface-variant font-mono">1</td>
-                        <td class="py-4 px-6 font-bold text-on-background flex-name">Laporan Absensi Oktober 2026</td>
-                        <td class="py-4 px-6 text-on-surface-variant flex-type">Absensi</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">01-31 Oct 2026</td>
-                        <td class="py-4 px-6 text-on-surface-variant">Budi Santoso</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">01-11-2026 10:15</td>
+                        <td class="py-4 px-6 text-center text-on-surface-variant font-mono">{{ $index + 1 }}</td>
+                        <td class="py-4 px-6 font-bold text-on-background flex-name">{{ $report->nama_laporan }}</td>
+                        <td class="py-4 px-6 text-on-surface-variant flex-type">{{ $report->tipe }}</td>
+                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">{{ $report->periode }}</td>
+                        <td class="py-4 px-6 text-on-surface-variant">{{ $report->dibuat_oleh }}</td>
+                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">{{ $report->created_at->format('d-m-Y H:i') }}</td>
                         <td class="py-4 px-6 text-right">
-                            <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas Laporan Absensi Oktober 2026 (PDF/Excel)...')">
+                            <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas...')">
                                 <span class="material-symbols-outlined text-sm">download</span>
                                 <span>Download</span>
                             </button>
                         </td>
                     </tr>
-                    <!-- Row 2 -->
-                    <tr class="hover:bg-primary/5 transition-colors group">
-                        <td class="py-4 px-6 text-center text-on-surface-variant font-mono">2</td>
-                        <td class="py-4 px-6 font-bold text-on-background flex-name">Audit Penggajian Kuartal 3</td>
-                        <td class="py-4 px-6 text-on-surface-variant flex-type">Penggajian</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">01 Jul - 30 Sep 2026</td>
-                        <td class="py-4 px-6 text-on-surface-variant">Budi Santoso</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">28-10-2026 15:30</td>
-                        <td class="py-4 px-6 text-right">
-                            <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas Audit Penggajian Kuartal 3 (PDF/Excel)...')">
-                                <span class="material-symbols-outlined text-sm">download</span>
-                                <span>Download</span>
-                            </button>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="py-8 px-6 text-center text-slate-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 text-outline block mx-auto">description</span>
+                            <p>Belum ada laporan yang di-generate bulan ini.</p>
                         </td>
                     </tr>
-                    <!-- Row 3 -->
-                    <tr class="hover:bg-primary/5 transition-colors group">
-                        <td class="py-4 px-6 text-center text-on-surface-variant font-mono">3</td>
-                        <td class="py-4 px-6 font-bold text-on-background flex-name">Rekapitulasi Karyawan Baru 2026</td>
-                        <td class="py-4 px-6 text-on-surface-variant flex-type">Karyawan</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">01 Jan - 15 Oct 2026</td>
-                        <td class="py-4 px-6 text-on-surface-variant">Budi Santoso</td>
-                        <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">16-10-2026 09:00</td>
-                        <td class="py-4 px-6 text-right">
-                            <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas Rekapitulasi Karyawan Baru 2026 (PDF/Excel)...')">
-                                <span class="material-symbols-outlined text-sm">download</span>
-                                <span>Download</span>
-                            </button>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

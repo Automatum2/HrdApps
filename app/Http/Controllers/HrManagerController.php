@@ -18,8 +18,9 @@ class HrManagerController extends Controller
         }
 
         // Ambil User dengan role hr_manager beserta data employee-nya
-        $managers = User::where('role', 'hr_manager')->with('employee')->orderBy('id', 'desc')->get();
-        return view('backoffice.super_admin_kelola_hr', compact('managers'));
+        $managers = User::where('role', 'hr_manager')->with('employee')->orderBy('id', 'desc')->paginate(10);
+        $positions = \App\Models\Position::where('level', 'manager')->get();
+        return view('backoffice.super_admin_kelola_hr', compact('managers', 'positions'));
     }
 
     public function store(Request $request)
@@ -36,10 +37,17 @@ class HrManagerController extends Controller
         ]);
 
         // Buat record Employee
+        // Buat atau cari jabatan
+        $position = \App\Models\Position::firstOrCreate(
+            ['nama_jabatan' => $request->jabatan],
+            ['level' => 'manager', 'tunjangan_jabatan' => 0]
+        );
+
         $employee = Employee::create([
             'nik' => $request->nik,
             'nama_lengkap' => $request->nama,
             'email' => $request->email,
+            'position_id' => $position->id,
             'status_kerja' => 'tetap', 
             'status' => 'aktif',
             'gaji_pokok' => 0 // Default 0
@@ -54,8 +62,9 @@ class HrManagerController extends Controller
             'employee_id' => $employee->id
         ]);
 
-        // Kirim link aktivasi / reset password
-        Password::broker()->sendResetLink(['email' => $user->email]);
+        // Kirim link aktivasi
+        $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
+        $user->notify(new \App\Notifications\AccountActivation($token));
 
         return redirect()->back()->with('success', 'HR Manager ' . $employee->nama_lengkap . ' berhasil ditambahkan dan email aktivasi telah dikirim.');
     }

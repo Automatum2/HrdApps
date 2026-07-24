@@ -69,8 +69,8 @@
                     <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
                     <td class="py-4 px-6 font-bold {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $k->nama_lengkap }}</td>
                     <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->email }}</td>
-                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Belum Ditentukan</td>
-                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Belum Ditempatkan</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->position ? $k->position->nama_jabatan : 'Belum Ditentukan' }}</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->department ? $k->department->nama_department : 'Belum Ditempatkan' }}</td>
                     <td class="py-4 px-6 font-mono {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Rp {{ number_format($k->gaji_pokok, 0, ',', '.') }}</td>
                     <td class="py-4 px-6" id="status-k-{{ $k->nik }}">
                         <span class="status-badge-k inline-flex items-center {{ $k->status === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200' }} border px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
@@ -107,15 +107,8 @@
     </div>
 
     <!-- Pagination Footer -->
-    <div class="p-6 border-t border-outline-variant bg-white flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
-        <div id="showing-range-info">
-            Menampilkan {{ $employees->count() }} entri
-        </div>
-        <div class="flex gap-1">
-            <button class="px-3 py-1.5 border border-slate-200 rounded text-slate-400 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50" disabled>Sebelumnya</button>
-            <button class="px-3 py-1.5 border border-primary bg-primary text-white rounded hover:bg-blue-700 transition-colors cursor-pointer">1</button>
-            <button class="px-3 py-1.5 border border-slate-200 rounded text-slate-400 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50" disabled>Selanjutnya</button>
-        </div>
+    <div class="p-6 border-t border-outline-variant bg-white">
+        {{ $employees->links() }}
     </div>
 </div>
 @endsection

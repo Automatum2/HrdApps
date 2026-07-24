@@ -40,7 +40,7 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
             <p class="text-on-surface-variant font-medium text-sm mb-1">Gaji Bulan Ini</p>
-            <h3 class="text-display-lg font-display-lg text-primary font-bold" id="stat-estimasi-gaji">Rp 22.5jt</h3>
+            <h3 class="text-display-lg font-display-lg text-primary font-bold" id="stat-estimasi-gaji">Rp {{ number_format($total_gaji_bulan_ini ?? 0, 0, ',', '.') }}</h3>
         </div>
         <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">payments</span>
@@ -143,11 +143,20 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow flex flex-col">
         <h4 class="font-title-sm text-title-sm text-on-background font-bold mb-8">Status Karyawan</h4>
         <div class="flex-1 flex flex-col items-center justify-center relative">
-            <!-- Donut Chart Mock -->
-            <div class="w-48 h-48 rounded-full border-[18px] border-surface-container-low relative flex items-center justify-center">
-                <div class="absolute inset-0 rounded-full border-[18px] border-primary" style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);"></div>
-                <div class="absolute inset-0 rounded-full border-[18px] border-tertiary-fixed-dim" style="clip-path: polygon(50% 50%, 50% 0%, 0% 0%, 0% 20%);"></div>
-                <div class="text-center">
+            <!-- Donut Chart -->
+            @php
+                $total = $total_karyawan > 0 ? $total_karyawan : 1; // Prevent division by zero
+                $pct_tetap = round(($status_tetap / $total) * 100);
+                $pct_kontrak = round(($status_kontrak / $total) * 100);
+                $pct_magang = round(($status_magang / $total) * 100);
+                
+                // Simple CSS polygon clip-path generation for demonstration (CSS conic-gradient is better but keeping structure)
+            @endphp
+            <div class="w-48 h-48 rounded-full relative flex items-center justify-center overflow-hidden" style="background: conic-gradient(#0066ff 0% {{ $pct_tetap }}%, #002255 {{ $pct_tetap }}% {{ $pct_tetap + $pct_kontrak }}%, #e2e8f0 {{ $pct_tetap + $pct_kontrak }}% 100%);">
+                <!-- Inner circle to make it a donut -->
+                <div class="absolute inset-4 bg-surface-container-lowest rounded-full"></div>
+                
+                <div class="text-center relative z-10">
                     <span class="text-headline-md font-display-lg block leading-none font-bold" id="donut-total">{{ $total_karyawan }}</span>
                     <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Total</span>
                 </div>
@@ -155,15 +164,15 @@
             <div class="grid grid-cols-2 gap-4 mt-8 w-full">
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-primary"></span>
-                    <span class="text-body-sm text-on-surface-variant">Tetap (60%)</span>
+                    <span class="text-body-sm text-on-surface-variant">Tetap ({{ $pct_tetap }}%)</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-surface-container-highest"></span>
-                    <span class="text-body-sm text-on-surface-variant">Kontrak (30%)</span>
+                    <span class="text-body-sm text-on-surface-variant">Kontrak ({{ $pct_kontrak }}%)</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim"></span>
-                    <span class="text-body-sm text-on-surface-variant">Magang (10%)</span>
+                    <span class="text-body-sm text-on-surface-variant">Magang ({{ $pct_magang }}%)</span>
                 </div>
             </div>
         </div>
@@ -271,51 +280,28 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="modal-table-body">
-                    <!-- Baris Dummy 1 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-010" data-nama="Doni Darmawan" data-jabatan="Recruitment Staff" data-dept="HRD" data-status="Tetap">
+                    @forelse($unassigned_employees as $emp)
+                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-nama="{{ $emp->nama_lengkap }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="-" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
                         <td class="px-lg py-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">DD</div>
-                                <span class="font-bold text-on-surface">Doni Darmawan</span>
+                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">
+                                    {{ strtoupper(substr($emp->nama_lengkap ?? 'U', 0, 2)) }}
+                                </div>
+                                <span class="font-bold text-on-surface">{{ $emp->nama_lengkap }}</span>
                             </div>
                         </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-010</td>
+                        <td class="px-lg py-3 font-mono text-on-surface-variant">{{ $emp->nik }}</td>
                         <td class="px-lg py-3 text-right">
                             <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
                                 + Pilih
                             </button>
                         </td>
                     </tr>
-                    <!-- Baris Dummy 2 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-011" data-nama="Evi Lestari" data-jabatan="Benefits Analyst" data-dept="HRD" data-status="Kontrak">
-                        <td class="px-lg py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">EL</div>
-                                <span class="font-bold text-on-surface">Evi Lestari</span>
-                            </div>
-                        </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-011</td>
-                        <td class="px-lg py-3 text-right">
-                            <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                                + Pilih
-                            </button>
-                        </td>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="px-lg py-6 text-center text-slate-500">Semua karyawan sudah memiliki departemen.</td>
                     </tr>
-                    <!-- Baris Dummy 3 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-012" data-nama="Gilang Ramadhan" data-jabatan="HR Generalist" data-dept="HRD" data-status="Magang">
-                        <td class="px-lg py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">GR</div>
-                                <span class="font-bold text-on-surface">Gilang Ramadhan</span>
-                            </div>
-                        </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-012</td>
-                        <td class="px-lg py-3 text-right">
-                            <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                                + Pilih
-                            </button>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
             <!-- State Kosong jika hasil pencarian nihil -->

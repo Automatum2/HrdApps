@@ -49,7 +49,7 @@
     </div>
     
     <div class="p-4 bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
-        <p class="text-xs text-on-surface-variant font-medium">Menampilkan <span class="font-bold text-on-surface" id="showing-range">1-5</span> dari <span class="font-bold text-on-surface" id="total-entries-top">5</span> karyawan</p>
+        <p class="text-xs text-on-surface-variant font-medium">Menampilkan <span class="font-bold text-on-surface" id="showing-range">1-{{ count($employees) }}</span> dari <span class="font-bold text-on-surface" id="total-entries-top">{{ count($employees) }}</span> karyawan</p>
         <div class="flex gap-2">
             <button class="p-1 hover:bg-surface-container-high rounded transition-colors text-outline cursor-pointer" title="Filter List">
                 <span class="material-symbols-outlined text-[20px]">filter_list</span>
@@ -76,22 +76,27 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-karyawan-body">
-                <!-- Employee 1 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1990010101" data-jabatan="Senior Developer" data-dept="IT" data-status="Tetap">
-                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">1</td>
+                @forelse($employees as $index => $emp)
+                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="{{ $emp->department->nama_departemen ?? '-' }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
+                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
-                        <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">AF</div>
+                        @if($emp->foto)
+                            <img alt="{{ $emp->nama_lengkap }}" class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm object-cover" src="{{ asset('storage/' . $emp->foto) }}">
+                        @else
+                            <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">
+                                {{ strtoupper(substr($emp->nama_lengkap ?? 'U', 0, 2)) }}
+                            </div>
+                        @endif
                     </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">Ahmad Fauzi</td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1990010101</td>
+                    <td class="px-6 py-4 font-bold text-on-surface">{{ $emp->nama_lengkap }}</td>
+                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">{{ $emp->nik }}</td>
                     <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">Senior Developer</div>
-                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">4 Thn 2 Bln</div>
+                        <div class="text-on-surface-variant">{{ $emp->position->nama ?? 'Staff' }}</div>
                     </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">IT</span></td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">{{ $emp->department->nama_departemen ?? '-' }}</span></td>
                     <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-container/10 text-primary">
-                            Aktif
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ strtolower($emp->status_kerja ?? '') == 'kontrak' ? 'bg-surface-container-highest text-secondary' : (strtolower($emp->status_kerja ?? '') == 'magang' ? 'bg-tertiary-container/10 text-tertiary' : 'bg-primary-container/10 text-primary') }}">
+                            {{ $emp->status_kerja ?? 'Tetap' }}
                         </span>
                     </td>
                     <td class="px-6 py-4">
@@ -99,135 +104,27 @@
                             <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
                                 <span class="material-symbols-outlined text-sm">edit</span>
                             </button>
-                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="Ahmad Fauzi" data-nik="1990010101">
+                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="{{ $emp->nama_lengkap }}" data-nik="{{ $emp->nik }}">
                                 <span class="material-symbols-outlined text-sm">person_remove</span>
                             </button>
                         </div>
                     </td>
                 </tr>
-                <!-- Employee 2 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1991051502" data-jabatan="HR Officer" data-dept="HRD" data-status="Kontrak">
-                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">2</td>
-                    <td class="px-6 py-4">
-                        <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">SN</div>
-                    </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">Siti Nurhaliza</td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1991051502</td>
-                    <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">HR Officer</div>
-                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">2 Thn 5 Bln</div>
-                    </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">HRD</span></td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-highest text-secondary">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                                <span class="material-symbols-outlined text-sm">edit</span>
-                            </button>
-                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="Siti Nurhaliza" data-nik="1991051502">
-                                <span class="material-symbols-outlined text-sm">person_remove</span>
-                            </button>
-                        </div>
+                @empty
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-slate-500">
+                        <span class="material-symbols-outlined text-4xl mb-2 text-outline">group_off</span>
+                        <p>Belum ada data karyawan.</p>
                     </td>
                 </tr>
-                <!-- Employee 3 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1988112003" data-jabatan="Sales Manager" data-dept="Sales" data-status="Tetap">
-                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">3</td>
-                    <td class="px-6 py-4">
-                        <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">JD</div>
-                    </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">Jane Doe</td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1988112003</td>
-                    <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">Sales Manager</div>
-                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">5 Thn 8 Bln</div>
-                    </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">Sales</span></td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-container/10 text-primary">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                                <span class="material-symbols-outlined text-sm">edit</span>
-                            </button>
-                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="Jane Doe" data-nik="1988112003">
-                                <span class="material-symbols-outlined text-sm">person_remove</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Employee 4 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1993031004" data-jabatan="UX Designer" data-dept="IT" data-status="Kontrak">
-                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">4</td>
-                    <td class="px-6 py-4">
-                        <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">DL</div>
-                    </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">Diana Lestari</td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1993031004</td>
-                    <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">UX Designer</div>
-                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">1 Thn 11 Bln</div>
-                    </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">IT</span></td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-highest text-secondary">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                                <span class="material-symbols-outlined text-sm">edit</span>
-                            </button>
-                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="Diana Lestari" data-nik="1993031004">
-                                <span class="material-symbols-outlined text-sm">person_remove</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Employee 5 -->
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="1985082505" data-jabatan="Finance Lead" data-dept="Finance" data-status="Magang">
-                    <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">5</td>
-                    <td class="px-6 py-4">
-                        <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">EP</div>
-                    </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">Eko Prasetyo</td>
-                    <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">1985082505</td>
-                    <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">Finance Lead</div>
-                        <div class="text-[10px] text-primary font-semibold mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">8 Bulan</div>
-                    </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">Finance</span></td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-container/10 text-tertiary">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                                <span class="material-symbols-outlined text-sm">edit</span>
-                            </button>
-                            <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="Eko Prasetyo" data-nik="1985082505">
-                                <span class="material-symbols-outlined text-sm">person_remove</span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
     
     <!-- Pagination Footer -->
     <div class="p-6 border-t border-outline-variant bg-surface-bright flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">5</span> karyawan dari total <span class="font-bold text-on-surface" id="total-count-footer">5</span></p>
+        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">{{ count($employees) }}</span> karyawan dari total <span class="font-bold text-on-surface" id="total-count-footer">{{ count($employees) }}</span></p>
         <div class="flex items-center gap-1">
             <button class="px-4 py-2 border border-outline-variant rounded-lg text-xs font-semibold hover:bg-surface-container transition-colors disabled:opacity-50 cursor-pointer" disabled>Sebelumnya</button>
             <button class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg text-xs font-bold shadow-sm">1</button>
@@ -318,51 +215,26 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="modal-table-body">
-                    <!-- Baris Dummy 1 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-010" data-nama="Doni Darmawan" data-jabatan="Recruitment Staff" data-dept="HRD" data-status="Tetap">
+                    @forelse($unassigned_employees as $unassigned)
+                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $unassigned->nik }}" data-nama="{{ $unassigned->nama_lengkap }}" data-jabatan="Staff" data-dept="-" data-status="{{ $unassigned->status_kerja ?? 'Tetap' }}">
                         <td class="px-lg py-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">DD</div>
-                                <span class="font-bold text-on-surface">Doni Darmawan</span>
+                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">
+                                    {{ strtoupper(substr($unassigned->nama_lengkap ?? 'U', 0, 2)) }}
+                                </div>
+                                <span class="font-bold text-on-surface">{{ $unassigned->nama_lengkap }}</span>
                             </div>
                         </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-010</td>
+                        <td class="px-lg py-3 font-mono text-on-surface-variant">{{ $unassigned->nik }}</td>
                         <td class="px-lg py-3 text-right">
                             <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
                                 + Pilih
                             </button>
                         </td>
                     </tr>
-                    <!-- Baris Dummy 2 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-011" data-nama="Evi Lestari" data-jabatan="Benefits Analyst" data-dept="HRD" data-status="Kontrak">
-                        <td class="px-lg py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">EL</div>
-                                <span class="font-bold text-on-surface">Evi Lestari</span>
-                            </div>
-                        </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-011</td>
-                        <td class="px-lg py-3 text-right">
-                            <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                                + Pilih
-                            </button>
-                        </td>
-                    </tr>
-                    <!-- Baris Dummy 3 -->
-                    <tr class="hover:bg-primary/5 transition-colors group" data-nik="EMP-012" data-nama="Gilang Ramadhan" data-jabatan="HR Generalist" data-dept="HRD" data-status="Magang">
-                        <td class="px-lg py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">GR</div>
-                                <span class="font-bold text-on-surface">Gilang Ramadhan</span>
-                            </div>
-                        </td>
-                        <td class="px-lg py-3 font-mono text-on-surface-variant">EMP-012</td>
-                        <td class="px-lg py-3 text-right">
-                            <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                                + Pilih
-                            </button>
-                        </td>
-                    </tr>
+                    @empty
+                    <!-- Kosong ditangani oleh elemen empty state di bawah -->
+                    @endforelse
                 </tbody>
             </table>
             <!-- State Kosong jika hasil pencarian nihil -->
@@ -714,67 +586,55 @@
     formAssignDetail.addEventListener('submit', (e) => {
         e.preventDefault();
         if (activeAssignData) {
-            const nama = activeAssignData.nama;
             const nik = activeAssignData.nik;
             const jabatan = document.getElementById('assign-jabatan').value;
             const status = document.getElementById('assign-status').value;
             const dept = document.getElementById('assign-departemen').value;
             
-            const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
-            const currentTotal = tableKaryawanBody.querySelectorAll('tr').length + 1;
+            // Buat form submission permanen
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("backoffice.karyawan.assign") }}';
             
-            const newRow = document.createElement('tr');
-            newRow.className = 'hover:bg-primary/5 transition-colors group';
-            newRow.setAttribute('data-nik', nik);
-            newRow.setAttribute('data-jabatan', jabatan);
-            newRow.setAttribute('data-dept', dept);
-            newRow.setAttribute('data-status', status);
-            newRow.innerHTML = `
-                <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">${currentTotal}</td>
-                <td class="px-6 py-4">
-                    <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">${inisial}</div>
-                </td>
-                <td class="px-6 py-4 font-bold text-on-surface">${nama}</td>
-                <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">${nik}</td>
-                <td class="px-6 py-4 text-on-surface-variant">${jabatan}</td>
-                <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">${dept}</span></td>
-                <td class="px-6 py-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${status === 'Tetap' ? 'bg-primary-container/10 text-primary' : (status === 'Kontrak' ? 'bg-surface-container-highest text-secondary' : 'bg-tertiary-container/10 text-tertiary')}">
-                        Aktif
-                    </span>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center gap-2">
-                        <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                            <span class="material-symbols-outlined text-sm">edit</span>
-                        </button>
-                        <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="${nama}" data-nik="${nik}">
-                            <span class="material-symbols-outlined text-sm">person_remove</span>
-                        </button>
-                    </div>
-                </td>
-            `;
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
             
-            tableKaryawanBody.appendChild(newRow);
-            activeAssignData.row.remove();
+            const nikInput = document.createElement('input');
+            nikInput.type = 'hidden';
+            nikInput.name = 'nik';
+            nikInput.value = nik;
+
+            const jabatanInput = document.createElement('input');
+            jabatanInput.type = 'hidden';
+            jabatanInput.name = 'jabatan';
+            jabatanInput.value = jabatan;
+
+            const deptInput = document.createElement('input');
+            deptInput.type = 'hidden';
+            deptInput.name = 'departemen';
+            deptInput.value = dept;
+
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
+            statusInput.value = status;
             
-            // Perbarui status di localStorage
-            const listKaryawanStr = localStorage.getItem('karyawan_baru');
-            if (listKaryawanStr) {
-                const listKaryawan = JSON.parse(listKaryawanStr);
-                const targetK = listKaryawan.find(item => item.nik === nik);
-                if (targetK) {
-                    targetK.departemen = dept;
-                    targetK.jabatan = jabatan;
-                    targetK.status = status;
-                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
-                }
+            form.appendChild(csrfToken);
+            form.appendChild(nikInput);
+            form.appendChild(jabatanInput);
+            form.appendChild(deptInput);
+            form.appendChild(statusInput);
+            document.body.appendChild(form);
+            
+            const btnSubmit = formAssignDetail.querySelector('button[type="submit"]');
+            if(btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerText = 'Memproses...';
             }
             
-            updateStatistics();
-            filterTableUtama();
-            tutupModalAssignDetail();
-            alert(`Karyawan ${nama} berhasil ditempatkan di departemen ${dept} sebagai ${jabatan}!`);
+            form.submit();
         }
     });
 
@@ -787,7 +647,6 @@
             const nama = btnLepas.getAttribute('data-nama');
             const nik = btnLepas.getAttribute('data-nik');
             
-            targetRowToRelease = btnLepas.closest('tr');
             targetNikToRelease = nik;
             
             document.getElementById('konfirmasi-nama').innerText = nama;
@@ -804,87 +663,32 @@
         targetNikToRelease = '';
     });
     
-    // Setuju Konfirmasi (Proses Lepas secara Realtime)
+    // Setuju Konfirmasi (Proses Lepas secara Realtime dan Permanen)
     btnKonfirmasiLepas.addEventListener('click', () => {
-        if (targetRowToRelease) {
-            const nama = targetRowToRelease.querySelector('td:nth-child(3)').innerText;
-            const NIK = targetRowToRelease.querySelector('td:nth-child(4)').innerText;
-            const jabatan = targetRowToRelease.getAttribute('data-jabatan');
-            const dept = targetRowToRelease.getAttribute('data-dept');
-            const status = targetRowToRelease.getAttribute('data-status');
-            const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+        if (targetNikToRelease) {
+            // Buat form untuk submit aksi lepas secara permanen
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("backoffice.karyawan.lepas") }}';
             
-            // Perbarui status di localStorage jika ada
-            const listKaryawanStr = localStorage.getItem('karyawan_baru');
-            let isKaryawanBaru = false;
-            if (listKaryawanStr) {
-                const listKaryawan = JSON.parse(listKaryawanStr);
-                const targetK = listKaryawan.find(item => item.nik === NIK);
-                if (targetK) {
-                    targetK.departemen = 'Belum Ditempatkan';
-                    targetK.jabatan = 'Belum Ditentukan';
-                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
-                    isKaryawanBaru = true;
-                }
-            }
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
             
-            if (isKaryawanBaru) {
-                const returnRow = document.createElement('tr');
-                returnRow.className = 'hover:bg-primary/5 transition-colors group';
-                returnRow.setAttribute('data-nik', NIK);
-                returnRow.setAttribute('data-nama', nama);
-                returnRow.innerHTML = `
-                    <td class="px-lg py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
-                            <span class="font-bold text-on-surface">${nama}</span>
-                        </div>
-                    </td>
-                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
-                    <td class="px-lg py-3 text-right">
-                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                            + Pilih
-                        </button>
-                    </td>
-                `;
-                modalTableBody.appendChild(returnRow);
-            } else {
-                // Karyawan dummy default, kembalikan dengan attribute lengkapnya
-                const returnRow = document.createElement('tr');
-                returnRow.className = 'hover:bg-primary/5 transition-colors group';
-                returnRow.setAttribute('data-nik', NIK);
-                returnRow.setAttribute('data-nama', nama);
-                returnRow.setAttribute('data-jabatan', jabatan);
-                returnRow.setAttribute('data-dept', dept);
-                returnRow.setAttribute('data-status', status);
-                returnRow.innerHTML = `
-                    <td class="px-lg py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
-                            <span class="font-bold text-on-surface">${nama}</span>
-                        </div>
-                    </td>
-                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
-                    <td class="px-lg py-3 text-right">
-                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                            + Pilih
-                        </button>
-                    </td>
-                `;
-                modalTableBody.appendChild(returnRow);
-            }
+            const nikInput = document.createElement('input');
+            nikInput.type = 'hidden';
+            nikInput.name = 'nik';
+            nikInput.value = targetNikToRelease;
             
-            // Hapus baris dari tabel utama
-            targetRowToRelease.remove();
+            form.appendChild(csrfToken);
+            form.appendChild(nikInput);
+            document.body.appendChild(form);
             
-            // Update widget statistik & filter ulang nomor urut
-            updateStatistics();
-            filterTableUtama();
+            btnKonfirmasiLepas.disabled = true;
+            btnKonfirmasiLepas.innerText = 'Memproses...';
             
-            // Tutup modal konfirmasi
-            modalKonfirmasi.style.display = 'none';
-            targetRowToRelease = null;
-            targetNikToRelease = '';
+            form.submit();
         }
     });
 

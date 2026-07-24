@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aktivasi Akun - HRDApps</title>
+    <title>{{ isset($type) && $type === 'activation' ? 'Aktivasi Akun' : 'Reset Kata Sandi' }} - HRDApps</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-xl shadow-lg border border-slate-100 max-w-md w-full">
         <div class="text-center mb-6">
             <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="w-16 h-16 mx-auto mb-4">
-            <h2 class="text-2xl font-bold text-slate-800">Aktivasi Akun Anda</h2>
-            <p class="text-slate-500 text-sm mt-2">Silakan buat password baru untuk akun karyawan Anda.</p>
+            @if(isset($type) && $type === 'activation')
+                <h2 class="text-2xl font-bold text-slate-800">Aktivasi Akun Anda</h2>
+                <p class="text-slate-500 text-sm mt-2">Silakan buat password baru untuk akun karyawan Anda.</p>
+            @else
+                <h2 class="text-2xl font-bold text-slate-800">Reset Kata Sandi</h2>
+                <p class="text-slate-500 text-sm mt-2">Silakan buat password baru untuk mengakses akun Anda kembali.</p>
+            @endif
         </div>
         
         <form action="{{ route('password.update') }}" method="POST" class="space-y-4">

@@ -24,9 +24,19 @@
             </div>
         </div>
         <div class="mt-4 flex items-center text-sm">
-            <span class="text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs font-semibold flex items-center border border-green-200">
-                <span class="material-symbols-outlined text-[14px] mr-1">trending_up</span> +5.2%
-            </span>
+            @if($kenaikan_karyawan > 0)
+                <span class="text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs font-semibold flex items-center border border-green-200">
+                    <span class="material-symbols-outlined text-[14px] mr-1">trending_up</span> +{{ $kenaikan_karyawan }}%
+                </span>
+            @elseif($kenaikan_karyawan < 0)
+                <span class="text-red-700 bg-red-50 px-2 py-0.5 rounded text-xs font-semibold flex items-center border border-red-200">
+                    <span class="material-symbols-outlined text-[14px] mr-1">trending_down</span> {{ $kenaikan_karyawan }}%
+                </span>
+            @else
+                <span class="text-slate-600 bg-slate-50 px-2 py-0.5 rounded text-xs font-semibold flex items-center border border-slate-200">
+                    <span class="material-symbols-outlined text-[14px] mr-1">trending_flat</span> 0%
+                </span>
+            @endif
             <span class="text-slate-500 ml-2 text-xs">dari bulan lalu</span>
         </div>
     </div>
@@ -90,7 +100,7 @@
                     <td class="py-4 px-6 font-mono">{{ $manager->employee ? $manager->employee->nik : '-' }}</td>
                     <td class="py-4 px-6 font-bold text-slate-800">{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}</td>
                     <td class="py-4 px-6 text-slate-600">{{ $manager->email }}</td>
-                    <td class="py-4 px-6 text-slate-600">HR Manager</td>
+                    <td class="py-4 px-6 text-slate-600">{{ $manager->employee && $manager->employee->position ? $manager->employee->position->nama_jabatan : 'HR Manager' }}</td>
                     <td class="py-4 px-6">
                         @if($manager->employee && $manager->employee->status === 'nonaktif')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">

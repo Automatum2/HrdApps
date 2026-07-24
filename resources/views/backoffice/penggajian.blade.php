@@ -73,45 +73,42 @@
 <div class="bg-white rounded-xl border border-outline-variant p-6 mb-6 shadow-sm">
     <h4 class="font-bold text-sm mb-4">Tahapan Proses Penggajian</h4>
     <div class="flex items-center justify-between flex-wrap md:flex-nowrap gap-4 md:gap-0">
-        <!-- Step 1 -->
-        <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-[#0066ff] shadow-sm">
-                <span class="material-symbols-outlined text-sm">check</span>
+        @php
+            $tahapan = [
+                1 => 'Tarik Data',
+                2 => 'Hitung Gaji',
+                3 => 'Review',
+                4 => 'Approve',
+                5 => 'Distribusi'
+            ];
+            $currentStep = $currentStep ?? 3;
+        @endphp
+
+        @foreach($tahapan as $step => $label)
+            <!-- Step {{ $step }} -->
+            <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
+                @if($step < $currentStep)
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-[#0066ff] shadow-sm">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </div>
+                    <span class="text-xs font-semibold text-on-surface">{{ $step }}. {{ $label }}</span>
+                @elseif($step == $currentStep)
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-primary shadow" id="circle-step-{{ $step }}">
+                        {{ $step }}
+                    </div>
+                    <span class="text-xs font-bold text-primary" id="text-step-{{ $step }}">{{ $step }}. {{ $label }}</span>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold circle border border-outline-variant" id="circle-step-{{ $step }}">
+                        {{ $step }}
+                    </div>
+                    <span class="text-xs font-medium text-on-surface-variant" id="text-step-{{ $step }}">{{ $step }}. {{ $label }}</span>
+                @endif
             </div>
-            <span class="text-xs font-semibold text-on-surface">1. Tarik Data</span>
-        </div>
-        <div class="hidden md:block h-0.5 bg-[#0066ff] flex-1 mx-2"></div>
-        <!-- Step 2 -->
-        <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-[#0066ff] shadow-sm">
-                <span class="material-symbols-outlined text-sm">check</span>
-            </div>
-            <span class="text-xs font-semibold text-on-surface">2. Hitung Gaji</span>
-        </div>
-        <div class="hidden md:block h-0.5 bg-[#0066ff] flex-1 mx-2" id="line-step-3"></div>
-        <!-- Step 3 (Active) -->
-        <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-primary shadow" id="circle-step-3">
-                3
-            </div>
-            <span class="text-xs font-bold text-primary" id="text-step-3">3. Review</span>
-        </div>
-        <div class="hidden md:block h-0.5 bg-surface-container-high flex-1 mx-2" id="line-step-4"></div>
-        <!-- Step 4 -->
-        <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
-            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold circle border border-outline-variant" id="circle-step-4">
-                4
-            </div>
-            <span class="text-xs font-medium text-on-surface-variant" id="text-step-4">4. Approve</span>
-        </div>
-        <div class="hidden md:block h-0.5 bg-surface-container-high flex-1 mx-2" id="line-step-5"></div>
-        <!-- Step 5 -->
-        <div class="flex flex-col items-center gap-2 flex-1 min-w-[120px]">
-            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold circle border border-outline-variant" id="circle-step-5">
-                5
-            </div>
-            <span class="text-xs font-medium text-on-surface-variant" id="text-step-5">5. Distribusi</span>
-        </div>
+
+            @if($step < count($tahapan))
+                <div class="hidden md:block h-0.5 flex-1 mx-2 {{ $step < $currentStep ? 'bg-[#0066ff]' : 'bg-surface-container-high' }}" id="line-step-{{ $step + 1 }}"></div>
+            @endif
+        @endforeach
     </div>
 </div>
 

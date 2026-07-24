@@ -20,47 +20,57 @@
 <div class="grid grid-cols-12 gap-6">
     <!-- Filters Card -->
     <div class="col-span-12 lg:col-span-9 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
-            <div class="space-y-1.5">
-                <label class="text-xs uppercase font-bold text-on-surface-variant">Dari Tanggal</label>
-                <input class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" type="date" value="2026-06-01" id="filter-dari-tanggal"/>
+        <form method="GET" action="{{ route('backoffice.absensi') }}" id="form-filter-absensi">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                <div class="space-y-1.5">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Dari Tanggal</label>
+                    <input class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" type="date" name="dari_tanggal" value="{{ request('dari_tanggal', $dari) }}" id="filter-dari-tanggal"/>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Sampai Tanggal</label>
+                    <input class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal', $sampai) }}" id="filter-sampai-tanggal"/>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Departemen</label>
+                    <select class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" name="departemen_id" id="filter-departemen">
+                        <option value="">Semua Departemen</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}" {{ request('departemen_id') == $dept->id ? 'selected' : '' }}>{{ $dept->nama_departemen }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Status</label>
+                    <select class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" name="status" id="filter-status">
+                        <option value="">Semua Status</option>
+                        <option value="hadir" {{ request('status') == 'hadir' ? 'selected' : '' }}>Hadir</option>
+                        <option value="izin" {{ request('status') == 'izin' ? 'selected' : '' }}>Izin</option>
+                        <option value="sakit" {{ request('status') == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                        <option value="cuti" {{ request('status') == 'cuti' ? 'selected' : '' }}>Cuti</option>
+                        <option value="alpha" {{ request('status') == 'alpha' ? 'selected' : '' }}>Alpha</option>
+                    </select>
+                </div>
             </div>
-            <div class="space-y-1.5">
-                <label class="text-xs uppercase font-bold text-on-surface-variant">Sampai Tanggal</label>
-                <input class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" type="date" value="2026-06-19" id="filter-sampai-tanggal"/>
+            <div class="mt-6 flex justify-between gap-3">
+                <button type="submit" class="bg-blue-50 border border-blue-200 text-blue-700 font-bold text-sm px-5 py-2 rounded-lg hover:bg-blue-100 transition-colors flex items-center cursor-pointer shadow-sm">
+                    <span class="material-symbols-outlined mr-2 text-lg">search</span>
+                    Terapkan Filter
+                </button>
+                <div class="flex gap-3">
+                    <a href="{{ route('backoffice.absensi') }}" class="bg-surface-container-lowest border border-outline-variant text-on-surface font-semibold text-sm px-5 py-2 rounded-lg hover:bg-surface-container-low transition-colors flex items-center cursor-pointer active:scale-95 shadow-sm" id="btn-reset-filter">
+                        <span class="material-symbols-outlined mr-2 text-lg">filter_alt_off</span>
+                        Reset
+                    </a>
+                    @php
+                        $exportUrl = route('backoffice.absensi.export', request()->query());
+                    @endphp
+                    <a href="{{ $exportUrl }}" class="bg-primary text-white font-semibold text-sm px-5 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center cursor-pointer shadow">
+                        <span class="material-symbols-outlined mr-2 text-lg">download</span>
+                        Export Excel
+                    </a>
+                </div>
             </div>
-            <div class="space-y-1.5">
-                <label class="text-xs uppercase font-bold text-on-surface-variant">Departemen</label>
-                <select class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" id="filter-departemen">
-                    <option value="">Semua Departemen</option>
-                    <option value="IT">IT Support / Developer</option>
-                    <option value="HRD">HRD / HR Specialist</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Sales">Sales</option>
-                </select>
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-xs uppercase font-bold text-on-surface-variant">Status</label>
-                <select class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" id="filter-status">
-                    <option value="">Semua Status</option>
-                    <option value="Hadir">Hadir</option>
-                    <option value="Izin">Izin</option>
-                    <option value="Sakit">Sakit</option>
-                    <option value="Cuti">Cuti</option>
-                    <option value="Alpha">Alpha</option>
-                </select>
-            </div>
-        </div>
-        <div class="mt-6 flex justify-end gap-3">
-            <button class="bg-surface-container-lowest border border-outline-variant text-on-surface font-semibold text-sm px-5 py-2 rounded-lg hover:bg-surface-container-low transition-colors flex items-center cursor-pointer active:scale-95 shadow-sm" id="btn-reset-filter">
-                <span class="material-symbols-outlined mr-2 text-lg">filter_alt_off</span>
-                Reset Filter
-            </button>
-            <button class="bg-primary text-white font-semibold text-sm px-5 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center cursor-pointer shadow" onclick="alert('Mengekspor data absensi ke Excel...')">
-                <span class="material-symbols-outlined mr-2 text-lg">download</span>
-                Export Excel
-            </button>
-        </div>
+        </form>
     </div>
     
     <!-- Calendar Widget -->
@@ -377,35 +387,20 @@
         showingCountFooter.innerText = visibleCount;
     };
 
-    // Event Listeners untuk Filter
+    // Event Listeners untuk Filter Pencarian Cepat (Klien Side)
     searchKaryawan.addEventListener('input', () => filterAbsensi());
-    filterDept.addEventListener('change', () => filterAbsensi());
-    filterStatus.addEventListener('change', () => filterAbsensi());
-    filterDari.addEventListener('change', () => filterAbsensi());
-    filterSampai.addEventListener('change', () => filterAbsensi());
     
     // Filter WFO Only dan Semua
     btnWfo.addEventListener('click', () => {
         btnWfo.className = "bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:brightness-110 transition-colors cursor-pointer active:scale-95";
         btnAll.className = "bg-white border border-outline-variant text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95";
-        filterAbsensi('WFO');
+        filterAbsensi('wfo'); // Mengasumsikan wfo di-lowercase
     });
     
     btnAll.addEventListener('click', () => {
         btnAll.className = "bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:brightness-110 transition-colors cursor-pointer active:scale-95";
         btnWfo.className = "bg-white border border-outline-variant text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95";
         filterAbsensi();
-    });
-    
-    // Reset Filter
-    btnReset.addEventListener('click', () => {
-        filterDari.value = defaultDari;
-        filterSampai.value = defaultSampai;
-        filterDept.value = '';
-        filterStatus.value = '';
-        searchKaryawan.value = '';
-        
-        btnAll.click(); // Reset ke Semua
     });
     
     

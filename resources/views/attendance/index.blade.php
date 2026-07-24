@@ -223,11 +223,23 @@
             }
 
             if(!isPhotoTaken) {
-                // Jepret Foto (Fase 1)
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                photoData = canvas.toDataURL('image/jpeg');
+                // Jepret Foto (Fase 1) dengan Kompresi Resolusi & Kualitas
+                const MAX_WIDTH = 640;
+                let width = video.videoWidth;
+                let height = video.videoHeight;
+
+                // Perkecil resolusi jika terlalu besar (terutama kamera HP modern)
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+                
+                // Konversi ke base64 dengan format JPEG dan kualitas 60% (0.6)
+                photoData = canvas.toDataURL('image/jpeg', 0.6);
                 
                 photoPreview.src = photoData;
                 photoPreview.classList.remove('hidden');
@@ -262,11 +274,23 @@
             }
 
             if(!isPhotoTaken) {
-                // Jepret Foto (Fase 1)
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                photoData = canvas.toDataURL('image/jpeg');
+                // Jepret Foto (Fase 1) dengan Kompresi Resolusi & Kualitas
+                const MAX_WIDTH = 640;
+                let width = video.videoWidth;
+                let height = video.videoHeight;
+
+                // Perkecil resolusi jika terlalu besar (terutama kamera HP modern)
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+                
+                // Konversi ke base64 dengan format JPEG dan kualitas 60% (0.6)
+                photoData = canvas.toDataURL('image/jpeg', 0.6);
                 
                 photoPreview.src = photoData;
                 photoPreview.classList.remove('hidden');
