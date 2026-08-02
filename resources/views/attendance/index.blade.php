@@ -4,6 +4,24 @@
 @section('page_title', 'Absensi Kehadiran')
 
 @section('content')
+@push('styles')
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+    .ql-editor {
+        min-height: 120px;
+        background-color: white;
+    }
+    .ql-toolbar {
+        background-color: #f8fafc;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .ql-container {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
+</style>
+@endpush
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-stagger">
     
     <!-- KOLOM KIRI: Form Input & Informasi -->
@@ -42,7 +60,10 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-on-surface-variant mb-1">Laporan Singkat / Keterangan (Opsional)</label>
-                        <textarea name="keterangan" rows="3" class="w-full p-2 border border-outline-variant rounded-lg bg-surface text-on-surface"></textarea>
+                        <div class="bg-surface rounded-lg overflow-hidden">
+                            <div id="editor-in"></div>
+                        </div>
+                        <input type="hidden" name="keterangan" id="keterangan-in">
                     </div>
 
                     <button type="button" id="btn-submit-in" class="w-full bg-primary text-white font-bold py-3 rounded-lg shadow-md hover:brightness-110 transition cursor-pointer">
@@ -59,6 +80,14 @@
                     <div class="mb-4">
                         <p class="text-on-background font-bold">Waktu Clock In: <span class="text-primary">{{ $attendance->jam_masuk }}</span></p>
                         <p class="text-on-background font-bold">Status: <span class="text-primary">{{ $attendance->status_kerja }}</span></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-on-surface-variant mb-1">Update Laporan Harian (Opsional)</label>
+                        <div class="bg-surface rounded-lg overflow-hidden">
+                            <div id="editor-out">{!! $attendance->keterangan ?? '' !!}</div>
+                        </div>
+                        <input type="hidden" name="keterangan" id="keterangan-out">
                     </div>
 
                     <button type="button" id="btn-submit-out" class="w-full border border-error text-error bg-error/10 font-bold py-3 rounded-lg shadow-md hover:bg-error hover:text-white transition cursor-pointer">
@@ -125,7 +154,24 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
+    // Inisialisasi Quill Editor
+    const quillOptions = {
+        theme: 'snow',
+        placeholder: 'Tuliskan laporan harian Anda di sini...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean']
+            ]
+        }
+    };
+    
+    const editorIn = document.getElementById('editor-in') ? new Quill('#editor-in', quillOptions) : null;
+    const editorOut = document.getElementById('editor-out') ? new Quill('#editor-out', quillOptions) : null;
+
     const cameraPlaceholder = document.getElementById('camera-placeholder');
     const video = document.getElementById('camera-feed');
     const photoPreview = document.getElementById('photo-preview');
@@ -253,6 +299,11 @@
                 document.getElementById('foto-in').value = photoData;
                 document.getElementById('lokasi-in').value = currentLocation + (addressText.innerText ? ' | ' + addressText.innerText : '');
                 
+                if (editorIn) {
+                    const content = editorIn.root.innerHTML;
+                    document.getElementById('keterangan-in').value = content === '<p><br></p>' ? '' : content;
+                }
+                
                 btnSubmitIn.disabled = true;
                 btnSubmitIn.innerText = "Mengirim Data...";
                 document.getElementById('form-clockin').submit();
@@ -303,6 +354,11 @@
                 // Submit Form (Fase 2)
                 document.getElementById('foto-out').value = photoData;
                 document.getElementById('lokasi-out').value = currentLocation + (addressText.innerText ? ' | ' + addressText.innerText : '');
+                
+                if (editorOut) {
+                    const content = editorOut.root.innerHTML;
+                    document.getElementById('keterangan-out').value = content === '<p><br></p>' ? '' : content;
+                }
                 
                 btnSubmitOut.disabled = true;
                 btnSubmitOut.innerText = "Mengirim Data...";

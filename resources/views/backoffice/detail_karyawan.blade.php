@@ -120,4 +120,54 @@
         </div>
     </div>
 </div>
+
+<!-- Dokumen Pendukung & CV -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <!-- Riwayat Hidup / CV -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden h-fit">
+        <div class="px-6 py-4 border-b border-outline-variant bg-slate-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-400">description</span>
+            <h3 class="font-bold text-slate-800 text-base">Riwayat Hidup (CV)</h3>
+        </div>
+        <div class="p-6">
+            @if(isset($employee->cv_text) && $employee->cv_text)
+                <div class="text-sm text-slate-700 leading-relaxed">{!! $employee->cv_text !!}</div>
+            @else
+                <div class="text-sm text-slate-500 italic text-center py-4">Belum ada data riwayat hidup.</div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Dokumen -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden h-fit">
+        <div class="px-6 py-4 border-b border-outline-variant bg-slate-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-400">folder</span>
+            <h3 class="font-bold text-slate-800 text-base">Dokumen Pendukung</h3>
+        </div>
+        <div class="p-6">
+            @if($employee->documents && $employee->documents->count() > 0)
+                <ul class="divide-y divide-slate-100">
+                    @foreach($employee->documents as $doc)
+                        <li class="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                                    <span class="material-symbols-outlined">{{ $doc->file_type === 'pdf' ? 'picture_as_pdf' : 'image' }}</span>
+                                </div>
+                                <div class="truncate">
+                                    <p class="text-sm font-semibold text-slate-800 truncate" style="max-width: 150px;">{{ $doc->file_name }}</p>
+                                    <p class="text-xs text-slate-500">{{ $doc->file_size }} KB • {{ strtoupper($doc->file_type) }}</p>
+                                </div>
+                            </div>
+                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="p-2 text-primary hover:bg-primary-container rounded-lg transition-colors cursor-pointer shrink-0" title="Lihat Dokumen">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="text-sm text-slate-500 italic text-center py-4">Belum ada dokumen yang diunggah.</div>
+            @endif
+        </div>
+    </div>
+</div>
 @endsection

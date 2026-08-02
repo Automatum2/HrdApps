@@ -88,8 +88,55 @@
                 <button class="text-xs font-semibold px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors">Mingguan</button>
             </div>
         </div>
-        <div class="h-[280px] w-full relative" id="chart-container">
-            <canvas id="attendanceChart"></canvas>
+        <div class="h-[280px] w-full relative flex items-end gap-1" id="chart-container">
+            <!-- Custom Mock SVG Chart -->
+            <svg class="w-full h-full" fill="none" viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#0066ff" stop-opacity="0.3"></stop>
+                        <stop offset="100%" stop-color="#0066ff" stop-opacity="0"></stop>
+                    </linearGradient>
+                </defs>
+                <path d="M0 200 C 50 220, 100 180, 150 160 S 250 200, 300 150 S 400 50, 450 80 S 550 120, 600 90 S 700 110, 750 60 V 280 H 0 Z" fill="url(#chartGradient)"></path>
+                <path d="M0 200 C 50 220, 100 180, 150 160 S 250 200, 300 150 S 400 50, 450 80 S 550 120, 600 90 S 700 110, 750 60" stroke="#0066ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+                <!-- Data Points (Interactive Points with Tooltip Data) -->
+                <circle cx="150" cy="160" fill="#0066ff" r="9" stroke="white" stroke-width="3" class="chart-point cursor-pointer transition-all duration-150 hover:r-12 hover:fill-white hover:stroke-primary" data-title="Minggu 1" data-value="Kehadiran: 92.5% (3 Karyawan Masuk, 0 Absen)"></circle>
+                <circle cx="300" cy="150" fill="#0066ff" r="9" stroke="white" stroke-width="3" class="chart-point cursor-pointer transition-all duration-150 hover:r-12 hover:fill-white hover:stroke-primary" data-title="Minggu 2" data-value="Kehadiran: 95.0% (3 Karyawan Masuk, 0 Absen)"></circle>
+                <circle cx="450" cy="80" fill="#0066ff" r="9" stroke="white" stroke-width="3" class="chart-point cursor-pointer transition-all duration-150 hover:r-12 hover:fill-white hover:stroke-primary" data-title="Minggu 3" data-value="Kehadiran: 98.2% (4 Karyawan Masuk, 0 Absen)"></circle>
+                <circle cx="600" cy="90" fill="#0066ff" r="9" stroke="white" stroke-width="3" class="chart-point cursor-pointer transition-all duration-150 hover:r-12 hover:fill-white hover:stroke-primary" data-title="Minggu 4" data-value="Kehadiran: 96.5% (4 Karyawan Masuk, 0 Absen)"></circle>
+                <circle cx="750" cy="60" fill="#0066ff" r="9" stroke="white" stroke-width="3" class="chart-point cursor-pointer transition-all duration-150 hover:r-12 hover:fill-white hover:stroke-primary" data-title="Evaluasi Akhir" data-value="Rata-rata Kehadiran Bulanan: 95.5%"></circle>
+
+                <!-- Floating Statistics Badges (Sectors showing values along the line) -->
+                <!-- Minggu 1 -->
+                <rect x="125" y="122" width="50" height="20" rx="5" fill="#0050cb"></rect>
+                <text x="150" y="136" text-anchor="middle" fill="white" class="font-bold text-[10px] font-sans" style="font-family: 'Inter', sans-serif; font-weight: 700;">92.5%</text>
+
+                <!-- Minggu 2 -->
+                <rect x="275" y="112" width="50" height="20" rx="5" fill="#0050cb"></rect>
+                <text x="300" y="126" text-anchor="middle" fill="white" class="font-bold text-[10px] font-sans" style="font-family: 'Inter', sans-serif; font-weight: 700;">95.0%</text>
+
+                <!-- Minggu 3 -->
+                <rect x="425" y="42" width="50" height="20" rx="5" fill="#0050cb"></rect>
+                <text x="450" y="56" text-anchor="middle" fill="white" class="font-bold text-[10px] font-sans" style="font-family: 'Inter', sans-serif; font-weight: 700;">98.2%</text>
+
+                <!-- Minggu 4 -->
+                <rect x="575" y="52" width="50" height="20" rx="5" fill="#0050cb"></rect>
+                <text x="600" y="66" text-anchor="middle" fill="white" class="font-bold text-[10px] font-sans" style="font-family: 'Inter', sans-serif; font-weight: 700;">96.5%</text>
+
+                <!-- Evaluasi Akhir -->
+                <rect x="725" y="22" width="50" height="20" rx="5" fill="#0050cb"></rect>
+                <text x="750" y="36" text-anchor="middle" fill="white" class="font-bold text-[10px] font-sans" style="font-family: 'Inter', sans-serif; font-weight: 700;">95.5%</text>
+            </svg>
+            
+            <!-- Floating HTML Tooltip -->
+            <div id="chart-tooltip" class="absolute bg-slate-900/90 text-white text-xs px-3 py-2 rounded-lg shadow-xl pointer-events-none transition-all duration-100 border border-white/10 hidden z-30 whitespace-nowrap">
+                <span class="font-bold block text-primary-container" id="tooltip-title">Minggu 1</span>
+                <span class="text-[11px] text-slate-300" id="tooltip-value">Kehadiran: 92.5%</span>
+            </div>
+
+            <div class="absolute bottom-0 left-0 w-full flex justify-between text-[10px] text-on-surface-variant font-medium px-2">
+                <span class="">Minggu 1</span><span class="">Minggu 2</span><span class="">Minggu 3</span><span class="">Minggu 4</span>
+            </div>
         </div>
     </div>
     <!-- Employee Status -->
@@ -102,12 +149,16 @@
                 $pct_tetap = round(($status_tetap / $total) * 100);
                 $pct_kontrak = round(($status_kontrak / $total) * 100);
                 $pct_magang = round(($status_magang / $total) * 100);
+                
+                // Simple CSS polygon clip-path generation for demonstration (CSS conic-gradient is better but keeping structure)
             @endphp
-            <div class="w-48 h-48 relative flex items-center justify-center">
-                <canvas id="statusChart"></canvas>
-                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="text-headline-md font-display-lg block leading-none font-bold text-on-background" id="donut-total">{{ $total_karyawan }}</span>
-                    <span class="text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">Total</span>
+            <div class="w-48 h-48 rounded-full relative flex items-center justify-center overflow-hidden" style="background: conic-gradient(#0066ff 0% {{ $pct_tetap }}%, #002255 {{ $pct_tetap }}% {{ $pct_tetap + $pct_kontrak }}%, #e2e8f0 {{ $pct_tetap + $pct_kontrak }}% 100%);">
+                <!-- Inner circle to make it a donut -->
+                <div class="absolute inset-4 bg-surface-container-lowest rounded-full"></div>
+                
+                <div class="text-center relative z-10">
+                    <span class="text-headline-md font-display-lg block leading-none font-bold" id="donut-total">{{ $total_karyawan }}</span>
+                    <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Total</span>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-8 w-full">
@@ -168,7 +219,7 @@
                     <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">{{ $emp->nik }}</td>
                     <td class="px-8 py-4 text-on-surface-variant">{{ $emp->jabatan ?? 'Karyawan' }}</td>
                     <td class="px-8 py-4">
-                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">{{ $emp->department->nama_department ?? 'Umum' }}</span>
+                        <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">{{ $emp->department->nama_departemen ?? 'Umum' }}</span>
                     </td>
                     <td class="px-8 py-4 text-center">
                         <span class="px-3 py-1 rounded-full bg-primary-container/10 text-primary text-xs font-bold">{{ $emp->status_kerja ?? 'Tetap' }}</span>
@@ -356,98 +407,7 @@
 @endpush
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Initialize Chart.js Data
-    const attendanceTrendLabels = @json($attendance_trend['labels'] ?? []);
-    const attendanceTrendData = @json($attendance_trend['data'] ?? []);
-    const statusData = [{{ $status_tetap }}, {{ $status_kontrak }}, {{ $status_magang }}];
-    
-    // Attendance Line Chart
-    const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
-    
-    // Create Gradient for Line Chart
-    let gradientLine = ctxAttendance.createLinearGradient(0, 0, 0, 400);
-    gradientLine.addColorStop(0, 'rgba(0, 102, 255, 0.4)');
-    gradientLine.addColorStop(1, 'rgba(0, 102, 255, 0)');
-
-    new Chart(ctxAttendance, {
-        type: 'line',
-        data: {
-            labels: attendanceTrendLabels,
-            datasets: [{
-                label: 'Kehadiran (Orang)',
-                data: attendanceTrendData,
-                borderColor: '#0066ff',
-                backgroundColor: gradientLine,
-                borderWidth: 3,
-                pointBackgroundColor: '#0066ff',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                    titleFont: { size: 13, family: "'Inter', sans-serif" },
-                    bodyFont: { size: 12, family: "'Inter', sans-serif" },
-                    padding: 10,
-                    cornerRadius: 8,
-                    displayColors: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(0,0,0,0.05)', borderDash: [5, 5] },
-                    ticks: { precision: 0, font: { family: "'Inter', sans-serif", size: 11 } }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { family: "'Inter', sans-serif", size: 11 } }
-                }
-            }
-        }
-    });
-
-    // Status Karyawan Doughnut Chart
-    const ctxStatus = document.getElementById('statusChart').getContext('2d');
-    new Chart(ctxStatus, {
-        type: 'doughnut',
-        data: {
-            labels: ['Tetap', 'Kontrak', 'Magang'],
-            datasets: [{
-                data: statusData,
-                backgroundColor: ['#0066ff', '#f1f5f9', '#94a3b8'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '75%',
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                    bodyFont: { size: 12, family: "'Inter', sans-serif" },
-                    padding: 10,
-                    cornerRadius: 8,
-                    displayColors: true
-                }
-            }
-        }
-    });
-
     // Inisialisasi Elemen Modal
     const modalTambah = document.getElementById('modal-tambah');
     const modalKonfirmasi = document.getElementById('modal-konfirmasi');
@@ -553,8 +513,77 @@
     // ==========================================
     // 4. Aksi Tambah / Pilih Karyawan Baru
     // ==========================================
-    // Dihapus hardcode localStorage, data langsung dari backend via view.
+    // Load data karyawan baru dari localStorage
+    const loadKaryawanBaruDariStorage = () => {
+        const listKaryawanStr = localStorage.getItem('karyawan_baru');
+        if (listKaryawanStr) {
+            const listKaryawan = JSON.parse(listKaryawanStr);
+            listKaryawan.forEach(k => {
+                if (k.departemen === 'Belum Ditempatkan') {
+                    const existingInModal = modalTableBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInModal) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const modalRow = document.createElement('tr');
+                        modalRow.className = 'hover:bg-primary/5 transition-colors group';
+                        modalRow.setAttribute('data-nik', k.nik);
+                        modalRow.setAttribute('data-nama', k.nama);
+                        modalRow.innerHTML = `
+                            <td class="px-lg py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                                    <span class="font-bold text-on-surface">${k.nama}</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-3 font-mono text-on-surface-variant">${k.nik}</td>
+                            <td class="px-lg py-3 text-right">
+                                <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                                    + Pilih
+                                </button>
+                            </td>
+                        `;
+                        modalTableBody.appendChild(modalRow);
+                    }
+                } else if (k.departemen !== 'Belum Ditempatkan') {
+                    const existingInTable = tableAnggotaBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInTable) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'hover:bg-primary/5 transition-colors group';
+                        newRow.setAttribute('data-nik', k.nik);
+                        newRow.setAttribute('data-status', k.status || 'Kontrak');
+                        newRow.innerHTML = `
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">${inisial}</div>
+                                    <span class="font-medium text-on-background">${k.nama}</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">${k.nik}</td>
+                            <td class="px-8 py-4 text-on-surface-variant">${k.jabatan}</td>
+                            <td class="px-8 py-4">
+                                <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">${k.departemen}</span>
+                            </td>
+                            <td class="px-8 py-4 text-center">
+                                <span class="px-3 py-1 rounded-full ${k.status === 'Tetap' ? 'bg-primary-container/10 text-primary' : (k.status === 'Kontrak' ? 'bg-surface-container-highest text-secondary' : 'bg-tertiary-container/10 text-tertiary')} text-xs font-bold">${k.status || 'Kontrak'}</span>
+                            </td>
+                            <td class="px-8 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
+                                    <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="${k.nama}" data-nik="${k.nik}"><span class="material-symbols-outlined text-lg">person_remove</span></button>
+                                </div>
+                            </td>
+                        `;
+                        tableAnggotaBody.appendChild(newRow);
+                    }
+                }
+            });
+            updateStatistics();
+        }
+    };
     
+    // Panggil saat halaman diload
+    loadKaryawanBaruDariStorage();
+
     modalTableBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-assign')) {
             const row = e.target.closest('tr');
@@ -591,42 +620,54 @@
             const status = document.getElementById('assign-status').value;
             const dept = document.getElementById('assign-departemen').value;
             
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
+            const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             
-            const nikInput = document.createElement('input');
-            nikInput.type = 'hidden';
-            nikInput.name = 'nik';
-            nikInput.value = nik;
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-primary/5 transition-colors group';
+            newRow.setAttribute('data-nik', nik);
+            newRow.setAttribute('data-status', status);
+            newRow.innerHTML = `
+                <td class="px-8 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary">${inisial}</div>
+                        <span class="font-medium text-on-background">${nama}</span>
+                    </div>
+                </td>
+                <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">${nik}</td>
+                <td class="px-8 py-4 text-on-surface-variant">${jabatan}</td>
+                <td class="px-8 py-4">
+                    <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">${dept}</span>
+                </td>
+                <td class="px-8 py-4 text-center">
+                    <span class="px-3 py-1 rounded-full ${status === 'Tetap' ? 'bg-primary-container/10 text-primary' : (status === 'Kontrak' ? 'bg-surface-container-highest text-secondary' : 'bg-tertiary-container/10 text-tertiary')} text-xs font-bold">${status}</span>
+                </td>
+                <td class="px-8 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                        <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
+                        <button class="btn-lepas w-8 h-8 rounded-lg bg-surface-container-low text-error flex items-center justify-center hover:bg-error hover:text-white transition-all cursor-pointer active:scale-90" title="Lepas dari Departemen" data-nama="${nama}" data-nik="${nik}"><span class="material-symbols-outlined text-lg">person_remove</span></button>
+                    </div>
+                </td>
+            `;
             
-            const jabatanInput = document.createElement('input');
-            jabatanInput.type = 'hidden';
-            jabatanInput.name = 'jabatan';
-            jabatanInput.value = jabatan;
+            tableAnggotaBody.appendChild(newRow);
+            activeAssignData.row.remove();
             
-            const statusInput = document.createElement('input');
-            statusInput.type = 'hidden';
-            statusInput.name = 'status_kerja';
-            statusInput.value = status;
+            // Perbarui status di localStorage
+            const listKaryawanStr = localStorage.getItem('karyawan_baru');
+            if (listKaryawanStr) {
+                const listKaryawan = JSON.parse(listKaryawanStr);
+                const targetK = listKaryawan.find(item => item.nik === nik);
+                if (targetK) {
+                    targetK.departemen = dept;
+                    targetK.jabatan = jabatan;
+                    targetK.status = status;
+                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
+                }
+            }
             
-            const deptInput = document.createElement('input');
-            deptInput.type = 'hidden';
-            deptInput.name = 'department';
-            deptInput.value = document.getElementById('assign-departemen').options[document.getElementById('assign-departemen').selectedIndex].text;
-            
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("backoffice.karyawan.assign") }}';
-            form.appendChild(csrfToken);
-            form.appendChild(nikInput);
-            form.appendChild(jabatanInput);
-            form.appendChild(statusInput);
-            form.appendChild(deptInput);
-            
-            document.body.appendChild(form);
-            form.submit();
+            updateStatistics();
+            tutupModalAssignDetail();
+            alert(`Karyawan ${nama} berhasil ditempatkan di departemen ${dept} sebagai ${jabatan}!`);
         }
     });
 
@@ -659,26 +700,83 @@
     // Setuju Konfirmasi (Proses Lepas secara Realtime)
     btnKonfirmasiLepas.addEventListener('click', () => {
         if (targetRowToRelease) {
+            const nama = targetRowToRelease.querySelector('td:first-child span:nth-child(2)').innerText;
             const NIK = targetRowToRelease.querySelector('td:nth-child(2)').innerText;
+            const jabatan = targetRowToRelease.querySelector('td:nth-child(3)').innerText;
+            const dept = targetRowToRelease.querySelector('td:nth-child(4) span').innerText;
+            const status = targetRowToRelease.getAttribute('data-status');
+            const inisial = nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
+            // Perbarui status di localStorage jika ada
+            const listKaryawanStr = localStorage.getItem('karyawan_baru');
+            let isKaryawanBaru = false;
+            if (listKaryawanStr) {
+                const listKaryawan = JSON.parse(listKaryawanStr);
+                const targetK = listKaryawan.find(item => item.nik === NIK);
+                if (targetK) {
+                    targetK.departemen = 'Belum Ditempatkan';
+                    targetK.jabatan = 'Belum Ditentukan';
+                    localStorage.setItem('karyawan_baru', JSON.stringify(listKaryawan));
+                    isKaryawanBaru = true;
+                }
+            }
             
-            const nikInput = document.createElement('input');
-            nikInput.type = 'hidden';
-            nikInput.name = 'nik';
-            nikInput.value = NIK;
+            if (isKaryawanBaru) {
+                const returnRow = document.createElement('tr');
+                returnRow.className = 'hover:bg-primary/5 transition-colors group';
+                returnRow.setAttribute('data-nik', NIK);
+                returnRow.setAttribute('data-nama', nama);
+                returnRow.innerHTML = `
+                    <td class="px-lg py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                            <span class="font-bold text-on-surface">${nama}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
+                    <td class="px-lg py-3 text-right">
+                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                            + Pilih
+                        </button>
+                    </td>
+                `;
+                modalTableBody.appendChild(returnRow);
+            } else {
+                // Karyawan dummy default, kembalikan dengan attribute lengkapnya
+                const returnRow = document.createElement('tr');
+                returnRow.className = 'hover:bg-primary/5 transition-colors group';
+                returnRow.setAttribute('data-nik', NIK);
+                returnRow.setAttribute('data-nama', nama);
+                returnRow.setAttribute('data-jabatan', jabatan);
+                returnRow.setAttribute('data-dept', dept);
+                returnRow.setAttribute('data-status', status);
+                returnRow.innerHTML = `
+                    <td class="px-lg py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                            <span class="font-bold text-on-surface">${nama}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-3 font-mono text-on-surface-variant">${NIK}</td>
+                    <td class="px-lg py-3 text-right">
+                        <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                            + Pilih
+                        </button>
+                    </td>
+                `;
+                modalTableBody.appendChild(returnRow);
+            }
             
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("backoffice.karyawan.lepas") }}';
-            form.appendChild(csrfToken);
-            form.appendChild(nikInput);
+            // Hapus baris dari tabel utama dashboard
+            targetRowToRelease.remove();
             
-            document.body.appendChild(form);
-            form.submit();
+            // Update widget statistik
+            updateStatistics();
+            
+            // Tutup modal konfirmasi
+            modalKonfirmasi.style.display = 'none';
+            targetRowToRelease = null;
+            targetNikToRelease = '';
         }
     });
 

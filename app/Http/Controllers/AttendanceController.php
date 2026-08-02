@@ -72,7 +72,8 @@ class AttendanceController extends Controller
     {
         $request->validate([
             'foto' => 'required|string',
-            'lokasi' => 'required|string'
+            'lokasi' => 'required|string',
+            'keterangan' => 'nullable|string'
         ]);
 
         $employeeId = session('employee_id', '00001221');
@@ -105,6 +106,9 @@ class AttendanceController extends Controller
         $attendance->jam_keluar = Carbon::now()->toTimeString();
         $attendance->foto_keluar = 'attendances/' . $fileName;
         $attendance->lokasi_keluar = $request->lokasi;
+        if ($request->filled('keterangan')) {
+            $attendance->keterangan = $request->keterangan;
+        }
 
         $jamMasuk = Carbon::parse($attendance->jam_masuk);
         $jamKeluar = Carbon::parse($attendance->jam_keluar);

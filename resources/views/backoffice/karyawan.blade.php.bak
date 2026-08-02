@@ -19,10 +19,10 @@
             <span class="material-symbols-outlined text-lg">add</span>
             <span>Tambah Karyawan</span>
         </button>
-        <a href="{{ route('backoffice.karyawan.export') }}" class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-lowest border border-outline-variant text-secondary rounded-lg font-semibold text-sm hover:bg-surface-container-low active:scale-95 transition-all cursor-pointer">
-            <span class="material-symbols-outlined text-[20px]">download</span>
+        <button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-lowest border border-outline-variant text-secondary rounded-lg font-semibold text-sm hover:bg-surface-container-low active:scale-95 transition-all cursor-pointer" onclick="alert('Mengekspor data ke Excel...')">
+            <span class="material-symbols-outlined text-lg">download</span>
             <span>Export Excel</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -32,12 +32,13 @@
     <div class="p-6 border-b border-outline-variant bg-surface-bright flex flex-col md:flex-row gap-4 justify-between items-center">
         <div class="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
             <div class="flex items-center gap-3 w-full sm:w-auto">
-                <label class="text-xs uppercase font-bold text-on-surface-variant whitespace-nowrap">Filter Status:</label>
-                <select class="form-select bg-white border border-outline-variant rounded-lg text-sm py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-status">
-                    <option value="">Semua Status</option>
-                    <option value="Tetap">Karyawan Tetap</option>
-                    <option value="Kontrak">Karyawan Kontrak</option>
-                    <option value="Magang">Magang (Intern)</option>
+                <label class="text-xs uppercase font-bold text-on-surface-variant whitespace-nowrap">Filter Jabatan:</label>
+                <select class="form-select bg-white border border-outline-variant rounded-lg text-sm py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-jabatan">
+                    <option value="">Semua Jabatan</option>
+                    <option value="Senior Developer">Developer</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Analyst">Analyst</option>
                 </select>
             </div>
         </div>
@@ -76,7 +77,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-karyawan-body">
                 @forelse($employees as $index => $emp)
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="{{ $emp->department->nama_department ?? '-' }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
+                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="{{ $emp->department->nama_departemen ?? '-' }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
                     <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
                         @if($emp->foto)
@@ -92,7 +93,7 @@
                     <td class="px-6 py-4">
                         <div class="text-on-surface-variant">{{ $emp->position->nama ?? 'Staff' }}</div>
                     </td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">{{ $emp->department->nama_department ?? '-' }}</span></td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">{{ $emp->department->nama_departemen ?? '-' }}</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ strtolower($emp->status_kerja ?? '') == 'kontrak' ? 'bg-surface-container-highest text-secondary' : (strtolower($emp->status_kerja ?? '') == 'magang' ? 'bg-tertiary-container/10 text-tertiary' : 'bg-primary-container/10 text-primary') }}">
                             {{ $emp->status_kerja ?? 'Tetap' }}
@@ -100,9 +101,9 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('backoffice.karyawan.show', $emp->id) }}" class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                            </a>
+                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </button>
                             <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="{{ $emp->nama_lengkap }}" data-nik="{{ $emp->nik }}">
                                 <span class="material-symbols-outlined text-sm">person_remove</span>
                             </button>
@@ -361,7 +362,7 @@
     
     // Input Pencarian & Filter
     const searchKaryawan = document.getElementById('search-karyawan');
-    const filterStatus = document.getElementById('filter-status');
+    const filterJabatan = document.getElementById('filter-jabatan');
     const searchModalKaryawan = document.getElementById('search-modal-karyawan');
     
     // Badan Tabel & Stat
@@ -407,19 +408,19 @@
     // ==========================================
     const filterTableUtama = () => {
         const query = searchKaryawan.value.toLowerCase().trim();
-        const statusValue = filterStatus.value;
+        const jabatanValue = filterJabatan.value;
         const rows = tableKaryawanBody.querySelectorAll('tr');
         let visibleCount = 0;
         
         rows.forEach(row => {
             const nama = row.querySelector('td:nth-child(3)').innerText.toLowerCase();
             const nik = row.getAttribute('data-nik').toLowerCase();
-            const statusKerja = row.getAttribute('data-status');
+            const jabatan = row.getAttribute('data-jabatan');
             
             const matchQuery = nama.includes(query) || nik.includes(query);
-            const matchStatus = !statusValue || (statusKerja && statusKerja.toLowerCase().includes(statusValue.toLowerCase()));
+            const matchJabatan = !jabatanValue || jabatan.toLowerCase().includes(jabatanValue.toLowerCase());
             
-            if (matchQuery && matchStatus) {
+            if (matchQuery && matchJabatan) {
                 row.classList.remove('hidden');
                 visibleCount++;
             } else {
@@ -441,7 +442,7 @@
     };
     
     searchKaryawan.addEventListener('input', filterTableUtama);
-    filterStatus.addEventListener('change', filterTableUtama);
+    filterJabatan.addEventListener('change', filterTableUtama);
 
     // ==========================================
     // 3. Pencarian Karyawan Baru pada Modal
@@ -477,8 +478,84 @@
     // ==========================================
     // 4. Aksi Tambah / Pilih Karyawan Baru
     // ==========================================
-    // Dihapus hardcode localStorage, data langsung dari backend via view.
+    // Load data karyawan baru dari localStorage
+    const loadKaryawanBaruDariStorage = () => {
+        const listKaryawanStr = localStorage.getItem('karyawan_baru');
+        if (listKaryawanStr) {
+            const listKaryawan = JSON.parse(listKaryawanStr);
+            listKaryawan.forEach(k => {
+                if (k.departemen === 'Belum Ditempatkan') {
+                    const existingInModal = modalTableBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInModal) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const modalRow = document.createElement('tr');
+                        modalRow.className = 'hover:bg-primary/5 transition-colors group';
+                        modalRow.setAttribute('data-nik', k.nik);
+                        modalRow.setAttribute('data-nama', k.nama);
+                        modalRow.innerHTML = `
+                            <td class="px-lg py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-xs font-bold text-primary/70">${inisial}</div>
+                                    <span class="font-bold text-on-surface">${k.nama}</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-3 font-mono text-on-surface-variant">${k.nik}</td>
+                            <td class="px-lg py-3 text-right">
+                                <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                                    + Pilih
+                                </button>
+                            </td>
+                        `;
+                        modalTableBody.appendChild(modalRow);
+                    }
+                } else if (k.departemen !== 'Belum Ditempatkan') {
+                    const existingInTable = tableKaryawanBody.querySelector(`tr[data-nik="${k.nik}"]`);
+                    if (!existingInTable) {
+                        const inisial = k.nama.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+                        const currentTotal = tableKaryawanBody.querySelectorAll('tr').length + 1;
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'hover:bg-primary/5 transition-colors group';
+                        newRow.setAttribute('data-nik', k.nik);
+                        newRow.setAttribute('data-jabatan', k.jabatan);
+                        newRow.setAttribute('data-dept', k.departemen);
+                        newRow.setAttribute('data-status', k.status || 'Kontrak');
+                        newRow.innerHTML = `
+                            <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">${currentTotal}</td>
+                            <td class="px-6 py-4">
+                                <div class="w-10 h-10 rounded-full border-2 border-surface-container shadow-sm overflow-hidden bg-primary/5 flex items-center justify-center font-bold text-primary">${inisial}</div>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-on-surface">${k.nama}</td>
+                            <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">${k.nik}</td>
+                            <td class="px-6 py-4 text-on-surface-variant">${k.jabatan}</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">${k.departemen}</span></td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${k.status === 'Tetap' ? 'bg-primary-container/10 text-primary' : (k.status === 'Kontrak' ? 'bg-surface-container-highest text-secondary' : 'bg-tertiary-container/10 text-tertiary')}">
+                                    Aktif
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    </button>
+                                    <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="${k.nama}" data-nik="${k.nik}">
+                                        <span class="material-symbols-outlined text-sm">person_remove</span>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        tableKaryawanBody.appendChild(newRow);
+                    }
+                }
+            });
+            updateStatistics();
+            filterTableUtama();
+        }
+    };
     
+    // Panggil saat halaman diload
+    loadKaryawanBaruDariStorage();
+
     modalTableBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-assign')) {
             const row = e.target.closest('tr');

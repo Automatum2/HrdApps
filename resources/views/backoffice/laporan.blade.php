@@ -14,6 +14,10 @@
         </nav>
         <p class="text-body-sm text-on-surface-variant">Analisis rekapitulasi data bulanan, audit biaya, absensi, dan performa divisi karyawan Anda.</p>
     </div>
+    <a href="{{ route('backoffice.laporan.kinerja') }}" class="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white font-semibold rounded-lg hover:brightness-110 transition-all shadow active:scale-95 text-xs cursor-pointer mt-4 md:mt-0">
+        <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+        <span>View Khusus Kinerja + Absensi</span>
+    </a>
 </div>
 
 <div class="space-y-8">
@@ -48,13 +52,14 @@
             <h3 class="font-bold text-sm text-on-background">Generate Laporan</h3>
         </div>
         <div class="p-6">
-            <form class="flex flex-col lg:flex-row gap-6 items-end">
+            <form action="{{ route('backoffice.laporan.generate') }}" method="POST" class="flex flex-col lg:flex-row gap-6 items-end">
+                @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-1 w-full">
                     <!-- Tipe Laporan -->
                     <div class="space-y-2">
                         <label class="text-xs font-semibold text-on-surface-variant block">Tipe Laporan</label>
                         <div class="relative">
-                            <select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-type">
+                            <select name="tipe_laporan" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-type">
                                 <option>Laporan Absensi Bulanan</option>
                                 <option>Laporan Gaji Pokok</option>
                                 <option>Laporan Kinerja Tahunan</option>
@@ -65,19 +70,18 @@
                     <div class="space-y-2">
                         <label class="text-xs font-semibold text-on-surface-variant block">Periode</label>
                         <div class="relative flex items-center">
-                            <input class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none" type="text" value="01/10/2026 - 31/10/2026" id="report-period">
+                            <input name="periode" class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none" type="text" value="{{ \Carbon\Carbon::now()->startOfMonth()->format('d/m/Y') }} - {{ \Carbon\Carbon::now()->endOfMonth()->format('d/m/Y') }}" id="report-period">
                         </div>
                     </div>
                     <!-- Department -->
                     <div class="space-y-2">
                         <label class="text-xs font-semibold text-on-surface-variant block">Department</label>
                         <div class="relative">
-                            <select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-dept">
-                                <option>Semua Department</option>
-                                <option>IT Development</option>
-                                <option>Human Resources</option>
-                                <option>Finance</option>
-                                <option>Marketing</option>
+                            <select name="department_id" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-dept">
+                                <option value="all">Semua Department</option>
+                                @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -85,16 +89,15 @@
                     <div class="space-y-2">
                         <label class="text-xs font-semibold text-on-surface-variant block">Format</label>
                         <div class="relative">
-                            <select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-format">
-                                <option>PDF & Excel</option>
-                                <option>PDF Only</option>
-                                <option>Excel Only</option>
+                            <select name="format" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-background focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer" id="report-format">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel (CSV)</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <!-- Generate Button -->
-                <button class="w-full lg:w-32 bg-primary hover:brightness-110 text-white rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all shadow active:scale-95 cursor-pointer text-xs font-bold lg:mb-[2px]" type="button" id="btn-generate-report">
+                <button class="w-full lg:w-32 bg-primary hover:brightness-110 text-white rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all shadow active:scale-95 cursor-pointer text-xs font-bold lg:mb-[2px]" type="submit" id="btn-generate-report">
                     <span class="material-symbols-outlined text-2xl filled block" style="font-variation-settings: 'FILL' 1;">description</span>
                     <span>Generate</span>
                 </button>
@@ -131,10 +134,10 @@
                         <td class="py-4 px-6 text-on-surface-variant">{{ $report->dibuat_oleh }}</td>
                         <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">{{ $report->created_at->format('d-m-Y H:i') }}</td>
                         <td class="py-4 px-6 text-right">
-                            <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas...')">
+                            <a href="{{ route('backoffice.laporan.download', $report->id) }}" class="inline-flex bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download">
                                 <span class="material-symbols-outlined text-sm">download</span>
                                 <span>Download</span>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                     @empty
@@ -154,24 +157,10 @@
 
 @push('scripts')
 <script>
-    // Inisialisasi Elemen
+    const form = document.querySelector('form');
     const btnGenerate = document.getElementById('btn-generate-report');
-    const selectType = document.getElementById('report-type');
-    const inputPeriod = document.getElementById('report-period');
-    const selectDept = document.getElementById('report-dept');
-    const selectFormat = document.getElementById('report-format');
-    const tableBody = document.getElementById('table-laporan-body');
-
-    // ==========================================
-    // Logika Simulasi Generate Laporan Baru
-    // ==========================================
-    btnGenerate.addEventListener('click', () => {
-        const type = selectType.value;
-        const period = inputPeriod.value;
-        const dept = selectDept.value;
-        const format = selectFormat.value;
-        
-        // Buat Animasi Loading di Tombol
+    
+    form.addEventListener('submit', function() {
         const originalContent = btnGenerate.innerHTML;
         btnGenerate.disabled = true;
         btnGenerate.classList.add('opacity-80', 'cursor-not-allowed');
@@ -182,51 +171,6 @@
             </svg>
             <span class="text-[10px] mt-1">Generating...</span>
         `;
-        
-        setTimeout(() => {
-            // Kembalikan tombol seperti semula
-            btnGenerate.innerHTML = originalContent;
-            btnGenerate.disabled = false;
-            btnGenerate.classList.remove('opacity-80', 'cursor-not-allowed');
-            
-            // Generate metadata laporan baru
-            const typeLabel = type.includes('Absensi') ? 'Absensi' : (type.includes('Gaji') ? 'Penggajian' : 'Karyawan');
-            const newName = `${type} - ${dept}`;
-            
-            // Format Tanggal Sekarang
-            const now = new Date();
-            const pad = (n) => n < 10 ? '0' + n : n;
-            const dateStr = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            
-            // Bikin baris TR baru di tabel Laporan Terakhir
-            const newRow = document.createElement('tr');
-            newRow.className = 'hover:bg-primary/5 transition-colors group animate-in fade-in slide-in-from-top-4 duration-300';
-            newRow.innerHTML = `
-                <td class="py-4 px-6 text-center text-on-surface-variant font-mono">1</td>
-                <td class="py-4 px-6 font-bold text-on-background">${newName}</td>
-                <td class="py-4 px-6 text-on-surface-variant">${typeLabel}</td>
-                <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">${period}</td>
-                <td class="py-4 px-6 text-on-surface-variant">Budi Santoso</td>
-                <td class="py-4 px-6 text-on-surface-variant font-mono text-xs">${dateStr}</td>
-                <td class="py-4 px-6 text-right">
-                    <button class="bg-white hover:bg-surface-container-low border border-outline-variant text-secondary text-xs font-semibold px-3 py-1.5 rounded flex items-center justify-center gap-1.5 ml-auto transition-colors shadow-sm cursor-pointer active:scale-95 btn-download" onclick="alert('Mengunduh berkas ${newName} (${format})...')">
-                        <span class="material-symbols-outlined text-sm">download</span>
-                        <span>Download</span>
-                    </button>
-                </td>
-            `;
-            
-            // Masukkan ke baris teratas tabel
-            tableBody.insertBefore(newRow, tableBody.firstChild);
-            
-            // Urutkan kembali nomor index (No) kolom pertama
-            const rows = tableBody.querySelectorAll('tr');
-            rows.forEach((row, i) => {
-                row.querySelector('td:first-child').innerText = i + 1;
-            });
-            
-            alert(`Laporan "${newName}" sukses dikompilasi ke format ${format}! Berkas siap diunduh di tabel Laporan Terakhir.`);
-        }, 1500);
     });
 </script>
 @endpush

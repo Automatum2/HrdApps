@@ -25,14 +25,14 @@ class EmployeeController extends Controller
     {
         // For now, only Super Admin (and eventually HRD Manager) will access this specific controller method.
         // Karyawan themselves might have a different route (e.g. /profile) pointing to a different controller/method.
-        if (!in_array(session('user_role'), ['super_admin', 'hrd_manager'])) {
+        if (!in_array(session('user_role'), ['super_admin', 'manager'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         $employee = Employee::findOrFail($id);
         
         // Pass a 'back_route' variable to know where the "Kembali" button should point
-        $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : '#'; 
+        $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
 
         return view('backoffice.detail_karyawan', compact('employee', 'back_route'));
     }

@@ -52,7 +52,7 @@
                 </div>
                 <div>
                     <p class="text-body-sm text-primary font-bold leading-tight transition-all duration-300 uppercase" id="status-text">Status: {{ $todayAttendance->status_kehadiran }}</p>
-                    <p class="text-[12px] text-on-surface-variant" id="status-desc">{{ $todayAttendance->keterangan ?? 'Tidak ada keterangan' }}</p>
+                    <p class="text-[12px] text-on-surface-variant line-clamp-2" id="status-desc">{!! strip_tags($todayAttendance->keterangan ?? 'Tidak ada keterangan') !!}</p>
                 </div>
             </div>
             @elseif(!$todayAttendance || !$todayAttendance->jam_masuk)

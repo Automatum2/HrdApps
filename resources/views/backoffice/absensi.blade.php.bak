@@ -35,7 +35,7 @@
                     <select class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" name="departemen_id" id="filter-departemen">
                         <option value="">Semua Departemen</option>
                         @foreach($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ request('departemen_id') == $dept->id ? 'selected' : '' }}>{{ $dept->nama_department }}</option>
+                            <option value="{{ $dept->id }}" {{ request('departemen_id') == $dept->id ? 'selected' : '' }}>{{ $dept->nama_departemen }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -75,54 +75,62 @@
     
     <!-- Calendar Widget -->
     <div class="col-span-12 lg:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
-        @php
-            $currentDate = \Carbon\Carbon::now();
-            $daysInMonth = $currentDate->daysInMonth;
-            $firstDayOfMonth = $currentDate->copy()->startOfMonth()->dayOfWeekIso; 
-            $monthName = $currentDate->translatedFormat('F Y');
-        @endphp
         <div class="flex items-center justify-between mb-4">
             <button class="text-on-surface-variant hover:bg-surface-container-low p-1 rounded transition-colors cursor-pointer"><span class="material-symbols-outlined text-lg">chevron_left</span></button>
-            <h3 class="font-bold text-sm text-on-surface">{{ $monthName }}</h3>
+            <h3 class="font-bold text-sm text-on-surface">Juni 2026</h3>
             <button class="text-on-surface-variant hover:bg-surface-container-low p-1 rounded transition-colors cursor-pointer"><span class="material-symbols-outlined text-lg">chevron_right</span></button>
         </div>
         <div class="grid grid-cols-7 text-center text-[10px] font-bold text-on-surface-variant mb-2 tracking-wider">
             <span>SEN</span><span>SEL</span><span>RAB</span><span>KAM</span><span>JUM</span><span>SAB</span><span>MIN</span>
         </div>
         <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium">
-            @php
-                $previousMonthDays = $currentDate->copy()->subMonth()->daysInMonth;
-                $startDay = $firstDayOfMonth - 1; 
-            @endphp
+            <span class="py-1 text-on-surface-variant/30 font-mono">26</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">27</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">28</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">29</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">30</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">31</span>
+            <span class="py-1 font-mono">1</span>
             
-            @for ($i = $startDay - 1; $i >= 0; $i--)
-                <span class="py-1 text-on-surface-variant/30 font-mono">{{ $previousMonthDays - $i }}</span>
-            @endfor
+            <span class="py-1 font-mono">2</span>
+            <span class="py-1 font-mono">3</span>
+            <span class="py-1 font-mono">4</span>
+            <span class="py-1 font-mono">5</span>
+            <span class="py-1 font-mono">6</span>
+            <span class="py-1 text-error font-mono font-bold">7</span>
+            <span class="py-1 font-mono">8</span>
             
-            @for ($i = 1; $i <= $daysInMonth; $i++)
-                @if ($i == $currentDate->day)
-                    <span class="py-1 bg-primary text-white rounded-full font-bold font-mono shadow-sm">{{ $i }}</span>
-                @else
-                    @php
-                        $dayOfWeek = $currentDate->copy()->startOfMonth()->addDays($i - 1)->dayOfWeekIso;
-                    @endphp
-                    @if ($dayOfWeek == 7)
-                        <span class="py-1 text-error font-mono font-bold">{{ $i }}</span>
-                    @else
-                        <span class="py-1 font-mono">{{ $i }}</span>
-                    @endif
-                @endif
-            @endfor
+            <span class="py-1 font-mono">9</span>
+            <span class="py-1 font-mono">10</span>
+            <span class="py-1 font-mono">11</span>
+            <span class="py-1 font-mono">12</span>
+            <span class="py-1 font-mono">13</span>
+            <span class="py-1 text-error font-mono font-bold">14</span>
+            <span class="py-1 font-mono">15</span>
             
-            @php
-                $totalCells = $startDay + $daysInMonth;
-                $remainingCells = 42 - $totalCells;
-                if ($remainingCells >= 7) $remainingCells -= 7;
-            @endphp
+            <span class="py-1 font-mono">16</span>
+            <span class="py-1 font-mono">17</span>
+            <span class="py-1 font-mono">18</span>
+            <span class="py-1 bg-primary text-white rounded-full font-bold font-mono shadow-sm">19</span>
+            <span class="py-1 font-mono">20</span>
+            <span class="py-1 text-error font-mono font-bold">21</span>
+            <span class="py-1 font-mono">22</span>
             
-            @for ($i = 1; $i <= $remainingCells; $i++)
-                <span class="py-1 text-on-surface-variant/30 font-mono">{{ $i }}</span>
-            @endfor
+            <span class="py-1 font-mono">23</span>
+            <span class="py-1 font-mono">24</span>
+            <span class="py-1 font-mono">25</span>
+            <span class="py-1 font-mono">26</span>
+            <span class="py-1 font-mono">27</span>
+            <span class="py-1 text-error font-mono font-bold">28</span>
+            <span class="py-1 font-mono">29</span>
+            
+            <span class="py-1 font-mono">30</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">1</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">2</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">3</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">4</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">5</span>
+            <span class="py-1 text-on-surface-variant/30 font-mono">6</span>
         </div>
     </div>
 </div>
@@ -218,7 +226,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-absensi-body">
                 @forelse($attendances as $index => $att)
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $att->employee->nik ?? '' }}" data-dept="{{ $att->employee->department->nama_department ?? 'Umum' }}" data-status="{{ ucfirst($att->status_kehadiran) }}" data-kerja="{{ $att->status_kerja }}">
+                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $att->employee->nik ?? '' }}" data-dept="{{ $att->employee->department->nama_departemen ?? 'Umum' }}" data-status="{{ ucfirst($att->status_kehadiran) }}" data-kerja="{{ $att->status_kerja }}">
                     <td class="px-6 py-4">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
@@ -240,17 +248,9 @@
                     </td>
                     <td class="px-6 py-4 text-center font-mono text-on-surface">{{ $att->total_jam_kerja ? $att->total_jam_kerja . ' Jam' : '--' }}</td>
                     <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2 transition-opacity">
+                        <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Lihat Foto" onclick="showFotoModal('{{ $att->foto_masuk ? asset('storage/' . $att->foto_masuk) : '' }}', '{{ $att->foto_keluar ? asset('storage/' . $att->foto_keluar) : '' }}', '{{ $att->lokasi_masuk }}', '{{ $att->lokasi_keluar }}')">
                                 <span class="material-symbols-outlined text-lg">image</span>
-                            </button>
-                            @if($att->dokumen_pendukung)
-                            <a href="{{ asset('storage/' . $att->dokumen_pendukung) }}" target="_blank" class="p-1 hover:bg-surface-container-high rounded text-tertiary transition-colors cursor-pointer" title="Lihat Surat/Dokumen Keterangan">
-                                <span class="material-symbols-outlined text-lg">description</span>
-                            </a>
-                            @endif
-                            <button type="button" class="p-1 hover:bg-surface-container-high rounded text-amber-500 transition-colors cursor-pointer" title="Edit Absensi" onclick="showEditModal('{{ $att->id }}', '{{ $att->jam_masuk ? substr($att->jam_masuk, 0, 5) : '' }}', '{{ $att->jam_keluar ? substr($att->jam_keluar, 0, 5) : '' }}', '{{ strtolower($att->status_kehadiran) }}', '{{ addslashes($att->employee->nama_lengkap ?? 'Karyawan') }}')">
-                                <span class="material-symbols-outlined text-lg">edit</span>
                             </button>
                         </div>
                     </td>
@@ -280,10 +280,9 @@
     </div>
 </div>
 
-@push('modals')
 <!-- Modal Foto Absensi -->
 <div id="modal-foto" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-surface border border-outline-variant rounded-xl shadow-2xl p-6 w-[95%] md:w-[650px] transform scale-95 transition-transform duration-300">
+    <div class="bg-surface border border-outline-variant rounded-xl shadow-2xl p-6 w-full max-w-2xl transform scale-95 transition-transform duration-300">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-title-md text-title-md text-on-surface font-bold">Bukti Foto & Lokasi Absensi</h3>
             <button onclick="closeModal()" class="text-on-surface-variant hover:text-error transition-colors cursor-pointer p-1">
@@ -318,56 +317,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Edit Absensi -->
-<div id="modal-edit" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-surface border border-outline-variant rounded-xl shadow-2xl p-6 w-[90%] md:w-[450px] transform scale-95 transition-transform duration-300">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="font-title-md text-title-md text-on-surface font-bold">Edit Data Absensi</h3>
-            <button type="button" onclick="closeEditModal()" class="text-on-surface-variant hover:text-error transition-colors cursor-pointer p-1">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        
-        <form id="form-edit-absensi" method="POST" action="">
-            @csrf
-            @method('PUT')
-            
-            <p class="text-sm text-on-surface-variant mb-4">Karyawan: <span id="edit-nama-karyawan" class="font-bold text-on-surface"></span></p>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">Status Kehadiran</label>
-                    <select name="status_kehadiran" id="edit-status" class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" required>
-                        <option value="hadir">Hadir</option>
-                        <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
-                        <option value="cuti">Cuti</option>
-                        <option value="alpha">Alpha</option>
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">Jam Masuk</label>
-                        <input type="time" name="jam_masuk" id="edit-jam-masuk" class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">Jam Keluar</label>
-                        <input type="time" name="jam_keluar" id="edit-jam-keluar" class="w-full border border-outline-variant rounded-lg text-sm px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface">
-                    </div>
-                </div>
-                <p class="text-xs text-error hidden" id="edit-warning">Sistem hanya mengkalkulasi jam kerja jika jam masuk dan keluar diisi lengkap.</p>
-            </div>
-            
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeEditModal()" class="bg-surface-container border border-outline px-4 py-2 rounded-lg font-bold hover:bg-slate-100 transition-colors cursor-pointer text-sm">Batal</button>
-                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:brightness-110 transition-colors cursor-pointer text-sm shadow">Simpan Perubahan</button>
-            </div>
-        </form>
-    </div>
-</div>
-@endpush
 @endsection
 
 @push('scripts')
@@ -520,51 +469,6 @@
     
     window.closeModal = () => {
         const modal = document.getElementById('modal-foto');
-        modal.classList.add('opacity-0');
-        modal.children[0].classList.add('scale-95');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    };
-
-    // ==========================================
-    // Modal Edit Absensi
-    // ==========================================
-    window.showEditModal = (id, jamMasuk, jamKeluar, status, nama) => {
-        const modal = document.getElementById('modal-edit');
-        const form = document.getElementById('form-edit-absensi');
-        const inputJamMasuk = document.getElementById('edit-jam-masuk');
-        const inputJamKeluar = document.getElementById('edit-jam-keluar');
-        const inputStatus = document.getElementById('edit-status');
-        const textNama = document.getElementById('edit-nama-karyawan');
-        const warning = document.getElementById('edit-warning');
-        
-        form.action = `/backoffice/absensi/${id}`;
-        inputJamMasuk.value = jamMasuk;
-        inputJamKeluar.value = jamKeluar;
-        inputStatus.value = status;
-        textNama.innerText = nama;
-        
-        const checkStatus = () => {
-            if (inputStatus.value !== 'hadir') {
-                warning.classList.remove('hidden');
-            } else {
-                warning.classList.add('hidden');
-            }
-        };
-        
-        inputStatus.addEventListener('change', checkStatus);
-        checkStatus();
-        
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modal.children[0].classList.remove('scale-95');
-        }, 10);
-    };
-    
-    window.closeEditModal = () => {
-        const modal = document.getElementById('modal-edit');
         modal.classList.add('opacity-0');
         modal.children[0].classList.add('scale-95');
         setTimeout(() => {

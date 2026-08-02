@@ -197,8 +197,8 @@
         </div>
         
         <!-- Signature & Footer -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div class="space-y-4 w-full md:max-w-sm shrink-0">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 w-full">
+            <div class="space-y-4 w-full md:w-3/5">
                 <div class="bg-surface-container p-4 rounded-lg border-l-4 border-outline">
                     <p class="text-[11px] leading-relaxed text-on-surface-variant">
                         <strong>CATATAN:</strong><br>
