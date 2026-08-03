@@ -28,6 +28,11 @@ class Payroll extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function details()
+    {
+        return $this->hasMany(PayrollDetail::class);
+    }
+
     public function period()
     {
         return $this->belongsTo(PayrollPeriod::class, 'period_id');

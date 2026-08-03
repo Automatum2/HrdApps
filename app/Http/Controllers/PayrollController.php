@@ -7,6 +7,9 @@ use App\Models\Employee;
 use App\Models\Attendance;
 use App\Models\PayrollPeriod;
 use App\Models\Payroll;
+use App\Models\PayrollDetail;
+use App\Models\Allowance;
+use App\Models\Deduction;
 use Carbon\Carbon;
 
 class PayrollController extends Controller
@@ -105,7 +108,7 @@ class PayrollController extends Controller
         foreach ($employees as $employee) {
             $data = self::calculatePayroll($employee, $month, $year);
             
-            Payroll::updateOrCreate(
+            $payroll = Payroll::updateOrCreate(
                 ['employee_id' => $employee->id, 'period_id' => $period->id],
                 [
                     'gaji_pokok' => $data['gajiPokok'],
@@ -117,6 +120,27 @@ class PayrollController extends Controller
                     'status' => 'draft'
                 ]
             );
+
+            // Sync Payroll Details
+            PayrollDetail::where('payroll_id', $payroll->id)->delete();
+            
+            foreach ($data['allowancesList'] as $allowance) {
+                PayrollDetail::create([
+                    'payroll_id' => $payroll->id,
+                    'komponen' => $allowance['nama'],
+                    'tipe' => 'pendapatan',
+                    'jumlah' => $allowance['jumlah']
+                ]);
+            }
+
+            foreach ($data['deductionsList'] as $deduction) {
+                PayrollDetail::create([
+                    'payroll_id' => $payroll->id,
+                    'komponen' => $deduction['nama'],
+                    'tipe' => 'potongan',
+                    'jumlah' => $deduction['jumlah']
+                ]);
+            }
         }
         
         if ($period->status === 'draft') {
@@ -222,16 +246,63 @@ class PayrollController extends Controller
         $alpha = $hariKerjaNormal - ($hadir + $sakit + $izin);
         if ($alpha < 0) $alpha = 0;
         
-        $tunjanganMakan = $hadir * 30000;
-        $tunjanganTransport = $hadir * 20000;
-        $tunjanganJabatan = $employee->position ? 300000 : 0; 
+        $allowancesList = [];
+        $totalTunjangan = 0;
         
-        $totalTunjangan = $tunjanganMakan + $tunjanganTransport + $tunjanganJabatan;
+        if ($employee->position && $employee->position->tunjangan_jabatan > 0) {
+            $allowancesList[] = [
+                'nama' => 'Tunjangan Jabatan',
+                'jumlah' => $employee->position->tunjangan_jabatan
+            ];
+            $totalTunjangan += $employee->position->tunjangan_jabatan;
+        }
+
+        foreach ($employee->allowances()->where('is_active', true)->get() as $allowance) {
+            $jumlah = $allowance->jumlah;
+            if ($allowance->tipe === 'tidak_tetap') {
+                $jumlah = $hadir * $allowance->jumlah;
+            }
+            $allowancesList[] = [
+                'nama' => $allowance->nama_tunjangan,
+                'jumlah' => $jumlah
+            ];
+            $totalTunjangan += $jumlah;
+        }
         
+        $deductionsList = [];
+        $totalPotongan = 0;
+
         $potonganBPJSKesehatan = $gajiPokok * 0.04; 
         $potonganBPJSKetenagakerjaan = $gajiPokok * 0.02; 
-        $potonganAlpha = $alpha * 100000; 
-        $totalPotongan = $potonganBPJSKesehatan + $potonganBPJSKetenagakerjaan + $potonganAlpha;
+        
+        $deductionsList[] = [
+            'nama' => 'BPJS Kesehatan (4%)',
+            'jumlah' => $potonganBPJSKesehatan
+        ];
+        $deductionsList[] = [
+            'nama' => 'BPJS Ketenagakerjaan (2%)',
+            'jumlah' => $potonganBPJSKetenagakerjaan
+        ];
+        $totalPotongan += ($potonganBPJSKesehatan + $potonganBPJSKetenagakerjaan);
+
+        foreach ($employee->deductions()->where('is_active', true)->get() as $deduction) {
+            $jumlah = $deduction->jumlah;
+            if ($deduction->tipe === 'tidak_tetap') {
+                if (stripos($deduction->nama_potongan, 'alpha') !== false || stripos($deduction->nama_potongan, 'mangkir') !== false) {
+                     $jumlah = $alpha * $deduction->jumlah;
+                } else {
+                     $jumlah = $hadir * $deduction->jumlah;
+                }
+            }
+            
+            if ($jumlah > 0) {
+                $deductionsList[] = [
+                    'nama' => $deduction->nama_potongan,
+                    'jumlah' => $jumlah
+                ];
+                $totalPotongan += $jumlah;
+            }
+        }
         
         $gajiKotor = $gajiPokok + $totalTunjangan;
         $gajiBersih = $gajiKotor - $totalPotongan;
@@ -243,13 +314,9 @@ class PayrollController extends Controller
             'sakit' => $sakit,
             'izin' => $izin,
             'alpha' => $alpha,
-            'tunjanganMakan' => $tunjanganMakan,
-            'tunjanganTransport' => $tunjanganTransport,
-            'tunjanganJabatan' => $tunjanganJabatan,
+            'allowancesList' => $allowancesList,
+            'deductionsList' => $deductionsList,
             'totalTunjangan' => $totalTunjangan,
-            'potonganBPJSKesehatan' => $potonganBPJSKesehatan,
-            'potonganBPJSKetenagakerjaan' => $potonganBPJSKetenagakerjaan,
-            'potonganAlpha' => $potonganAlpha,
             'totalPotongan' => $totalPotongan,
             'gajiKotor' => $gajiKotor,
             'gajiBersih' => $gajiBersih,

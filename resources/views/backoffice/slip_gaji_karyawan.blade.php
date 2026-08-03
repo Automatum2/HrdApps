@@ -120,20 +120,12 @@
                         <span class="text-on-surface-variant">Gaji Pokok</span>
                         <span class="font-bold">Rp {{ number_format($gajiPokok, 0, ',', '.') }}</span>
                     </div>
+                    @foreach($allowancesList as $allowance)
                     <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">Tunjangan Transport</span>
-                        <span class="font-bold">Rp {{ number_format($tunjanganTransport, 0, ',', '.') }}</span>
+                        <span class="text-on-surface-variant">{{ $allowance['nama'] }}</span>
+                        <span class="font-bold">Rp {{ number_format($allowance['jumlah'], 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">Tunjangan Makan</span>
-                        <span class="font-bold">Rp {{ number_format($tunjanganMakan, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">Tunjangan Jabatan</span>
-                        <span class="font-bold">Rp {{ number_format($tunjanganJabatan, 0, ',', '.') }}</span>
-                    </div>
-                    <!-- Filler for equal height -->
-                    <div class="h-8 opacity-0">Filler</div>
+                    @endforeach
                     
                     <div class="pt-3 border-t border-outline-variant flex justify-between items-center">
                         <span class="font-bold text-primary">Total Pendapatan</span>
@@ -149,28 +141,14 @@
                     <span class="text-white/80 text-xs text-right">Alpha/Mangkir: {{ $alpha }}</span>
                 </div>
                 <div class="p-md space-y-3">
+                    @foreach($deductionsList as $deduction)
                     <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">BPJS Kesehatan (4%)</span>
-                        <span class="font-bold text-error">Rp {{ number_format($potonganBPJSKesehatan, 0, ',', '.') }}</span>
+                        <span class="text-on-surface-variant">{{ $deduction['nama'] }}</span>
+                        <span class="font-bold text-error">Rp {{ number_format($deduction['jumlah'], 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">BPJS Ketenagakerjaan (2%)</span>
-                        <span class="font-bold text-error">Rp {{ number_format($potonganBPJSKetenagakerjaan, 0, ',', '.') }}</span>
-                    </div>
-                    @if($potonganAlpha > 0)
-                    <div class="flex justify-between items-center font-body-md transition-all duration-200 px-2 py-1 rounded-md hover:bg-surface-container-low">
-                        <span class="text-on-surface-variant">Potongan Kehadiran (Alpha)</span>
-                        <span class="font-bold text-error">Rp {{ number_format($potonganAlpha, 0, ',', '.') }}</span>
-                    </div>
-                    @endif
+                    @endforeach
                     
-                    <!-- Filler for equal height -->
-                    <div class="h-8 opacity-0">Filler</div>
-                    @if($potonganAlpha == 0)
-                    <div class="h-8 opacity-0">Filler</div>
-                    @endif
-                    
-                    <div class="pt-3 border-t border-outline-variant flex justify-between items-center">
+                    <div class="pt-3 border-t border-outline-variant flex justify-between items-center mt-auto">
                         <span class="font-bold text-error">Total Potongan</span>
                         <span class="font-display-lg text-title-sm text-error">Rp {{ number_format($totalPotongan, 0, ',', '.') }}</span>
                     </div>

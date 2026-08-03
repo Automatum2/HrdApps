@@ -19,6 +19,27 @@
     </a>
 </div>
 
+@if($errors->any())
+<div class="bg-red-50 border-l-4 border-error text-error p-4 mb-6 rounded shadow-sm">
+    <div class="flex items-center gap-2 font-bold mb-2">
+        <span class="material-symbols-outlined">error</span>
+        <span>Terjadi Kesalahan:</span>
+    </div>
+    <ul class="list-disc ml-5 text-sm">
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+@if(session('success'))
+<div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm flex items-center gap-2 font-bold">
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
 <!-- Header Card -->
 <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden mb-6 p-6 flex flex-col md:flex-row items-center gap-6">
     <div class="w-24 h-24 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
@@ -168,6 +189,155 @@
                 <div class="text-sm text-slate-500 italic text-center py-4">Belum ada dokumen yang diunggah.</div>
             @endif
         </div>
+    </div>
+</div>
+
+<!-- Tunjangan & Potongan -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <!-- Tunjangan -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden h-fit">
+        <div class="px-6 py-4 border-b border-outline-variant bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">add_circle</span>
+                <h3 class="font-bold text-slate-800 text-base">Tunjangan Dinamis</h3>
+            </div>
+            <button onclick="document.getElementById('modal-tunjangan').classList.remove('hidden')" class="text-xs bg-primary text-white px-3 py-1 rounded hover:bg-primary-container transition-colors">Tambah</button>
+        </div>
+        <div class="p-6">
+            @if($employee->allowances && $employee->allowances->count() > 0)
+                <ul class="divide-y divide-slate-100">
+                    @foreach($employee->allowances as $allowance)
+                        <li class="py-3 flex flex-col gap-2 first:pt-0 last:pb-0">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">{{ $allowance->nama_tunjangan }}</p>
+                                    <p class="text-xs text-slate-500">Rp {{ number_format($allowance->jumlah, 0, ',', '.') }} • {{ ucfirst($allowance->tipe) }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] px-2 py-1 rounded {{ $allowance->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ $allowance->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                    <form action="{{ route('backoffice.allowances.destroy', $allowance->id) }}" method="POST" onsubmit="return confirm('Hapus tunjangan ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:text-red-700 material-symbols-outlined text-sm">delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="text-sm text-slate-500 italic text-center py-4">Belum ada data tunjangan.</div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Potongan -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden h-fit">
+        <div class="px-6 py-4 border-b border-outline-variant bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-error">remove_circle</span>
+                <h3 class="font-bold text-slate-800 text-base">Potongan Dinamis</h3>
+            </div>
+            <button onclick="document.getElementById('modal-potongan').classList.remove('hidden')" class="text-xs bg-error text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">Tambah</button>
+        </div>
+        <div class="p-6">
+            @if($employee->deductions && $employee->deductions->count() > 0)
+                <ul class="divide-y divide-slate-100">
+                    @foreach($employee->deductions as $deduction)
+                        <li class="py-3 flex flex-col gap-2 first:pt-0 last:pb-0">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">{{ $deduction->nama_potongan }}</p>
+                                    <p class="text-xs text-slate-500">Rp {{ number_format($deduction->jumlah, 0, ',', '.') }} • {{ ucfirst($deduction->tipe) }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] px-2 py-1 rounded {{ $deduction->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ $deduction->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                    <form action="{{ route('backoffice.deductions.destroy', $deduction->id) }}" method="POST" onsubmit="return confirm('Hapus potongan ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:text-red-700 material-symbols-outlined text-sm">delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="text-sm text-slate-500 italic text-center py-4">Belum ada data potongan.</div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Tunjangan -->
+<div id="modal-tunjangan" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+            <h3 class="font-bold text-slate-800">Tambah Tunjangan</h3>
+            <button onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined">close</button>
+        </div>
+        <form action="{{ route('backoffice.allowances.store', $employee->id) }}" method="POST" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Tunjangan</label>
+                    <input type="text" name="nama_tunjangan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
+                    <input type="number" name="jumlah" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipe</label>
+                    <select name="tipe" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                        <option value="tetap">Tetap (Per Bulan)</option>
+                        <option value="tidak_tetap">Tidak Tetap (Per Kehadiran dll)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">Batal</button>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Tambah Potongan -->
+<div id="modal-potongan" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+            <h3 class="font-bold text-slate-800">Tambah Potongan</h3>
+            <button onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined">close</button>
+        </div>
+        <form action="{{ route('backoffice.deductions.store', $employee->id) }}" method="POST" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Potongan</label>
+                    <input type="text" name="nama_potongan" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
+                    <input type="number" name="jumlah" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipe</label>
+                    <select name="tipe" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                        <option value="tetap">Tetap (Per Bulan)</option>
+                        <option value="tidak_tetap">Tidak Tetap (Per Kondisi, cth: Alpha)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">Batal</button>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-error hover:bg-red-700 rounded-lg transition-colors shadow-sm">Simpan</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

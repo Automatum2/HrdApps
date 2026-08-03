@@ -276,6 +276,21 @@ Route::get('/backoffice/karyawan/export', function (\Illuminate\Http\Request $re
 
 Route::get('/backoffice/karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.karyawan.show');
 
+// Tunjangan & Potongan
+Route::post('/backoffice/karyawan/{id}/allowances', [\App\Http\Controllers\AllowanceController::class, 'store'])->name('backoffice.allowances.store');
+Route::put('/backoffice/allowances/{id}', [\App\Http\Controllers\AllowanceController::class, 'update'])->name('backoffice.allowances.update');
+Route::delete('/backoffice/allowances/{id}', [\App\Http\Controllers\AllowanceController::class, 'destroy'])->name('backoffice.allowances.destroy');
+
+Route::post('/backoffice/karyawan/{id}/deductions', [\App\Http\Controllers\DeductionController::class, 'store'])->name('backoffice.deductions.store');
+Route::put('/backoffice/deductions/{id}', [\App\Http\Controllers\DeductionController::class, 'update'])->name('backoffice.deductions.update');
+Route::delete('/backoffice/deductions/{id}', [\App\Http\Controllers\DeductionController::class, 'destroy'])->name('backoffice.deductions.destroy');
+
+// Jabatan (Positions)
+Route::get('/backoffice/posisi', [\App\Http\Controllers\PositionController::class, 'index'])->name('backoffice.posisi.index');
+Route::post('/backoffice/posisi', [\App\Http\Controllers\PositionController::class, 'store'])->name('backoffice.posisi.store');
+Route::put('/backoffice/posisi/{id}', [\App\Http\Controllers\PositionController::class, 'update'])->name('backoffice.posisi.update');
+Route::delete('/backoffice/posisi/{id}', [\App\Http\Controllers\PositionController::class, 'destroy'])->name('backoffice.posisi.destroy');
+
 Route::post('/backoffice/karyawan/lepas', function (\Illuminate\Http\Request $request) {
     if (session('user_role') === 'employee') {
         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');

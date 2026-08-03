@@ -49,4 +49,14 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeDocument::class);
     }
+
+    public function allowances()
+    {
+        return $this->hasMany(Allowance::class);
+    }
+
+    public function deductions()
+    {
+        return $this->hasMany(Deduction::class);
+    }
 }

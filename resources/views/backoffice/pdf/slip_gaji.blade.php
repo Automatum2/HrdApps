@@ -72,18 +72,12 @@
                 <td>Gaji Pokok</td>
                 <td class="text-right">Rp {{ number_format($gajiPokok, 0, ',', '.') }}</td>
             </tr>
+            @foreach($allowancesList as $allowance)
             <tr>
-                <td>Tunjangan Jabatan</td>
-                <td class="text-right">Rp {{ number_format($tunjanganJabatan, 0, ',', '.') }}</td>
+                <td>{{ $allowance['nama'] }}</td>
+                <td class="text-right">Rp {{ number_format($allowance['jumlah'], 0, ',', '.') }}</td>
             </tr>
-            <tr>
-                <td>Tunjangan Makan</td>
-                <td class="text-right">Rp {{ number_format($tunjanganMakan, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td>Tunjangan Transport</td>
-                <td class="text-right">Rp {{ number_format($tunjanganTransport, 0, ',', '.') }}</td>
-            </tr>
+            @endforeach
             <tr>
                 <td style="font-weight: bold; color: #0284c7;">Total Penghasilan (A)</td>
                 <td class="text-right" style="font-weight: bold; color: #0284c7;">Rp {{ number_format($gajiKotor, 0, ',', '.') }}</td>
@@ -98,18 +92,12 @@
             </tr>
         </thead>
         <tbody>
+            @foreach($deductionsList as $deduction)
             <tr>
-                <td>BPJS Kesehatan (4%)</td>
-                <td class="text-right">Rp {{ number_format($potonganBPJSKesehatan, 0, ',', '.') }}</td>
+                <td>{{ $deduction['nama'] }}</td>
+                <td class="text-right">Rp {{ number_format($deduction['jumlah'], 0, ',', '.') }}</td>
             </tr>
-            <tr>
-                <td>BPJS Ketenagakerjaan (2%)</td>
-                <td class="text-right">Rp {{ number_format($potonganBPJSKetenagakerjaan, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td>Potongan Absen (Alpha: {{ $alpha }} hari)</td>
-                <td class="text-right">Rp {{ number_format($potonganAlpha, 0, ',', '.') }}</td>
-            </tr>
+            @endforeach
             <tr>
                 <td style="font-weight: bold; color: #b91c1c;">Total Potongan (B)</td>
                 <td class="text-right" style="font-weight: bold; color: #b91c1c;">Rp {{ number_format($totalPotongan, 0, ',', '.') }}</td>

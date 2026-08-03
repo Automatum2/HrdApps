@@ -1,6 +1,9 @@
 # TODO List HRDApps
 
 ## Bug Fixes & Refactoring (Ditunda)
+- [ ] **Perbaikan Bug Visual Modal pada Split-Screen Tablet (posisi.blade.php):**
+  - *Deskripsi:* Form modal Tambah/Edit Jabatan mengalami bug visual parah saat layar dibagi (split-screen) di tablet Android. Bug CSS `fixed` (menggeser modal ke pinggir) bertabrakan dengan animasi `animate-stagger` (terpotong tinggi) dan bug Flexbox absolute (lebar 0). Solusi menggunakan teknik *Portal DOM Vanilla JS* juga ternyata masih mengalami kendala di peramban pengguna.
+  - *Solusi Nanti:* Wajib menggunakan *library* eksternal pihak ketiga (seperti **SweetAlert2** atau sejenisnya) agar form muncul secara stabil terlepas dari masalah *engine* *browser* Android. Saat ini fitur kembali dinonaktifkan sementara.
 - [x] **Perbaikan Responsive Mobile (Layout Admin):** Sidebar (menu kiri) masih memaksa terbuka atau menggencet konten utama (Dashboard/Absensi) saat diakses melalui browser HP. 
   - *Target File:* `resources/views/layouts/admin.blade.php`.
   - *Solusi Nanti:* Pastikan fungsionalitas hamburger menu dan *overlay* berfungsi sempurna dengan CSS Tailwind tanpa bentrok dengan class bawaan.
@@ -66,22 +69,22 @@ Berikut adalah rekap fitur berdasarkan `konsep-dasar.md` beserta status pengerja
 *Daftar ini ditujukan untuk memverifikasi ulang bahwa semua fitur dari dokumen `konsep-dasar.md` berjalan sempurna.*
 
 **1. Login & Autentikasi**
-- [ ] Login (Super Admin, Admin/HRD, Karyawan)
-- [ ] Session Management & Role-based Access
+- [x] Login (Super Admin, Admin/HRD, Karyawan)
+- [x] Session Management & Role-based Access
 
 **2. Panel Super Admin**
-- [ ] Dashboard Super Admin
-- [ ] Kelola HRD Manager (CRUD)
-- [ ] Kelola Karyawan (CRUD & Setup Gaji)
+- [x] Dashboard Super Admin
+- [x] Kelola HRD Manager (CRUD)
+- [x] Kelola Karyawan (CRUD & Setup Gaji)
 
 **3. Panel Admin/HRD**
-- [ ] Dashboard Admin (Statistik, Chart, Tabel Karyawan Terbaru)
-- [ ] Daftar Karyawan (Filter, Export, Assign ke Departemen)
-- [ ] Rekap Absensi (Filter, Edit, Export)
-- [ ] Laporan Kinerja & Absensi Terpadu
-- [ ] Proses Penggajian (Buat Periode, Hitung, Review, Approve, Generate Slip)
+- [x] Dashboard Admin (Statistik, Chart, Tabel Karyawan Terbaru)
+- [x] Daftar Karyawan (Filter, Export, Assign ke Departemen)
+- [x] Rekap Absensi (Filter, Edit, Export)
+- [x] Laporan Kinerja & Absensi Terpadu
+- [x] Proses Penggajian (Buat Periode, Hitung, Review, Approve, Generate Slip)
 
 **4. Panel Karyawan**
-- [ ] Dashboard Karyawan (Status, Clock In/Out dengan GPS & Selfie, Laporan Harian dgn RTE)
-- [ ] Masa Kerja (Tenure) & Profil CV (Upload Dokumen)
-- [ ] Lihat & Download Slip Gaji Sendiri
+- [x] Dashboard Karyawan (Status, Clock In/Out dengan GPS & Selfie, Laporan Harian dgn RTE)
+- [x] Masa Kerja (Tenure) & Profil CV (Upload Dokumen)
+- [x] Lihat & Download Slip Gaji Sendiri
