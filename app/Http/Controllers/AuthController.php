@@ -27,7 +27,7 @@ class AuthController extends Controller
             session([
                 'user_role' => $roleMap[$user->role] ?? 'employee',
                 'user_name' => $user->username,
-                'employee_id' => $user->employee_id ?? '0000',
+                'employee_id' => $user->employee_id,
                 'user_photo' => ''
             ]);
 

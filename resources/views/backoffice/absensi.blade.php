@@ -391,8 +391,16 @@
     const totalCountFooter = document.getElementById('total-count-footer');
     
     // Default values
-    const defaultDari = "2026-06-01";
-    const defaultSampai = "2026-06-19";
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const formatDate = (d) => {
+        const month = '' + (d.getMonth() + 1);
+        const day = '' + d.getDate();
+        const year = d.getFullYear();
+        return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+    };
+    const defaultDari = formatDate(firstDay);
+    const defaultSampai = formatDate(today);
 
     // ==========================================
     // Fungsi Filter Utama

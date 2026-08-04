@@ -136,7 +136,7 @@ class ReportController extends Controller
             'nama_laporan' => $tipe . ' - ' . $deptName,
             'tipe' => $tipe,
             'periode' => $periodeStr,
-            'dibuat_oleh' => session('user_name', 'HR Manager'),
+            'dibuat_oleh' => session('user_name'),
             'file_path' => $filePath,
             'format' => $format,
         ]);

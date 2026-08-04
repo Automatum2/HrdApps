@@ -169,7 +169,7 @@
                 </div>
                 <div>
                     <p class="font-body-md font-bold">Status: Dibayarkan</p>
-                    <p class="text-xs opacity-80">25 Juni 2026 - 09:00 WIB</p>
+                    <p class="text-xs opacity-80">{{ \Carbon\Carbon::now()->translatedFormat('d F Y - H:i') }} WIB</p>
                 </div>
             </div>
         </div>

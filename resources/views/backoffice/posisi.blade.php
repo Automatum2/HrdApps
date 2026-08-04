@@ -13,7 +13,7 @@
         </nav>
         <p class="text-on-surface-variant text-sm">Kelola daftar jabatan dan standar tunjangan jabatan.</p>
     </div>
-    <button onclick="alert('Fitur Tambah Jabatan dinonaktifkan sementara untuk perbaikan bug tampilan layar.')" class="bg-primary/50 text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-not-allowed" title="Fitur dinonaktifkan sementara">
+    <button onclick="document.getElementById('modal-tambah-posisi').style.display = 'flex'" class="bg-primary hover:bg-primary-container text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
         <span class="material-symbols-outlined text-[18px]">add</span>
         <span>Tambah Jabatan</span>
     </button>
@@ -63,7 +63,7 @@
                     <td class="px-6 py-4 text-sm font-mono text-right text-primary font-medium">{{ number_format($posisi->tunjangan_jabatan, 0, ',', '.') }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
-                            <button onclick="alert('Fitur Edit Jabatan dinonaktifkan sementara untuk perbaikan bug tampilan layar.')" class="p-2 text-amber-500/50 cursor-not-allowed rounded-lg transition-colors" title="Fitur dinonaktifkan sementara">
+                            <button onclick="openEditModal({{ $posisi->id }}, '{{ addslashes($posisi->nama_jabatan) }}', '{{ addslashes($posisi->level) }}', {{ $posisi->tunjangan_jabatan }})" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer" title="Edit">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </button>
                             <form action="{{ route('backoffice.posisi.destroy', $posisi->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jabatan ini?');">
@@ -86,23 +86,26 @@
     </div>
 </div>
 
+@push('modals')
 <!-- Modal Tambah Jabatan -->
-<div id="modal-tambah-posisi" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden relative">
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-tambah-posisi" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
-            <h3 class="font-bold text-slate-800">Tambah Jabatan</h3>
-            <button type="button" onclick="closeModalPortal('modal-tambah-posisi')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined cursor-pointer">close</button>
+            <h3 class="font-bold text-slate-800 text-base">Tambah Jabatan</h3>
+            <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
         <form action="{{ route('backoffice.posisi.store') }}" method="POST" class="p-6">
             @csrf
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Jabatan</label>
-                    <input type="text" name="nama_jabatan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <input type="text" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Level</label>
-                    <select name="level" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <select name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                         <option value="">-- Pilih Level --</option>
                         <option value="staff">Staff</option>
                         <option value="supervisor">Supervisor</option>
@@ -112,11 +115,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Jabatan (Rp)</label>
-                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModalPortal('modal-tambah-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Batal</button>
+                <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan</button>
             </div>
         </form>
@@ -124,11 +127,13 @@
 </div>
 
 <!-- Modal Edit Jabatan -->
-<div id="modal-edit-posisi" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden relative">
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-edit-posisi" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
-            <h3 class="font-bold text-slate-800">Edit Jabatan</h3>
-            <button type="button" onclick="closeModalPortal('modal-edit-posisi')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined cursor-pointer">close</button>
+            <h3 class="font-bold text-slate-800 text-base">Edit Jabatan</h3>
+            <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
         <form id="form-edit-posisi" method="POST" class="p-6">
             @csrf
@@ -136,11 +141,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Jabatan</label>
-                    <input type="text" id="edit_nama_jabatan" name="nama_jabatan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <input type="text" id="edit_nama_jabatan" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Level</label>
-                    <select id="edit_level" name="level" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <select id="edit_level" name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                         <option value="">-- Pilih Level --</option>
                         <option value="staff">Staff</option>
                         <option value="supervisor">Supervisor</option>
@@ -150,16 +155,17 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Jabatan (Rp)</label>
-                    <input type="text" id="edit_tunjangan_jabatan" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <input type="text" id="edit_tunjangan_jabatan" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModalPortal('modal-edit-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Batal</button>
+                <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan Perubahan</button>
             </div>
         </form>
     </div>
 </div>
+@endpush
 
 <script>
     function openEditModal(id, nama, level, tunjangan) {
@@ -167,7 +173,7 @@
         document.getElementById('edit_nama_jabatan').value = nama;
         document.getElementById('edit_level').value = level;
         document.getElementById('edit_tunjangan_jabatan').value = tunjangan;
-        openModalPortal('modal-edit-posisi');
+        document.getElementById('modal-edit-posisi').style.display = 'flex';
     }
 </script>
 @endsection

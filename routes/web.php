@@ -49,7 +49,7 @@ Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
 })->name('password.update');
 
 Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request) {
-    $role = session('user_role', 'manager');
+    $role = session('user_role');
     if ($role === 'super_admin') {
         $total_karyawan = \App\Models\Employee::count();
         
@@ -315,8 +315,7 @@ Route::post('/backoffice/karyawan/assign', function (\Illuminate\Http\Request $r
         if ($dept) {
             $emp->department_id = $dept->id;
         } else {
-            // Default to 1 if not found for testing purposes, or handle properly
-            $emp->department_id = 1;
+            return redirect()->back()->with('error', 'Departemen tidak ditemukan.');
         }
         $emp->status_kerja = $request->status;
         $emp->save();
@@ -327,7 +326,7 @@ Route::post('/backoffice/karyawan/assign', function (\Illuminate\Http\Request $r
 
 Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
     // Proteksi Role: Hanya dapat diakses oleh Manager
-    if (session('user_role', 'manager') !== 'manager') {
+    if (session('user_role') !== 'manager') {
         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman Absensi hanya dapat diakses oleh Manager.');
     }
     
@@ -367,7 +366,7 @@ Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
 })->name('backoffice.absensi');
 
 Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $request, $id) {
-    if (session('user_role', 'manager') !== 'manager') {
+    if (session('user_role') !== 'manager') {
         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
     }
     
@@ -399,7 +398,7 @@ Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $reque
 })->name('backoffice.absensi.update');
 
 Route::get('/backoffice/absensi/export', function (\Illuminate\Http\Request $request) {
-    if (session('user_role', 'manager') !== 'manager') {
+    if (session('user_role') !== 'manager') {
         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
     }
     

@@ -16,7 +16,7 @@ class PayrollController extends Controller
 {
     public function index()
     {
-        $role = session('user_role', 'manager');
+        $role = session('user_role');
         
         if ($role === 'employee') {
             $employeeId = session('employee_id');
@@ -155,7 +155,7 @@ class PayrollController extends Controller
         $payroll = Payroll::findOrFail($payroll_id);
         $payroll->update([
             'status' => 'approved',
-            'approved_by' => session('user_name', 'HR Manager')
+            'approved_by' => session('user_name')
         ]);
         
         return redirect()->back()->with('success', 'Gaji karyawan berhasil disetujui.');
@@ -167,7 +167,7 @@ class PayrollController extends Controller
             ->where('status', 'draft')
             ->update([
                 'status' => 'approved',
-                'approved_by' => session('user_name', 'HR Manager')
+                'approved_by' => session('user_name')
             ]);
             
         $period = PayrollPeriod::findOrFail($id);

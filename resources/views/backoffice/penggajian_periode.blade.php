@@ -85,7 +85,7 @@
             @csrf
             <div>
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">Nama Periode</label>
-                <input name="nama_periode" type="text" placeholder="Contoh: Gaji Juni 2026" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" required>
+                <input name="nama_periode" type="text" placeholder="Contoh: Gaji {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" required>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>

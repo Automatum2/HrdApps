@@ -119,13 +119,11 @@
                 <span class="font-medium font-body-md">Kelola HR Manager</span>
             </a>
 
-            <!-- Jabatan (Posisi) - Dinonaktifkan Sementara -->
-            {{--
+            <!-- Jabatan (Posisi) -->
             <a class="{{ request()->routeIs('backoffice.posisi.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.posisi.index') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
                 <span class="font-medium font-body-md">Jabatan</span>
             </a>
-            --}}
             
             <!-- MENU UNTUK MANAGER DAN EMPLOYEE -->
             @else
@@ -500,34 +498,6 @@
                     }).catch(err => console.error(err));
                 });
             }
-        }
-
-        // DOM Portal Modal Functions
-        // Memisahkan modal dari struktur HTML aslinya dan memindahkannya ke <body>
-        // untuk menghindari bug CSS transform/animation (seperti animate-stagger)
-        function openModalPortal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-            
-            // Pindahkan elemen ke akhir body
-            document.body.appendChild(modal);
-            
-            // Tampilkan modal
-            modal.classList.remove('hidden');
-            
-            // Kunci scroll layar belakang
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModalPortal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-            
-            // Sembunyikan modal
-            modal.classList.add('hidden');
-            
-            // Buka kunci scroll
-            document.body.style.overflow = '';
         }
     </script>
 </body>

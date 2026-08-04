@@ -10,7 +10,8 @@ class AttendanceController extends Controller
 {
     public function index()
     {
-        $employeeId = session('employee_id', '00001221'); // default fallback if session is not set
+        $employeeId = session('employee_id');
+        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
         
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -28,7 +29,8 @@ class AttendanceController extends Controller
             'keterangan' => 'nullable|string'
         ]);
 
-        $employeeId = session('employee_id', '00001221');
+        $employeeId = session('employee_id');
+        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
 
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -76,7 +78,8 @@ class AttendanceController extends Controller
             'keterangan' => 'nullable|string'
         ]);
 
-        $employeeId = session('employee_id', '00001221');
+        $employeeId = session('employee_id');
+        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
 
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -134,7 +137,8 @@ class AttendanceController extends Controller
             'dokumen_pendukung' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
         ]);
 
-        $employeeId = session('employee_id', '00001221');
+        $employeeId = session('employee_id');
+        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
         $mulai = Carbon::parse($request->tanggal_mulai)->startOfDay();
         $selesai = Carbon::parse($request->tanggal_selesai)->startOfDay();
         $besok = Carbon::tomorrow()->startOfDay();

@@ -92,7 +92,7 @@
     <!-- Decorative atmospheric element -->
     <div class="mt-xl text-center">
         <p class="font-body-sm text-body-sm text-on-surface-variant/60">
-            © 2026 HRDApps Management System. All rights reserved.
+            © {{ date('Y') }} HRDApps Management System. All rights reserved.
         </p>
     </div>
 </main>
