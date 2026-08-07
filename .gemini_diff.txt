@@ -1,0 +1,410 @@
+diff --git a/.gitignore b/.gitignore
+index 0688d905..02137e7f 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -23,6 +23,8 @@ Homestead.json
+ Homestead.yaml
+ Thumbs.db
+ 
++TODO.md
++
+ stitch_blue_h_logo_branding/docs/chrome-headless-shell/
+ 
+ stitch_blue_h_logo_branding/docs/chrome-headless-shell/
+diff --git a/app/Http/Controllers/AttendanceController.php b/app/Http/Controllers/AttendanceController.php
+index b44723ec..ab9aab91 100644
+--- a/app/Http/Controllers/AttendanceController.php
++++ b/app/Http/Controllers/AttendanceController.php
+@@ -10,7 +10,8 @@ class AttendanceController extends Controller
+ {
+     public function index()
+     {
+-        $employeeId = session('employee_id', '00001221'); // default fallback if session is not set
++        $employeeId = session('employee_id');
++        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+         
+         $attendance = Attendance::where('employee_id', $employeeId)
+             ->where('tanggal', Carbon::today()->toDateString())
+@@ -28,7 +29,8 @@ public function clockIn(Request $request)
+             'keterangan' => 'nullable|string'
+         ]);
+ 
+-        $employeeId = session('employee_id', '00001221');
++        $employeeId = session('employee_id');
++        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+ 
+         $attendance = Attendance::where('employee_id', $employeeId)
+             ->where('tanggal', Carbon::today()->toDateString())
+@@ -76,7 +78,8 @@ public function clockOut(Request $request)
+             'keterangan' => 'nullable|string'
+         ]);
+ 
+-        $employeeId = session('employee_id', '00001221');
++        $employeeId = session('employee_id');
++        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+ 
+         $attendance = Attendance::where('employee_id', $employeeId)
+             ->where('tanggal', Carbon::today()->toDateString())
+@@ -134,7 +137,8 @@ public function submitLeave(Request $request)
+             'dokumen_pendukung' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+         ]);
+ 
+-        $employeeId = session('employee_id', '00001221');
++        $employeeId = session('employee_id');
++        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+         $mulai = Carbon::parse($request->tanggal_mulai)->startOfDay();
+         $selesai = Carbon::parse($request->tanggal_selesai)->startOfDay();
+         $besok = Carbon::tomorrow()->startOfDay();
+diff --git a/app/Http/Controllers/AuthController.php b/app/Http/Controllers/AuthController.php
+index 41d86a6e..7c7475a0 100644
+--- a/app/Http/Controllers/AuthController.php
++++ b/app/Http/Controllers/AuthController.php
+@@ -27,7 +27,7 @@ public function login(Request $request)
+             session([
+                 'user_role' => $roleMap[$user->role] ?? 'employee',
+                 'user_name' => $user->username,
+-                'employee_id' => $user->employee_id ?? '0000',
++                'employee_id' => $user->employee_id,
+                 'user_photo' => ''
+             ]);
+ 
+diff --git a/app/Http/Controllers/PayrollController.php b/app/Http/Controllers/PayrollController.php
+index 4c1d04f2..2b67030f 100644
+--- a/app/Http/Controllers/PayrollController.php
++++ b/app/Http/Controllers/PayrollController.php
+@@ -16,7 +16,7 @@ class PayrollController extends Controller
+ {
+     public function index()
+     {
+-        $role = session('user_role', 'manager');
++        $role = session('user_role');
+         
+         if ($role === 'employee') {
+             $employeeId = session('employee_id');
+@@ -155,7 +155,7 @@ public function approve($payroll_id)
+         $payroll = Payroll::findOrFail($payroll_id);
+         $payroll->update([
+             'status' => 'approved',
+-            'approved_by' => session('user_name', 'HR Manager')
++            'approved_by' => session('user_name')
+         ]);
+         
+         return redirect()->back()->with('success', 'Gaji karyawan berhasil disetujui.');
+@@ -167,7 +167,7 @@ public function approveAll($id)
+             ->where('status', 'draft')
+             ->update([
+                 'status' => 'approved',
+-                'approved_by' => session('user_name', 'HR Manager')
++                'approved_by' => session('user_name')
+             ]);
+             
+         $period = PayrollPeriod::findOrFail($id);
+diff --git a/app/Http/Controllers/ReportController.php b/app/Http/Controllers/ReportController.php
+index 0f30ab83..e4cb42ce 100644
+--- a/app/Http/Controllers/ReportController.php
++++ b/app/Http/Controllers/ReportController.php
+@@ -136,7 +136,7 @@ public function generate(Request $request)
+             'nama_laporan' => $tipe . ' - ' . $deptName,
+             'tipe' => $tipe,
+             'periode' => $periodeStr,
+-            'dibuat_oleh' => session('user_name', 'HR Manager'),
++            'dibuat_oleh' => session('user_name'),
+             'file_path' => $filePath,
+             'format' => $format,
+         ]);
+diff --git a/resources/views/auth/login.blade.php b/resources/views/auth/login.blade.php
+index b79e1afd..0a2fe4d5 100644
+--- a/resources/views/auth/login.blade.php
++++ b/resources/views/auth/login.blade.php
+@@ -92,7 +92,7 @@
+     <!-- Decorative atmospheric element -->
+     <div class="mt-xl text-center">
+         <p class="font-body-sm text-body-sm text-on-surface-variant/60">
+-            © 2026 HRDApps Management System. All rights reserved.
++            © {{ date('Y') }} HRDApps Management System. All rights reserved.
+         </p>
+     </div>
+ </main>
+diff --git a/resources/views/backoffice/absensi.blade.php b/resources/views/backoffice/absensi.blade.php
+index b4f74e67..153abad0 100644
+--- a/resources/views/backoffice/absensi.blade.php
++++ b/resources/views/backoffice/absensi.blade.php
+@@ -391,8 +391,16 @@
+     const totalCountFooter = document.getElementById('total-count-footer');
+     
+     // Default values
+-    const defaultDari = "2026-06-01";
+-    const defaultSampai = "2026-06-19";
++    const today = new Date();
++    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
++    const formatDate = (d) => {
++        const month = '' + (d.getMonth() + 1);
++        const day = '' + d.getDate();
++        const year = d.getFullYear();
++        return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
++    };
++    const defaultDari = formatDate(firstDay);
++    const defaultSampai = formatDate(today);
+ 
+     // ==========================================
+     // Fungsi Filter Utama
+diff --git a/resources/views/backoffice/penggajian_periode.blade.php b/resources/views/backoffice/penggajian_periode.blade.php
+index 597edf07..5f9343d6 100644
+--- a/resources/views/backoffice/penggajian_periode.blade.php
++++ b/resources/views/backoffice/penggajian_periode.blade.php
+@@ -85,7 +85,7 @@
+             @csrf
+             <div>
+                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">Nama Periode</label>
+-                <input name="nama_periode" type="text" placeholder="Contoh: Gaji Juni 2026" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" required>
++                <input name="nama_periode" type="text" placeholder="Contoh: Gaji {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" required>
+             </div>
+             <div class="grid grid-cols-2 gap-4">
+                 <div>
+diff --git a/resources/views/backoffice/posisi.blade.php b/resources/views/backoffice/posisi.blade.php
+index c2bc3353..0ae58ca4 100644
+--- a/resources/views/backoffice/posisi.blade.php
++++ b/resources/views/backoffice/posisi.blade.php
+@@ -13,7 +13,7 @@
+         </nav>
+         <p class="text-on-surface-variant text-sm">Kelola daftar jabatan dan standar tunjangan jabatan.</p>
+     </div>
+-    <button onclick="alert('Fitur Tambah Jabatan dinonaktifkan sementara untuk perbaikan bug tampilan layar.')" class="bg-primary/50 text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-not-allowed" title="Fitur dinonaktifkan sementara">
++    <button onclick="document.getElementById('modal-tambah-posisi').style.display = 'flex'" class="bg-primary hover:bg-primary-container text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
+         <span class="material-symbols-outlined text-[18px]">add</span>
+         <span>Tambah Jabatan</span>
+     </button>
+@@ -63,7 +63,7 @@
+                     <td class="px-6 py-4 text-sm font-mono text-right text-primary font-medium">{{ number_format($posisi->tunjangan_jabatan, 0, ',', '.') }}</td>
+                     <td class="px-6 py-4 text-center">
+                         <div class="flex items-center justify-center gap-2">
+-                            <button onclick="alert('Fitur Edit Jabatan dinonaktifkan sementara untuk perbaikan bug tampilan layar.')" class="p-2 text-amber-500/50 cursor-not-allowed rounded-lg transition-colors" title="Fitur dinonaktifkan sementara">
++                            <button onclick="openEditModal({{ $posisi->id }}, '{{ addslashes($posisi->nama_jabatan) }}', '{{ addslashes($posisi->level) }}', {{ $posisi->tunjangan_jabatan }})" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer" title="Edit">
+                                 <span class="material-symbols-outlined text-[20px]">edit</span>
+                             </button>
+                             <form action="{{ route('backoffice.posisi.destroy', $posisi->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jabatan ini?');">
+@@ -86,23 +86,26 @@
+     </div>
+ </div>
+ 
++@push('modals')
+ <!-- Modal Tambah Jabatan -->
+-<div id="modal-tambah-posisi" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden relative">
++<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-tambah-posisi" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
++    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
+         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+-            <h3 class="font-bold text-slate-800">Tambah Jabatan</h3>
+-            <button type="button" onclick="closeModalPortal('modal-tambah-posisi')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined cursor-pointer">close</button>
++            <h3 class="font-bold text-slate-800 text-base">Tambah Jabatan</h3>
++            <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
++                <span class="material-symbols-outlined">close</span>
++            </button>
+         </div>
+         <form action="{{ route('backoffice.posisi.store') }}" method="POST" class="p-6">
+             @csrf
+             <div class="space-y-4">
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Jabatan</label>
+-                    <input type="text" name="nama_jabatan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <input type="text" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                 </div>
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Level</label>
+-                    <select name="level" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <select name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                         <option value="">-- Pilih Level --</option>
+                         <option value="staff">Staff</option>
+                         <option value="supervisor">Supervisor</option>
+@@ -112,11 +115,11 @@
+                 </div>
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Jabatan (Rp)</label>
+-                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                 </div>
+             </div>
+             <div class="mt-6 flex justify-end gap-3">
+-                <button type="button" onclick="closeModalPortal('modal-tambah-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Batal</button>
++                <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
+                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan</button>
+             </div>
+         </form>
+@@ -124,11 +127,13 @@
+ </div>
+ 
+ <!-- Modal Edit Jabatan -->
+-<div id="modal-edit-posisi" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden relative">
++<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-edit-posisi" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
++    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
+         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+-            <h3 class="font-bold text-slate-800">Edit Jabatan</h3>
+-            <button type="button" onclick="closeModalPortal('modal-edit-posisi')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined cursor-pointer">close</button>
++            <h3 class="font-bold text-slate-800 text-base">Edit Jabatan</h3>
++            <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
++                <span class="material-symbols-outlined">close</span>
++            </button>
+         </div>
+         <form id="form-edit-posisi" method="POST" class="p-6">
+             @csrf
+@@ -136,11 +141,11 @@
+             <div class="space-y-4">
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Jabatan</label>
+-                    <input type="text" id="edit_nama_jabatan" name="nama_jabatan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <input type="text" id="edit_nama_jabatan" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                 </div>
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Level</label>
+-                    <select id="edit_level" name="level" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <select id="edit_level" name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                         <option value="">-- Pilih Level --</option>
+                         <option value="staff">Staff</option>
+                         <option value="supervisor">Supervisor</option>
+@@ -150,16 +155,17 @@
+                 </div>
+                 <div>
+                     <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Jabatan (Rp)</label>
+-                    <input type="text" id="edit_tunjangan_jabatan" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
++                    <input type="text" id="edit_tunjangan_jabatan" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
+                 </div>
+             </div>
+             <div class="mt-6 flex justify-end gap-3">
+-                <button type="button" onclick="closeModalPortal('modal-edit-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Batal</button>
++                <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
+                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan Perubahan</button>
+             </div>
+         </form>
+     </div>
+ </div>
++@endpush
+ 
+ <script>
+     function openEditModal(id, nama, level, tunjangan) {
+@@ -167,7 +173,7 @@ function openEditModal(id, nama, level, tunjangan) {
+         document.getElementById('edit_nama_jabatan').value = nama;
+         document.getElementById('edit_level').value = level;
+         document.getElementById('edit_tunjangan_jabatan').value = tunjangan;
+-        openModalPortal('modal-edit-posisi');
++        document.getElementById('modal-edit-posisi').style.display = 'flex';
+     }
+ </script>
+ @endsection
+diff --git a/resources/views/backoffice/slip_gaji_karyawan.blade.php b/resources/views/backoffice/slip_gaji_karyawan.blade.php
+index 43f270d3..f92602ed 100644
+--- a/resources/views/backoffice/slip_gaji_karyawan.blade.php
++++ b/resources/views/backoffice/slip_gaji_karyawan.blade.php
+@@ -169,7 +169,7 @@
+                 </div>
+                 <div>
+                     <p class="font-body-md font-bold">Status: Dibayarkan</p>
+-                    <p class="text-xs opacity-80">25 Juni 2026 - 09:00 WIB</p>
++                    <p class="text-xs opacity-80">{{ \Carbon\Carbon::now()->translatedFormat('d F Y - H:i') }} WIB</p>
+                 </div>
+             </div>
+         </div>
+diff --git a/resources/views/layouts/admin.blade.php b/resources/views/layouts/admin.blade.php
+index 5f318762..9a394435 100644
+--- a/resources/views/layouts/admin.blade.php
++++ b/resources/views/layouts/admin.blade.php
+@@ -119,13 +119,11 @@
+                 <span class="font-medium font-body-md">Kelola HR Manager</span>
+             </a>
+ 
+-            <!-- Jabatan (Posisi) - Dinonaktifkan Sementara -->
+-            {{--
++            <!-- Jabatan (Posisi) -->
+             <a class="{{ request()->routeIs('backoffice.posisi.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.posisi.index') }}">
+                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
+                 <span class="font-medium font-body-md">Jabatan</span>
+             </a>
+-            --}}
+             
+             <!-- MENU UNTUK MANAGER DAN EMPLOYEE -->
+             @else
+@@ -501,34 +499,6 @@ function toggleSidebar() {
+                 });
+             }
+         }
+-
+-        // DOM Portal Modal Functions
+-        // Memisahkan modal dari struktur HTML aslinya dan memindahkannya ke <body>
+-        // untuk menghindari bug CSS transform/animation (seperti animate-stagger)
+-        function openModalPortal(modalId) {
+-            const modal = document.getElementById(modalId);
+-            if (!modal) return;
+-            
+-            // Pindahkan elemen ke akhir body
+-            document.body.appendChild(modal);
+-            
+-            // Tampilkan modal
+-            modal.classList.remove('hidden');
+-            
+-            // Kunci scroll layar belakang
+-            document.body.style.overflow = 'hidden';
+-        }
+-
+-        function closeModalPortal(modalId) {
+-            const modal = document.getElementById(modalId);
+-            if (!modal) return;
+-            
+-            // Sembunyikan modal
+-            modal.classList.add('hidden');
+-            
+-            // Buka kunci scroll
+-            document.body.style.overflow = '';
+-        }
+     </script>
+ </body>
+ </html>
+diff --git a/routes/web.php b/routes/web.php
+index 51cdc8a1..ed55dd65 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -49,7 +49,7 @@
+ })->name('password.update');
+ 
+ Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request) {
+-    $role = session('user_role', 'manager');
++    $role = session('user_role');
+     if ($role === 'super_admin') {
+         $total_karyawan = \App\Models\Employee::count();
+         
+@@ -315,8 +315,7 @@
+         if ($dept) {
+             $emp->department_id = $dept->id;
+         } else {
+-            // Default to 1 if not found for testing purposes, or handle properly
+-            $emp->department_id = 1;
++            return redirect()->back()->with('error', 'Departemen tidak ditemukan.');
+         }
+         $emp->status_kerja = $request->status;
+         $emp->save();
+@@ -327,7 +326,7 @@
+ 
+ Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
+     // Proteksi Role: Hanya dapat diakses oleh Manager
+-    if (session('user_role', 'manager') !== 'manager') {
++    if (session('user_role') !== 'manager') {
+         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman Absensi hanya dapat diakses oleh Manager.');
+     }
+     
+@@ -367,7 +366,7 @@
+ })->name('backoffice.absensi');
+ 
+ Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $request, $id) {
+-    if (session('user_role', 'manager') !== 'manager') {
++    if (session('user_role') !== 'manager') {
+         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+     }
+     
+@@ -399,7 +398,7 @@
+ })->name('backoffice.absensi.update');
+ 
+ Route::get('/backoffice/absensi/export', function (\Illuminate\Http\Request $request) {
+-    if (session('user_role', 'manager') !== 'manager') {
++    if (session('user_role') !== 'manager') {
+         return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+     }
+     

@@ -1,0 +1,10 @@
+npm notice run npx
+npm notice run 'skills' use https://github.com/shubhamsaboo/awesome-llm-apps --skill fullstack-developer
+No matching skill found for: fullstack-developer
+Available skills:
+  - advisor-orchestrator-worker
+  - commit-archaeologist
+  - dependency-doctor
+  - project-graveyard
+  - scope-creep-detector
+  - thinking-out-loud

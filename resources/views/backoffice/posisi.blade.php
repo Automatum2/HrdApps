@@ -13,7 +13,7 @@
         </nav>
         <p class="text-on-surface-variant text-sm">Kelola daftar jabatan dan standar tunjangan jabatan.</p>
     </div>
-    <button onclick="document.getElementById('modal-tambah-posisi').style.display = 'flex'" class="bg-primary hover:bg-primary-container text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
+    <button onclick="openModal('modal-tambah-posisi')" class="bg-primary hover:bg-primary-container text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
         <span class="material-symbols-outlined text-[18px]">add</span>
         <span>Tambah Jabatan</span>
     </button>
@@ -92,7 +92,7 @@
     <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
             <h3 class="font-bold text-slate-800 text-base">Tambah Jabatan</h3>
-            <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
+            <button type="button" onclick="closeModal('modal-tambah-posisi')" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -119,7 +119,7 @@
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('modal-tambah-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
+                <button type="button" onclick="closeModal('modal-tambah-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan</button>
             </div>
         </form>
@@ -131,7 +131,7 @@
     <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px; display: flex; flex-direction: column;">
         <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
             <h3 class="font-bold text-slate-800 text-base">Edit Jabatan</h3>
-            <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
+            <button type="button" onclick="closeModal('modal-edit-posisi')" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -159,7 +159,7 @@
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('modal-edit-posisi').style.display = 'none'" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
+                <button type="button" onclick="closeModal('modal-edit-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan Perubahan</button>
             </div>
         </form>
@@ -168,12 +168,20 @@
 @endpush
 
 <script>
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
     function openEditModal(id, nama, level, tunjangan) {
         document.getElementById('form-edit-posisi').action = `/backoffice/posisi/${id}`;
         document.getElementById('edit_nama_jabatan').value = nama;
         document.getElementById('edit_level').value = level;
         document.getElementById('edit_tunjangan_jabatan').value = tunjangan;
-        document.getElementById('modal-edit-posisi').style.display = 'flex';
+        openModal('modal-edit-posisi');
     }
 </script>
 @endsection

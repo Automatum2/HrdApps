@@ -47,6 +47,7 @@ class PayrollController extends Controller
                 $data['totalTunjangan'] = $latestPayroll->total_tunjangan;
                 $data['totalPotongan'] = $latestPayroll->total_potongan;
                 $data['gajiBersih'] = $latestPayroll->gaji_bersih;
+                $data['currentTime'] = Carbon::now();
                 
                 return view('backoffice.slip_gaji_karyawan', $data);
             } else {
@@ -54,13 +55,15 @@ class PayrollController extends Controller
                 $currentYear = Carbon::now()->year;
                 $data = self::calculatePayroll($employee, $currentMonth, $currentYear);
                 $data['monthName'] = Carbon::now()->translatedFormat('F Y');
+                $data['currentTime'] = Carbon::now();
                 return view('backoffice.slip_gaji_karyawan', $data);
             }
         }
 
         // For Manager/Super Admin
         $periods = PayrollPeriod::orderBy('tanggal_mulai', 'desc')->get();
-        return view('backoffice.penggajian_periode', compact('periods'));
+        $currentTime = Carbon::now();
+        return view('backoffice.penggajian_periode', compact('periods', 'currentTime'));
     }
 
     public function storePeriod(Request $request)

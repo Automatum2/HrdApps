@@ -11,7 +11,7 @@ class AttendanceController extends Controller
     public function index()
     {
         $employeeId = session('employee_id');
-        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+
         
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -30,7 +30,7 @@ class AttendanceController extends Controller
         ]);
 
         $employeeId = session('employee_id');
-        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+
 
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -79,7 +79,7 @@ class AttendanceController extends Controller
         ]);
 
         $employeeId = session('employee_id');
-        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+
 
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
@@ -138,7 +138,7 @@ class AttendanceController extends Controller
         ]);
 
         $employeeId = session('employee_id');
-        if (!$employeeId) return redirect()->route('login')->with('error', 'Sesi tidak valid.');
+
         $mulai = Carbon::parse($request->tanggal_mulai)->startOfDay();
         $selesai = Carbon::parse($request->tanggal_selesai)->startOfDay();
         $besok = Carbon::tomorrow()->startOfDay();

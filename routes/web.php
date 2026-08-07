@@ -212,11 +212,7 @@ Route::delete('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeControlle
 Route::get('/backoffice/super-admin/kelola-karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.super_admin.kelola_karyawan.show');
 
 Route::get('/backoffice/karyawan', function () {
-    // Only HR Manager or Super Admin should access
-    $role = session('user_role');
-    if ($role === 'employee') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+    // Role is protected by middleware
     
     // Hanya tampilkan yang sudah di-assign (department_id tidak null dan > 0)
     $employees = \App\Models\Employee::whereNotNull('department_id')
@@ -229,12 +225,10 @@ Route::get('/backoffice/karyawan', function () {
                     ->orderBy('created_at', 'desc')->get();
     
     return view('backoffice.karyawan', compact('employees', 'unassigned_employees'));
-})->name('backoffice.karyawan');
+})->name('backoffice.karyawan')->middleware('role:manager,super_admin');
 
 Route::get('/backoffice/karyawan/export', function (\Illuminate\Http\Request $request) {
-    if (session('user_role') === 'employee') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+
     
     $employees = \App\Models\Employee::whereNotNull('department_id')
                     ->where('department_id', '>', 0)
@@ -272,7 +266,7 @@ Route::get('/backoffice/karyawan/export', function (\Illuminate\Http\Request $re
     };
     
     return response()->stream($callback, 200, $headers);
-})->name('backoffice.karyawan.export');
+})->name('backoffice.karyawan.export')->middleware('role:manager,super_admin');
 
 Route::get('/backoffice/karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.karyawan.show');
 
@@ -292,9 +286,7 @@ Route::put('/backoffice/posisi/{id}', [\App\Http\Controllers\PositionController:
 Route::delete('/backoffice/posisi/{id}', [\App\Http\Controllers\PositionController::class, 'destroy'])->name('backoffice.posisi.destroy');
 
 Route::post('/backoffice/karyawan/lepas', function (\Illuminate\Http\Request $request) {
-    if (session('user_role') === 'employee') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+
     $emp = \App\Models\Employee::where('nik', $request->nik)->first();
     if ($emp) {
         $emp->department_id = null;
@@ -302,12 +294,10 @@ Route::post('/backoffice/karyawan/lepas', function (\Illuminate\Http\Request $re
         return redirect()->back()->with('success', 'Karyawan berhasil dilepas dari departemen.');
     }
     return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
-})->name('backoffice.karyawan.lepas');
+})->name('backoffice.karyawan.lepas')->middleware('role:manager,super_admin');
 
 Route::post('/backoffice/karyawan/assign', function (\Illuminate\Http\Request $request) {
-    if (session('user_role') === 'employee') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+
     $emp = \App\Models\Employee::where('nik', $request->nik)->first();
     if ($emp) {
         // Find department by name
@@ -322,13 +312,10 @@ Route::post('/backoffice/karyawan/assign', function (\Illuminate\Http\Request $r
         return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan.');
     }
     return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
-})->name('backoffice.karyawan.assign');
+})->name('backoffice.karyawan.assign')->middleware('role:manager,super_admin');
 
 Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
-    // Proteksi Role: Hanya dapat diakses oleh Manager
-    if (session('user_role') !== 'manager') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman Absensi hanya dapat diakses oleh Manager.');
-    }
+
     
     $query = \App\Models\Attendance::with('employee.department');
     
@@ -363,12 +350,10 @@ Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
     $departments = \Illuminate\Support\Facades\DB::table('departments')->get();
     
     return view('backoffice.absensi', compact('attendances', 'stats', 'departments', 'dari', 'sampai'));
-})->name('backoffice.absensi');
+})->name('backoffice.absensi')->middleware('role:manager');
 
 Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $request, $id) {
-    if (session('user_role') !== 'manager') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+
     
     $request->validate([
         'jam_masuk' => 'nullable|date_format:H:i',
@@ -395,12 +380,10 @@ Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $reque
     ]);
     
     return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
-})->name('backoffice.absensi.update');
+})->name('backoffice.absensi.update')->middleware('role:manager');
 
 Route::get('/backoffice/absensi/export', function (\Illuminate\Http\Request $request) {
-    if (session('user_role') !== 'manager') {
-        return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-    }
+
     
     $query = \App\Models\Attendance::with('employee.department');
     
@@ -453,7 +436,7 @@ Route::get('/backoffice/absensi/export', function (\Illuminate\Http\Request $req
     };
     
     return response()->stream($callback, 200, $headers);
-})->name('backoffice.absensi.export');
+})->name('backoffice.absensi.export')->middleware('role:manager');
 
 use App\Http\Controllers\PayrollController;
 Route::get('/backoffice/penggajian', [PayrollController::class, 'index'])->name('backoffice.penggajian');
@@ -633,10 +616,12 @@ Route::post('/backoffice/pengaturan/delete-document/{index}', function ($index) 
 })->name('backoffice.pengaturan.delete.document');
 
 use App\Http\Controllers\AttendanceController;
-Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock_in');
-Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock_out');
-Route::post('/attendance/leave', [AttendanceController::class, 'submitLeave'])->name('attendance.leave');
+Route::middleware(['employee.session'])->group(function () {
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock_in');
+    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock_out');
+    Route::post('/attendance/leave', [AttendanceController::class, 'submitLeave'])->name('attendance.leave');
+});
 
 // Notification Routes
 use App\Http\Controllers\NotificationController;
