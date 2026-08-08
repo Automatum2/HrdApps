@@ -140,11 +140,6 @@
                 <span class="font-medium font-body-md">Karyawan</span>
             </a>
 
-            <!-- Jabatan (Posisi) -->
-            <a class="{{ request()->routeIs('backoffice.posisi.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.posisi.index') }}">
-                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
-                <span class="font-medium font-body-md">Jabatan</span>
-            </a>
             @endif
 
             @if($role === 'manager')

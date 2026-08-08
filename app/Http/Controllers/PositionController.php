@@ -9,10 +9,6 @@ class PositionController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'super_admin' && session('user_role') !== 'hr_manager') {
-            return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-        }
-
         $positions = Position::all();
         return view('backoffice.posisi', compact('positions'));
     }
