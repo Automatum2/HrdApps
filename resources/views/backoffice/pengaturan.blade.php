@@ -146,8 +146,34 @@
                         </div>
                     </form>
                     
+                    <!-- Form Informasi Perbankan -->
+                    <div class="mt-8 border-t border-outline-variant pt-6">
+                        <div class="mb-4">
+                            <h4 class="font-bold text-sm text-on-surface">Informasi Perbankan</h4>
+                            <p class="text-[11px] text-on-surface-variant font-medium mt-1">
+                                Masukkan nama bank dan nomor rekening untuk keperluan transfer penggajian.
+                            </p>
+                        </div>
+                        <form action="{{ route('backoffice.pengaturan.bank') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @csrf
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Bank</label>
+                                <input name="nama_bank" class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white text-on-surface outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Contoh: BCA / Mandiri" value="{{ $user->employee->nama_bank ?? '' }}" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nomor Rekening</label>
+                                <input name="no_rekening" class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white text-on-surface outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Masukkan angka rekening" value="{{ $user->employee->no_rekening ?? '' }}" required>
+                            </div>
+                            <div class="md:col-span-2 mt-2 flex justify-end">
+                                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                                    Simpan Informasi Bank
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Lampiran Dokumen Pribadi (Downloadable) -->
-                    <div class="mt-6">
+                    <div class="mt-8 border-t border-outline-variant pt-6">
                         <h5 class="font-bold text-xs text-on-surface mb-3 flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm text-primary">attachment</span>
                             Dokumen Pribadi Terlampir

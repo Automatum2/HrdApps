@@ -320,6 +320,17 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->back()->with('error', 'Gagal menyimpan data. Akun tidak memiliki profil karyawan.');
     })->name('backoffice.pengaturan.cv');
 
+    Route::post('/backoffice/pengaturan/bank', function (\Illuminate\Http\Request $request) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && $user->employee) {
+            $user->employee->nama_bank = $request->input('nama_bank');
+            $user->employee->no_rekening = $request->input('no_rekening');
+            $user->employee->save();
+            return redirect()->back()->with('success', 'Informasi Perbankan berhasil disimpan.');
+        }
+        return redirect()->back()->with('error', 'Gagal menyimpan data. Akun tidak memiliki profil karyawan.');
+    })->name('backoffice.pengaturan.bank');
+
     Route::post('/backoffice/pengaturan/notifikasi', function (\Illuminate\Http\Request $request) {
         $user = \Illuminate\Support\Facades\Auth::user();
         if ($user) {

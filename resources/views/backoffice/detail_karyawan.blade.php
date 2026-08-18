@@ -274,68 +274,68 @@
 </div>
 
 <!-- Modal Tambah Tunjangan -->
-<div id="modal-tunjangan" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
-        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
-            <h3 class="font-bold text-slate-800">Tambah Tunjangan</h3>
-            <button onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined">close</button>
+<div id="modal-tunjangan" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px;">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+            <h3 class="font-title-sm text-title-sm text-on-surface font-bold">Tambah Tunjangan</h3>
+            <button type="button" onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="p-1 hover:bg-surface-container rounded-full text-on-surface-variant cursor-pointer material-symbols-outlined transition-colors">close</button>
         </div>
-        <form action="{{ route('backoffice.allowances.store', $employee->id) }}" method="POST" class="p-6">
+        <form action="{{ route('backoffice.allowances.store', $employee->id) }}" method="POST" class="p-6 overflow-y-auto">
             @csrf
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Tunjangan</label>
-                    <input type="text" name="nama_tunjangan" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Nama Tunjangan</label>
+                    <input type="text" name="nama_tunjangan" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
-                    <input type="number" name="jumlah" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Jumlah (Rp)</label>
+                    <input type="number" name="jumlah" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipe</label>
-                    <select name="tipe" required class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring focus:ring-primary/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Tipe</label>
+                    <select name="tipe" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface">
                         <option value="tetap">Tetap (Per Bulan)</option>
                         <option value="tidak_tetap">Tidak Tetap (Per Kehadiran dll)</option>
                     </select>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">Batal</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm">Simpan</button>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-outline-variant">
+                <button type="button" onclick="document.getElementById('modal-tunjangan').classList.add('hidden')" class="border border-outline-variant hover:bg-surface-container text-on-surface-variant px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-colors">Batal</button>
+                <button type="submit" class="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">Simpan</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Tambah Potongan -->
-<div id="modal-potongan" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
-        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
-            <h3 class="font-bold text-slate-800">Tambah Potongan</h3>
-            <button onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors material-symbols-outlined">close</button>
+<div id="modal-potongan" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px;">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+            <h3 class="font-title-sm text-title-sm text-on-surface font-bold">Tambah Potongan</h3>
+            <button type="button" onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="p-1 hover:bg-surface-container rounded-full text-on-surface-variant cursor-pointer material-symbols-outlined transition-colors">close</button>
         </div>
-        <form action="{{ route('backoffice.deductions.store', $employee->id) }}" method="POST" class="p-6">
+        <form action="{{ route('backoffice.deductions.store', $employee->id) }}" method="POST" class="p-6 overflow-y-auto">
             @csrf
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Potongan</label>
-                    <input type="text" name="nama_potongan" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Nama Potongan</label>
+                    <input type="text" name="nama_potongan" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
-                    <input type="number" name="jumlah" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Jumlah (Rp)</label>
+                    <input type="number" name="jumlah" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipe</label>
-                    <select name="tipe" required class="w-full rounded-lg border-slate-300 focus:border-error focus:ring focus:ring-error/20 text-sm">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Tipe</label>
+                    <select name="tipe" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface">
                         <option value="tetap">Tetap (Per Bulan)</option>
                         <option value="tidak_tetap">Tidak Tetap (Per Kondisi, cth: Alpha)</option>
                     </select>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">Batal</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-error hover:bg-red-700 rounded-lg transition-colors shadow-sm">Simpan</button>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-outline-variant">
+                <button type="button" onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="border border-outline-variant hover:bg-surface-container text-on-surface-variant px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-colors">Batal</button>
+                <button type="submit" class="bg-error hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">Simpan</button>
             </div>
         </form>
     </div>
