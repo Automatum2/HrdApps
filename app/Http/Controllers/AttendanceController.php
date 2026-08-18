@@ -161,8 +161,22 @@ class AttendanceController extends Controller
                 ->whereIn('status_kehadiran', ['izin', 'cuti'])
                 ->count();
 
-            if ($existingLeaveThisYear + $daysRequested > $kuotaCuti) {
-                return back()->with('error', 'Gagal: Sisa kuota cuti/izin tahunan Anda tidak mencukupi. Sisa kuota Anda tahun ini: ' . max(0, $kuotaCuti - $existingLeaveThisYear) . ' hari, dan Anda mengajukan ' . $daysRequested . ' hari.');
+            // Tambahkan cuti/izin yang masih pending
+            $pendingLeaveDays = \App\Models\LeaveRequest::where('employee_id', $employeeId)
+                ->whereYear('tanggal_mulai', $mulai->year)
+                ->whereIn('status', ['menunggu_manager', 'menunggu_hr'])
+                ->whereIn('tipe', ['izin', 'cuti'])
+                ->get()
+                ->sum(function($leave) {
+                    $start = \Carbon\Carbon::parse($leave->tanggal_mulai);
+                    $end = \Carbon\Carbon::parse($leave->tanggal_selesai);
+                    return $start->diffInDays($end) + 1;
+                });
+
+            $totalRequestedThisYear = $existingLeaveThisYear + $pendingLeaveDays;
+
+            if ($totalRequestedThisYear + $daysRequested > $kuotaCuti) {
+                return back()->with('error', 'Gagal: Sisa kuota cuti/izin tahunan Anda tidak mencukupi. Sisa kuota: ' . max(0, $kuotaCuti - $totalRequestedThisYear) . ' hari, dan Anda mengajukan ' . $daysRequested . ' hari.');
             }
         }
 
@@ -178,33 +192,19 @@ class AttendanceController extends Controller
             $dokumenPath = 'documents/' . $fileName;
         }
 
-        for ($date = clone $mulai; $date->lte($selesai); $date->addDay()) {
-            $attendance = Attendance::where('employee_id', $employeeId)
-                ->where('tanggal', $date->toDateString())
-                ->first();
-
-            if (!$attendance) {
-                $attendance = new Attendance();
-                $attendance->employee_id = $employeeId;
-                $attendance->tanggal = $date->toDateString();
-                $attendance->status_kerja = 'WFO'; 
-                $attendance->status_kehadiran = $request->tipe;
-                $attendance->keterangan = $request->keterangan;
-                if ($dokumenPath) {
-                    $attendance->dokumen_pendukung = $dokumenPath;
-                }
-                $attendance->save();
-            } else {
-                if ($attendance->status_kehadiran != 'hadir') {
-                    $attendance->status_kehadiran = $request->tipe;
-                    $attendance->keterangan = $request->keterangan;
-                    if ($dokumenPath) {
-                        $attendance->dokumen_pendukung = $dokumenPath;
-                    }
-                    $attendance->save();
-                }
-            }
+        $leaveRequest = new \App\Models\LeaveRequest();
+        $leaveRequest->employee_id = $employeeId;
+        $leaveRequest->tanggal_mulai = $mulai->toDateString();
+        $leaveRequest->tanggal_selesai = $selesai->toDateString();
+        $leaveRequest->tipe = $request->tipe;
+        $leaveRequest->keterangan = $request->keterangan;
+        
+        if ($dokumenPath) {
+            $leaveRequest->dokumen_pendukung = $dokumenPath;
         }
+
+        $leaveRequest->status = 'menunggu_manager';
+        $leaveRequest->save();
 
         return back()->with('success', 'Pengajuan ' . ucfirst($request->tipe) . ' berhasil dikirim.');
     }

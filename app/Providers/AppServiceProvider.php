@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Lang;
@@ -22,6 +25,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-payslip', function (User $user, Employee $targetEmployee) {
+            if ($user->role === 'super_admin') return true;
+            if (!$targetEmployee->user) return true;
+            return $user->hierarchyLevel() > $targetEmployee->user->hierarchyLevel();
+        });
+
+        Gate::define('manage-allowance', function (User $user, Employee $targetEmployee) {
+            if ($user->role === 'super_admin') return true;
+            if (!$targetEmployee->user) return true;
+            return $user->hierarchyLevel() > $targetEmployee->user->hierarchyLevel();
+        });
+
+        Gate::define('manageTraining', function (User $user) {
+            return in_array($user->role, ['super_admin', 'hr_training_manager', 'manager_departemen']);
+        });
+
+        Gate::define('approveCV', function (User $user) {
+            return in_array($user->role, ['super_admin', 'hr_admin_manager']);
+        });
+
         ResetPassword::toMailUsing(function ($notifiable, $token) {
             $url = url(route('password.reset', [
                 'token' => $token,

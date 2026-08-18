@@ -1,0 +1,1 @@
+@extends('layouts.admin')\n@section('page_title', 'Trainer / Pelatihan')\n@section('content')\n<div class="bg-white rounded-xl shadow-sm border border-outline-variant p-6">\n    <h3 class="text-lg font-bold text-on-surface mb-2">Modul Trainer / Pelatihan</h3>\n    <p class="text-on-surface-variant">Halaman ini sedang dalam pengembangan.</p>\n</div>\n@endsection

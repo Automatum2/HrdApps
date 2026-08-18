@@ -109,6 +109,10 @@ class PayrollController extends Controller
         $year = Carbon::parse($period->tanggal_mulai)->year;
         
         foreach ($employees as $employee) {
+            if (auth()->check() && !auth()->user()->can('manage-payslip', $employee)) {
+                continue;
+            }
+
             $data = self::calculatePayroll($employee, $month, $year);
             
             $payroll = Payroll::updateOrCreate(

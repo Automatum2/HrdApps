@@ -18,7 +18,7 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
-    if (session()->has('user_role')) {
+    if (\Illuminate\Support\Facades\Auth::check()) {
         return redirect()->route('backoffice.dashboard');
     }
     return view('auth.login');
@@ -241,15 +241,38 @@ Route::middleware(['auth'])->group(function () {
         }
         
         // Manager Dashboard (default fallback for 'manager')
-        $total_karyawan = \App\Models\Employee::count();
-        $hadir_hari_ini = \App\Models\Attendance::where('tanggal', \Carbon\Carbon::today()->toDateString())->where('status_kehadiran', 'hadir')->count();
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        $employeeQuery = \App\Models\Employee::query();
+        $attendanceQuery = \App\Models\Attendance::query();
+        
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            $department_id = $user->employee->department_id;
+            $employeeQuery->where('department_id', $department_id);
+            $attendanceQuery->whereHas('employee', function($q) use ($department_id) {
+                $q->where('department_id', $department_id);
+            });
+        }
+        
+        $total_karyawan = $employeeQuery->count();
+        $hadir_hari_ini = $attendanceQuery->where('tanggal', \Carbon\Carbon::today()->toDateString())->where('status_kehadiran', 'hadir')->count();
         $belum_absen = max(0, $total_karyawan - $hadir_hari_ini);
-        $latest_employees = \App\Models\Employee::with('department', 'position')->orderBy('created_at', 'desc')->take(5)->get();
+        
+        $latestEmployeesQuery = \App\Models\Employee::with('department', 'position')->orderBy('created_at', 'desc')->take(5);
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            $latestEmployeesQuery->where('department_id', $user->employee->department_id);
+        }
+        $latest_employees = $latestEmployeesQuery->get();
         
         // Calculate total payroll for current month
         $currentMonth = \Carbon\Carbon::now()->month;
         $currentYear = \Carbon\Carbon::now()->year;
-        $employees = \App\Models\Employee::with('department', 'position')->get();
+        
+        $employeesQueryWithRel = \App\Models\Employee::with('department', 'position');
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            $employeesQueryWithRel->where('department_id', $user->employee->department_id);
+        }
+        $employees = $employeesQueryWithRel->get();
         $total_gaji_bulan_ini = 0;
         
         $status_tetap = 0;
@@ -296,6 +319,11 @@ Route::middleware(['auth'])->group(function () {
     // -- NOTIFICATIONS (All Roles) --
     Route::post('/backoffice/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('backoffice.notifications.read');
     Route::post('/backoffice/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('backoffice.notifications.read_all');
+
+    // -- LEAVES (Approval workflow) --
+    Route::get('/backoffice/leaves', [App\Http\Controllers\LeaveController::class, 'index'])->name('backoffice.leaves.index');
+    Route::post('/backoffice/leaves/{leave}/approve', [App\Http\Controllers\LeaveController::class, 'approve'])->name('backoffice.leaves.approve');
+    Route::post('/backoffice/leaves/{leave}/reject', [App\Http\Controllers\LeaveController::class, 'reject'])->name('backoffice.leaves.reject');
 
     // -- PAYROLL (General, Employee can view index & download their PDF) --
     Route::get('/backoffice/penggajian', [PayrollController::class, 'index'])->name('backoffice.penggajian');
@@ -474,6 +502,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:manager,super_admin'])->group(function () {
         
         // Karyawan
+        Route::get("/backoffice/training", [App\Http\Controllers\TrainingController::class, "index"])->name("backoffice.training.index");
+        Route::get("/backoffice/cv", [App\Http\Controllers\CVController::class, "index"])->name("backoffice.cv.index");
+
         Route::get('/backoffice/karyawan', function () {
             $employees = \App\Models\Employee::whereNotNull('department_id')
                             ->where('department_id', '>', 0)
