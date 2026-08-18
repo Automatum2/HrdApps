@@ -124,6 +124,12 @@
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
                 <span class="font-medium font-body-md">Jabatan</span>
             </a>
+
+            <!-- Menu Persetujuan Cuti (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.leaves.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.leaves.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.leaves.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">event_available</span>
+                <span class="font-medium font-body-md">Persetujuan Cuti</span>
+            </a>
             
             <!-- MENU UNTUK MANAGER DAN EMPLOYEE -->
             @else
@@ -140,6 +146,22 @@
                 <span class="font-medium font-body-md">Karyawan</span>
             </a>
 
+            @can('manageTraining')
+            <!-- Menu Training -->
+            <a class="{{ request()->routeIs('backoffice.training.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.training.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.training.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">model_training</span>
+                <span class="font-medium font-body-md">Trainer / Pelatihan</span>
+            </a>
+            @endcan
+
+            @can('approveCV')
+            <!-- Menu Kelola CV -->
+            <a class="{{ request()->routeIs('backoffice.cv.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.cv.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.cv.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">assignment_ind</span>
+                <span class="font-medium font-body-md">Kelola CV</span>
+            </a>
+            @endcan
+
             @endif
 
             @if($role === 'manager')
@@ -147,6 +169,12 @@
             <a class="{{ request()->routeIs('backoffice.absensi') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.absensi') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.absensi') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">date_range</span>
                 <span class="font-medium font-body-md">Absensi</span>
+            </a>
+
+            <!-- Menu Persetujuan Cuti -->
+            <a class="{{ request()->routeIs('backoffice.leaves.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.leaves.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.leaves.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">event_available</span>
+                <span class="font-medium font-body-md">Persetujuan Cuti</span>
             </a>
             @endif
 

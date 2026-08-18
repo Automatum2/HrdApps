@@ -18,6 +18,10 @@ class AllowanceController extends Controller
 
         $employee = Employee::findOrFail($employeeId);
 
+        if (auth()->check() && !auth()->user()->can('manage-allowance', $employee)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menambah tunjangan pada karyawan ini.');
+        }
+
         Allowance::create([
             'employee_id' => $employee->id,
             'nama_tunjangan' => $request->nama_tunjangan,
@@ -31,7 +35,11 @@ class AllowanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        $allowance = Allowance::findOrFail($id);
+        $allowance = Allowance::with('employee')->findOrFail($id);
+        
+        if (auth()->check() && !auth()->user()->can('manage-allowance', $allowance->employee)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah tunjangan pada karyawan ini.');
+        }
         
         $request->validate([
             'nama_tunjangan' => 'required|string|max:255',
@@ -52,7 +60,12 @@ class AllowanceController extends Controller
 
     public function destroy($id)
     {
-        $allowance = Allowance::findOrFail($id);
+        $allowance = Allowance::with('employee')->findOrFail($id);
+        
+        if (auth()->check() && !auth()->user()->can('manage-allowance', $allowance->employee)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus tunjangan pada karyawan ini.');
+        }
+        
         $allowance->delete();
 
         return redirect()->back()->with('success', 'Tunjangan berhasil dihapus.');
