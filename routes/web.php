@@ -26,6 +26,71 @@ Route::get('/login', function () {
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
+// Rute untuk Lupa Password
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->name('password.request');
+
+Route::post('/forgot-password', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'email' => 'required|email|exists:users,email'
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'email.exists' => 'Email tidak terdaftar di sistem kami.'
+    ]);
+
+    // Generate 6-digit OTP
+    $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+    \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+        ['email' => $request->email],
+        ['token' => \Illuminate\Support\Facades\Hash::make($otp), 'created_at' => now()]
+    );
+
+    try {
+        \Illuminate\Support\Facades\Mail::send('emails.otp', ['otp' => $otp], function ($message) use ($request) {
+            $message->to($request->email)
+                    ->subject('Kode OTP Reset Password HRDApps');
+        });
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Gagal mengirim email reset password: ' . $e->getMessage());
+    }
+
+    return redirect()->route('password.verify-otp', ['email' => $request->email])
+                     ->with('success', 'Kode OTP telah dikirim ke email Anda. Silakan cek kotak masuk atau folder spam.');
+})->name('password.email');
+
+// Rute untuk Halaman Verifikasi OTP
+Route::get('/verify-otp', function (\Illuminate\Http\Request $request) {
+    $email = $request->query('email');
+    if (!$email) {
+        return redirect()->route('password.request')->withErrors(['email' => 'Silakan masukkan email terlebih dahulu.']);
+    }
+    return view('auth.verify-otp', compact('email'));
+})->name('password.verify-otp');
+
+Route::post('/verify-otp', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'otp' => 'required|string|size:6'
+    ], [
+        'otp.required' => 'Kode OTP wajib diisi.',
+        'otp.size' => 'Kode OTP harus berupa 6 angka.'
+    ]);
+
+    $dbToken = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+        ->where('email', $request->email)
+        ->first();
+
+    if (!$dbToken || !\Illuminate\Support\Facades\Hash::check($request->otp, $dbToken->token)) {
+        return back()->withErrors(['otp' => 'Kode OTP tidak valid atau sudah kadaluarsa.']);
+    }
+
+    // Jika OTP benar, arahkan ke form reset password dengan memberikan OTP sebagai token
+    return redirect()->route('password.reset', ['token' => $request->otp, 'email' => $request->email]);
+})->name('password.verify-otp.post');
+
 // Rute untuk aktivasi / reset password dari link email
 Route::get('/reset-password/{token}', function (string $token) {
     $email = request()->query('email');

@@ -71,7 +71,7 @@
                     <input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20 transition-all cursor-pointer" type="checkbox" name="remember">
                     <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary transition-colors">Remember Me</span>
                 </label>
-                <a class="font-body-sm text-body-sm text-primary hover:underline font-semibold" href="#">Forgot Password?</a>
+                <a class="font-body-sm text-body-sm text-primary hover:underline font-semibold" href="{{ route('password.request') }}">Lupa Password?</a>
             </div>
             
             <!-- Submit Button -->
