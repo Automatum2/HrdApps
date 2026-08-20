@@ -15,13 +15,13 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Halaman ini hanya untuk Super Admin.');
         }
 
         $employees = Employee::where('is_cv_approved', true)
             ->whereDoesntHave('user', function ($q) {
-                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
             })
             ->orderBy('id', 'desc')->paginate(10);
         $departments = Department::orderBy('nama_department', 'asc')->get();
@@ -34,21 +34,21 @@ class EmployeeController extends Controller
     {
         // For now, only Super Admin (and eventually HRD Manager) will access this specific controller method.
         // Karyawan themselves might have a different route (e.g. /profile) pointing to a different controller/method.
-        if (!in_array(session('user_role'), ['superadmin', 'hr_manager', 'manager_departemen'])) {
+        if (!in_array(session('user_role'), ['super_admin', 'hr_manager', 'manager_departemen'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         $employee = Employee::findOrFail($id);
         
         // Pass a 'back_route' variable to know where the "Kembali" button should point
-        $back_route = session('user_role') === 'superadmin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
+        $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
 
         return view('backoffice.detail_karyawan', compact('employee', 'back_route'));
     }
 
     public function store(Request $request)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -88,7 +88,7 @@ class EmployeeController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -127,7 +127,7 @@ class EmployeeController extends Controller
 
     public function destroy($id)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 

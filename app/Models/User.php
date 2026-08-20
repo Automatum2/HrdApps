@@ -57,8 +57,6 @@ class User extends Authenticatable
         $levels = [
             "super_admin" => 4,
             "hr_manager" => 3,
-            "hr_training_manager" => 3,
-            "hr_admin_manager" => 3,
             "manager_departemen" => 2,
             "karyawan" => 1
         ];

@@ -19,7 +19,7 @@ class TrainingController extends Controller
         $employees = Employee::where('is_cv_approved', true)
             ->whereNotNull('department_id')
             ->whereDoesntHave('user', function($q) {
-                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
             })
             ->orderBy('nama_lengkap', 'asc')
             ->get();

@@ -173,7 +173,7 @@ Route::middleware(['auth'])->group(function () {
     // -- DASHBOARD --
     Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request) {
         $role = session('user_role');
-        if ($role === 'superadmin') {
+        if ($role === 'super_admin') {
             $total_karyawan = \App\Models\Employee::where('is_cv_approved', true)->count();
             
             // Hitung persentase kenaikan karyawan dari bulan lalu
@@ -607,7 +607,7 @@ Route::middleware(['auth'])->group(function () {
                             ->where('department_id', '>', 0)
                             ->where('is_cv_approved', true)
                             ->whereDoesntHave('user', function ($q) {
-                                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                                $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
                             })
                             ->with(['department', 'position']);
                             
@@ -617,7 +617,7 @@ Route::middleware(['auth'])->group(function () {
                             })
                             ->where('is_cv_approved', true)
                             ->whereDoesntHave('user', function ($q) {
-                                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                                $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
                             });
                             
             if ($dbRole === 'manager_departemen' && $user && $user->employee) {

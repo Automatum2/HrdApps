@@ -13,7 +13,7 @@ class HrManagerController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -26,7 +26,7 @@ class HrManagerController extends Controller
 
     public function store(Request $request)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -81,7 +81,7 @@ class HrManagerController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -123,7 +123,7 @@ class HrManagerController extends Controller
 
     public function destroy($id)
     {
-        if (session('user_role') !== 'superadmin') {
+        if (session('user_role') !== 'super_admin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 

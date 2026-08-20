@@ -100,7 +100,7 @@
             @endphp
 
             <!-- MENU UNTUK SUPER ADMIN -->
-            @if($role === 'superadmin')
+            @if($role === 'super_admin')
             <!-- Dashboard Super Admin -->
             <a class="{{ request()->routeIs('backoffice.dashboard') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.dashboard') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.dashboard') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">dashboard</span>
@@ -226,7 +226,7 @@
             }
             
             // Dapatkan ID
-            if ($userRole === 'superadmin') {
+            if ($userRole === 'super_admin') {
                 $userTitle = 'Administrator';
             } elseif ($userRole === 'manager') {
                 $userTitle = 'Manager HRD';
