@@ -14,13 +14,13 @@ class HierarchyRoleTest extends TestCase
     public function test_user_has_specific_hierarchy_roles()
     {
         $user = User::create([
-            'name' => 'Test HR Training',
-            'username' => 'hr_training_test',
-            'email' => 'hr_training@example.com',
+            'name' => 'Test HR Manager',
+            'username' => 'hr_manager_test',
+            'email' => 'hr_manager@example.com',
             'password' => bcrypt('password'),
-            'role' => 'hr_training_manager'
+            'role' => 'hr_manager'
         ]);
-        $this->assertEquals('hr_training_manager', $user->role);
+        $this->assertEquals('hr_manager', $user->role);
         
         $department = \App\Models\Department::create([
             'nama_department' => 'Test Dept',

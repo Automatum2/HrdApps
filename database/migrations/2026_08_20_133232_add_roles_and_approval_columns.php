@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         // Change role enum
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('superadmin', 'hr_training_manager', 'hr_admin_manager', 'manager_departemen', 'karyawan') NOT NULL");
+        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('superadmin', 'hr_manager', 'manager_departemen', 'karyawan') NOT NULL");
         
         // Change status_kerja enum
         DB::statement("ALTER TABLE employees MODIFY COLUMN status_kerja ENUM('tetap', 'kontrak', 'magang', 'musiman', 'harian', 'tidak tetap') DEFAULT 'tetap'");
