@@ -14,18 +14,14 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        \Illuminate\Support\Facades\Log::info('Login attempt', ['username' => $credentials['username']]);
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
 
-            $roleMap = [
-                'super_admin' => 'super_admin',
-                'hr_manager' => 'manager',
-                'karyawan' => 'employee'
-            ];
-
             session([
-                'user_role' => $roleMap[$user->role] ?? 'employee',
+                'user_role' => $user->role,
                 'user_name' => $user->username,
                 'employee_id' => $user->employee_id,
                 'user_photo' => ''

@@ -116,7 +116,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Jabatan</label>
-                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="{{ $user->employee->position->nama ?? ($user->role == 'super_admin' ? 'Administrator' : 'Manajer HRD') }}">
+                            <input class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant outline-none" disabled type="text" value="{{ $user->employee->position->nama ?? ($user->role == 'superadmin' ? 'Administrator' : 'Manajer HRD') }}">
                         </div>
                     </div>
                 </div>

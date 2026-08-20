@@ -125,9 +125,14 @@
                 <h3 class="font-bold text-slate-800 text-base">Informasi Perbankan</h3>
             </div>
             <div class="p-6 divide-y divide-slate-100">
-                <div class="grid grid-cols-3 py-3 first:pt-0 last:pb-0">
+                <div class="grid grid-cols-3 py-3 first:pt-0 last:pb-0 items-center">
                     <div class="text-sm font-semibold text-slate-500">Gaji Pokok</div>
-                    <div class="col-span-2 text-sm font-mono font-bold text-slate-800">Rp {{ number_format($employee->gaji_pokok, 0, ',', '.') }}</div>
+                    <div class="col-span-2 flex justify-between items-center">
+                        <div class="text-sm font-mono font-bold text-slate-800">Rp {{ number_format($employee->gaji_pokok, 0, ',', '.') }}</div>
+                        @if(Auth::user()->role === 'hr_manager')
+                            <button onclick="document.getElementById('modal-edit-gaji').classList.remove('hidden')" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded hover:bg-primary/20 transition-colors">Edit</button>
+                        @endif
+                    </div>
                 </div>
                 <div class="grid grid-cols-3 py-3 first:pt-0 last:pb-0">
                     <div class="text-sm font-semibold text-slate-500">Nama Bank</div>
@@ -336,6 +341,28 @@
             <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-outline-variant">
                 <button type="button" onclick="document.getElementById('modal-potongan').classList.add('hidden')" class="border border-outline-variant hover:bg-surface-container text-on-surface-variant px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-colors">Batal</button>
                 <button type="submit" class="bg-error hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal Edit Gaji -->
+<div id="modal-edit-gaji" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 480px; min-width: 280px;">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+            <h3 class="font-title-sm text-title-sm text-on-surface font-bold">Edit Gaji Pokok</h3>
+            <button type="button" onclick="document.getElementById('modal-edit-gaji').classList.add('hidden')" class="p-1 hover:bg-surface-container rounded-full text-on-surface-variant cursor-pointer material-symbols-outlined transition-colors">close</button>
+        </div>
+        <form action="{{ route('backoffice.karyawan.update_gaji', $employee->id) }}" method="POST" class="p-6 overflow-y-auto">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Gaji Pokok (Rp)</label>
+                    <input type="number" name="gaji_pokok" value="{{ $employee->gaji_pokok }}" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-outline-variant">
+                <button type="button" onclick="document.getElementById('modal-edit-gaji').classList.add('hidden')" class="border border-outline-variant hover:bg-surface-container text-on-surface-variant px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-colors">Batal</button>
+                <button type="submit" class="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">Simpan</button>
             </div>
         </form>
     </div>

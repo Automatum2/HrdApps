@@ -17,7 +17,7 @@ class ReportController extends Controller
     public function index()
     {
         $role = session('user_role');
-        if ($role === 'employee') {
+        if ($role === 'karyawan') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -176,7 +176,7 @@ class ReportController extends Controller
     public function kinerja(Request $request)
     {
         $role = session('user_role');
-        if ($role === 'employee') {
+        if ($role === 'karyawan') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 

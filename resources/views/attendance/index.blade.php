@@ -83,7 +83,7 @@
                     </div>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-bold text-on-surface-variant mb-1">Update Laporan Harian (Opsional)</label>
+                        <label class="block text-sm font-bold text-on-surface-variant mb-1">Update Laporan Harian</label>
                         <div class="bg-surface rounded-lg overflow-hidden">
                             <div id="editor-out">{!! $attendance->keterangan ?? '' !!}</div>
                         </div>

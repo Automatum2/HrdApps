@@ -18,7 +18,7 @@ class PayrollController extends Controller
     {
         $role = session('user_role');
         
-        if ($role === 'employee') {
+        if (in_array($role, ['karyawan', 'manager_departemen'])) {
             $employeeId = session('employee_id');
             $employee = Employee::with('department', 'position')->find($employeeId);
             
@@ -188,7 +188,7 @@ class PayrollController extends Controller
     public function downloadPdf($id)
     {
         // Cegah IDOR: Karyawan biasa HANYA boleh mengunduh slip gajinya sendiri
-        if (session('user_role') === 'employee' && session('employee_id') != $id) {
+        if (session('user_role') === 'karyawan' && session('employee_id') != $id) {
             return redirect()->back()->with('error', 'Akses Ditolak: Anda hanya dapat mengunduh slip gaji milik Anda sendiri.');
         }
 

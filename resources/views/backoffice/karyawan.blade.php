@@ -15,10 +15,12 @@
         <p class="text-body-sm text-on-surface-variant">Kelola daftar penempatan, tugas, dan detail departemen karyawan Anda.</p>
     </div>
     <div class="flex items-center gap-3 mt-4 md:mt-0">
+        @if(session('user_role') !== 'manager_departemen')
         <button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm shadow hover:brightness-110 active:scale-95 transition-all cursor-pointer" id="btn-open-modal">
             <span class="material-symbols-outlined text-lg">add</span>
             <span>Tambah Karyawan</span>
         </button>
+        @endif
         <a href="{{ route('backoffice.karyawan.export') }}" class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-lowest border border-outline-variant text-secondary rounded-lg font-semibold text-sm hover:bg-surface-container-low active:scale-95 transition-all cursor-pointer">
             <span class="material-symbols-outlined text-[20px]">download</span>
             <span>Export Excel</span>
@@ -71,7 +73,9 @@
                     <th class="px-6 py-4">Jabatan</th>
                     <th class="px-6 py-4">Departemen</th>
                     <th class="px-6 py-4">Status</th>
+                    @if(session('user_role') !== 'manager_departemen')
                     <th class="px-6 py-4 text-center">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-karyawan-body">
@@ -98,6 +102,7 @@
                             {{ $emp->status_kerja ?? 'Tetap' }}
                         </span>
                     </td>
+                    @if(session('user_role') !== 'manager_departemen')
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center gap-2">
                             <a href="{{ route('backoffice.karyawan.show', $emp->id) }}" class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
@@ -108,10 +113,11 @@
                             </button>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-6 py-8 text-center text-slate-500">
+                    <td colspan="{{ session('user_role') !== 'manager_departemen' ? '8' : '7' }}" class="px-6 py-8 text-center text-slate-500">
                         <span class="material-symbols-outlined text-4xl mb-2 text-outline">group_off</span>
                         <p>Belum ada data karyawan.</p>
                     </td>

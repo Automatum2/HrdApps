@@ -73,9 +73,17 @@
                     <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->department ? $k->department->nama_department : 'Belum Ditempatkan' }}</td>
                     <td class="py-4 px-6 font-mono {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Rp {{ number_format($k->gaji_pokok, 0, ',', '.') }}</td>
                     <td class="py-4 px-6" id="status-k-{{ $k->nik }}">
-                        <span class="status-badge-k inline-flex items-center {{ $k->status === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200' }} border px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                            {{ $k->status }}
-                        </span>
+                        @if($k->status === 'nonaktif')
+                            <span class="status-badge-k inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] leading-none uppercase tracking-wide font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                <span>Nonaktif</span>
+                            </span>
+                        @else
+                            <span class="status-badge-k inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full text-[11px] leading-none uppercase tracking-wide font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                                <span>Aktif</span>
+                            </span>
+                        @endif
                     </td>
                     <td class="py-4 px-6">
                         <div class="flex items-center justify-center gap-2">
@@ -88,7 +96,7 @@
                                     <span class="material-symbols-outlined text-[16px]">search</span>
                                 </a>
                             @endif
-                            <button class="btn-edit-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors cursor-pointer' }} flex items-center justify-center" title="Edit" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}" data-gaji="{{ $k->gaji_pokok }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
+                            <button class="btn-edit-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors cursor-pointer' }} flex items-center justify-center" title="Edit" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}" data-gaji="{{ $k->gaji_pokok }}" data-department="{{ $k->department_id }}" data-position="{{ $k->position_id }}" data-status_kerja="{{ $k->status_kerja }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[16px]">edit</span>
                             </button>
                             <button class="btn-delete-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-red-200 text-red-500 hover:bg-red-50 transition-colors cursor-pointer' }} flex items-center justify-center" title="Hapus / Nonaktifkan" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
@@ -143,11 +151,7 @@
                 <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" placeholder="Contoh: adi.s@email.com" type="email" required>
             </div>
 
-            <!-- Gaji Pokok Field -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji">Gaji Pokok</label>
-                <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 font-mono" id="gaji" name="gaji" placeholder="Contoh: 8500000" type="number" required>
-            </div>
+
         </form>
         
         <!-- Modal Footer -->
@@ -192,6 +196,8 @@
 
 @push('scripts')
 <script>
+    window.departments = @json($departments);
+    window.positions = @json($positions);
     document.addEventListener('DOMContentLoaded', () => {
         const btnTambahKaryawan = document.getElementById('btn-tambah-karyawan');
         const modalTambahKaryawan = document.getElementById('modal-tambah-karyawan');
@@ -225,10 +231,7 @@
                     <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
                     <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" type="email" required>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji">Gaji Pokok</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 font-mono" id="gaji" name="gaji" type="number" required>
-                </div>
+
             `;
             modalTambahKaryawan.style.display = 'flex';
         });
@@ -248,6 +251,20 @@
                 const email = btnEdit.getAttribute('data-email');
                 const gaji = btnEdit.getAttribute('data-gaji');
 
+                const department = btnEdit.getAttribute('data-department');
+                const position = btnEdit.getAttribute('data-position');
+                const statusKerja = btnEdit.getAttribute('data-status_kerja');
+
+                let depOptions = '<option value="">-- Pilih Departemen --</option>';
+                window.departments.forEach(d => {
+                    depOptions += `<option value="${d.id}" ${department == d.id ? 'selected' : ''}>${d.nama_department}</option>`;
+                });
+
+                let posOptions = '<option value="">-- Pilih Jabatan --</option>';
+                window.positions.forEach(p => {
+                    posOptions += `<option value="${p.id}" ${position == p.id ? 'selected' : ''}>${p.nama_jabatan}</option>`;
+                });
+
                 document.getElementById('modal-tambah-karyawan').querySelector('h3').innerText = 'Edit Karyawan';
                 formKaryawan.action = `/backoffice/super-admin/kelola-karyawan/${id}`;
                 formKaryawan.innerHTML = `
@@ -262,8 +279,29 @@
                         <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" value="${email}" type="email" required>
                     </div>
                     <div class="space-y-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji">Gaji Pokok</label>
-                        <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 font-mono" id="gaji" name="gaji" value="${gaji}" type="number" required>
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="department_id">Departemen</label>
+                        <select class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="department_id" name="department_id">
+                            ${depOptions}
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="position_id">Jabatan</label>
+                        <select class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="position_id" name="position_id">
+                            ${posOptions}
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="status_kerja">Status Kerja</label>
+                        <select class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="status_kerja" name="status_kerja">
+                            <option value="tetap" ${statusKerja == 'tetap' ? 'selected' : ''}>Karyawan Tetap</option>
+                            <option value="kontrak" ${statusKerja == 'kontrak' ? 'selected' : ''}>Karyawan Kontrak</option>
+                            <option value="magang" ${statusKerja == 'magang' ? 'selected' : ''}>Karyawan Magang</option>
+                            <option value="musiman" ${statusKerja == 'musiman' ? 'selected' : ''}>Karyawan Musiman</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="gaji_pokok">Gaji Pokok (Rp)</label>
+                        <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="gaji_pokok" name="gaji_pokok" value="${gaji}" type="number" min="0" step="1000">
                     </div>
                 `;
                 modalTambahKaryawan.style.display = 'flex';

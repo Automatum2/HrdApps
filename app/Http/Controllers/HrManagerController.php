@@ -13,19 +13,20 @@ class HrManagerController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'super_admin') {
+        if (session('user_role') !== 'superadmin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
-        // Ambil User dengan role hr_manager beserta data employee-nya
-        $managers = User::where('role', 'hr_manager')->with('employee')->orderBy('id', 'desc')->paginate(10);
+        // Ambil User dengan role hr_manager atau manager_departemen beserta data employee-nya
+        $managers = User::whereIn('role', ['hr_manager', 'manager_departemen'])->with('employee')->orderBy('id', 'desc')->paginate(10);
         $positions = \App\Models\Position::where('level', 'manager')->get();
-        return view('backoffice.super_admin_kelola_hr', compact('managers', 'positions'));
+        $departments = \App\Models\Department::all();
+        return view('backoffice.super_admin_kelola_hr', compact('managers', 'positions', 'departments'));
     }
 
     public function store(Request $request)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (session('user_role') !== 'superadmin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -35,6 +36,13 @@ class HrManagerController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email|unique:employees,email',
             'jabatan' => 'required|string|max:255',
         ]);
+
+        if ($request->role === 'hr_manager') {
+            $existingHR = User::where('role', 'hr_manager')->count();
+            if ($existingHR >= 1) {
+                return redirect()->back()->with('error', 'Hanya boleh ada 1 HR Manager di dalam sistem.');
+            }
+        }
 
         // Buat record Employee
         // Buat atau cari jabatan
@@ -48,9 +56,11 @@ class HrManagerController extends Controller
             'nama_lengkap' => $request->nama,
             'email' => $request->email,
             'position_id' => $position->id,
+            'department_id' => $request->role === 'manager_departemen' ? $request->department_id : null,
             'status_kerja' => 'tetap', 
             'status' => 'aktif',
-            'gaji_pokok' => 0 // Default 0
+            'gaji_pokok' => 0, // Default 0
+            'is_cv_approved' => true
         ]);
 
         // Buat record User
@@ -58,7 +68,7 @@ class HrManagerController extends Controller
             'username' => strtolower(str_replace(' ', '', $request->nama)) . rand(10,99),
             'email' => $request->email,
             'password' => Hash::make(Str::random(24)),
-            'role' => 'hr_manager',
+            'role' => $request->role === 'manager_departemen' ? 'manager_departemen' : 'hr_manager',
             'employee_id' => $employee->id
         ]);
 
@@ -71,11 +81,11 @@ class HrManagerController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (session('user_role') !== 'superadmin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $user = User::where('role', 'hr_manager')->findOrFail($id);
+        $user = User::whereIn('role', ['hr_manager', 'manager_departemen'])->findOrFail($id);
         $employee = $user->employee;
 
         $request->validate([
@@ -88,32 +98,41 @@ class HrManagerController extends Controller
             // 'jabatan' => 'required|string|max:255',
         ]);
 
+        if ($request->role === 'hr_manager' && $user->role !== 'hr_manager') {
+            $existingHR = User::where('role', 'hr_manager')->count();
+            if ($existingHR >= 1) {
+                return redirect()->back()->with('error', 'Hanya boleh ada 1 HR Manager di dalam sistem.');
+            }
+        }
+
         if ($employee) {
             $employee->update([
                 'nama_lengkap' => $request->nama,
                 'email' => $request->email,
+                'department_id' => $request->role === 'manager_departemen' ? $request->department_id : null,
             ]);
         }
 
         $user->update([
             'email' => $request->email,
+            'role' => $request->role === 'manager_departemen' ? 'manager_departemen' : 'hr_manager',
         ]);
 
-        return redirect()->back()->with('success', 'Data HR Manager berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data Manager berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (session('user_role') !== 'superadmin') {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $user = User::where('role', 'hr_manager')->findOrFail($id);
+        $user = User::whereIn('role', ['hr_manager', 'manager_departemen'])->findOrFail($id);
         
         if ($user->employee) {
             $user->employee->update(['status' => 'nonaktif']);
         }
         
-        return redirect()->back()->with('success', 'Status HR Manager berhasil dinonaktifkan.');
+        return redirect()->back()->with('success', 'Status Manager berhasil dinonaktifkan.');
     }
 }

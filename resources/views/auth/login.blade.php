@@ -48,7 +48,7 @@
                     <div class="flex items-center justify-center w-12 h-11 bg-surface-container-low text-secondary">
                         <span class="material-symbols-outlined">person</span>
                     </div>
-                    <input class="flex-1 px-md py-sm border-none focus:ring-0 font-body-md text-on-surface placeholder:text-outline" id="username" name="username" placeholder="Enter your username" type="text" required>
+                    <input class="flex-1 px-md py-sm border-none focus:ring-0 font-body-md text-on-surface placeholder:text-outline" id="username" name="username" placeholder="Enter your username" type="text" value="{{ old('username') }}" required>
                 </div>
             </div>
             

@@ -21,7 +21,7 @@ class LeaveController extends Controller
                 $q->where('department_id', $user->employee->department_id);
             });
             $query->whereIn('status', ['menunggu_manager', 'menunggu_hr', 'disetujui', 'ditolak']);
-        } elseif (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'super_admin'])) {
+        } elseif (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'superadmin'])) {
             $query->whereIn('status', ['menunggu_hr', 'disetujui', 'ditolak']);
         } else {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
@@ -47,7 +47,7 @@ class LeaveController extends Controller
             return back()->with('success', 'Cuti disetujui Manager. Diteruskan ke HR.');
         }
 
-        if (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'super_admin'])) {
+        if (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'superadmin'])) {
             if ($leave->status !== 'menunggu_hr') {
                 return back()->with('error', 'Cuti ini belum disetujui Manager atau sudah diproses.');
             }
@@ -92,7 +92,7 @@ class LeaveController extends Controller
         if ($role === 'manager_departemen' && $leave->status !== 'menunggu_manager') {
             return back()->with('error', 'Tidak valid.');
         }
-        if (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'super_admin']) && $leave->status !== 'menunggu_hr') {
+        if (in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'superadmin']) && $leave->status !== 'menunggu_hr') {
             return back()->with('error', 'Tidak valid.');
         }
 

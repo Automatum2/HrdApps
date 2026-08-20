@@ -78,7 +78,7 @@
                                             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">Setujui</button>
                                         </form>
                                         <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">Tolak</button>
-                                    @elseif(in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'super_admin']) && $leave->status === 'menunggu_hr')
+                                    @elseif(in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'superadmin']) && $leave->status === 'menunggu_hr')
                                         <form action="{{ route('backoffice.leaves.approve', $leave->id) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">Setujui</button>

@@ -324,6 +324,19 @@
                         
                         $attendance = $monthlyAttendances->get($dateString);
                         
+                        $hasTraining = false;
+                        $trainingTitles = [];
+                        if (isset($monthlyTrainings)) {
+                            foreach ($monthlyTrainings as $t) {
+                                $start = \Carbon\Carbon::parse($t->tanggal_mulai)->startOfDay();
+                                $end = \Carbon\Carbon::parse($t->tanggal_selesai)->endOfDay();
+                                if ($currentDate->between($start, $end)) {
+                                    $hasTraining = true;
+                                    $trainingTitles[] = $t->nama_training ?: "Pelatihan " . $t->skill_dipelajari;
+                                }
+                            }
+                        }
+                        
                         $bgColor = $isToday ? 'bg-primary/5 border-2 border-primary' : ($isWeekend ? 'bg-slate-100' : 'bg-white');
                         $textColor = $isToday ? 'text-primary font-bold' : ($isWeekend ? 'text-slate-400' : 'text-slate-500');
                     @endphp
@@ -331,16 +344,22 @@
                     <div class="{{ $bgColor }} aspect-square p-2 group {{ !$isWeekend ? 'hover:bg-slate-50 transition-colors' : '' }} relative">
                         <span class="text-body-sm {{ $textColor }}">{{ $day }}</span>
                         
-                        @if ($attendance)
-                            <div class="absolute bottom-2 right-2 flex gap-1">
-                                @if ($attendance->status_kehadiran == 'hadir')
-                                    <div class="w-2.5 h-2.5 rounded-full bg-tertiary-container" title="Hadir"></div>
-                                @elseif (in_array($attendance->status_kehadiran, ['izin', 'cuti']))
-                                    <div class="w-2.5 h-2.5 rounded-full bg-primary" title="{{ ucfirst($attendance->status_kehadiran) }}"></div>
-                                @elseif ($attendance->status_kehadiran == 'sakit')
-                                    <div class="w-2.5 h-2.5 rounded-full bg-secondary" title="Sakit"></div>
-                                @elseif ($attendance->status_kehadiran == 'alpha')
-                                    <div class="w-2.5 h-2.5 rounded-full bg-error" title="Alpha"></div>
+                        @if ($attendance || $hasTraining)
+                            <div class="absolute bottom-2 right-2 flex gap-1 flex-wrap justify-end">
+                                @if ($attendance)
+                                    @if ($attendance->status_kehadiran == 'hadir')
+                                        <div class="w-2.5 h-2.5 rounded-full bg-tertiary-container" title="Hadir"></div>
+                                    @elseif (in_array($attendance->status_kehadiran, ['izin', 'cuti']))
+                                        <div class="w-2.5 h-2.5 rounded-full bg-primary" title="{{ ucfirst($attendance->status_kehadiran) }}"></div>
+                                    @elseif ($attendance->status_kehadiran == 'sakit')
+                                        <div class="w-2.5 h-2.5 rounded-full bg-secondary" title="Sakit"></div>
+                                    @elseif ($attendance->status_kehadiran == 'alpha')
+                                        <div class="w-2.5 h-2.5 rounded-full bg-error" title="Alpha"></div>
+                                    @endif
+                                @endif
+                                
+                                @if ($hasTraining)
+                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm" title="{{ implode(', ', $trainingTitles) }}"></div>
                                 @endif
                             </div>
                         @endif
@@ -361,6 +380,7 @@
                 <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span><span class="text-outline text-slate-600 font-semibold">Izin/Cuti</span></div>
                 <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span><span class="text-outline text-slate-600 font-semibold">Sakit</span></div>
                 <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-error"></span><span class="text-outline text-slate-600 font-semibold">Alpha</span></div>
+                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="text-outline text-slate-600 font-semibold">Pelatihan/Training</span></div>
             </div>
         </div>
     </div>

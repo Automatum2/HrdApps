@@ -26,6 +26,36 @@ Route::get('/login', function () {
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
+// Rute untuk Karir (Submit CV)
+Route::get('/karir', function () {
+    return view('karir');
+})->name('karir.index');
+
+Route::get('/karir/submit', function () {
+    return redirect()->route('karir.index');
+});
+
+Route::post('/karir/submit', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:employees,email',
+        'cv_text' => 'required|string'
+    ]);
+
+    \App\Models\Employee::create([
+        'nik' => 'APP-' . rand(1000, 9999), // Temporary NIK untuk pelamar
+        'nama_lengkap' => $request->nama,
+        'email' => $request->email,
+        'cv_text' => $request->cv_text,
+        'is_cv_approved' => false,
+        'status_kerja' => null,
+        'status' => 'nonaktif',
+        'gaji_pokok' => 0
+    ]);
+
+    return redirect()->back()->with('success', 'Lamaran Anda berhasil dikirim! Tim HRD kami akan menghubungi Anda melalui email jika Anda lolos ke tahap selanjutnya.');
+})->name('karir.submit');
+
 // Rute untuk Lupa Password
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
@@ -143,14 +173,16 @@ Route::middleware(['auth'])->group(function () {
     // -- DASHBOARD --
     Route::get('/backoffice/dashboard', function (\Illuminate\Http\Request $request) {
         $role = session('user_role');
-        if ($role === 'super_admin') {
-            $total_karyawan = \App\Models\Employee::count();
+        if ($role === 'superadmin') {
+            $total_karyawan = \App\Models\Employee::where('is_cv_approved', true)->count();
             
             // Hitung persentase kenaikan karyawan dari bulan lalu
-            $karyawan_bulan_ini = \App\Models\Employee::whereMonth('created_at', now()->month)
+            $karyawan_bulan_ini = \App\Models\Employee::where('is_cv_approved', true)
+                                                        ->whereMonth('created_at', now()->month)
                                                         ->whereYear('created_at', now()->year)
                                                         ->count();
-            $karyawan_bulan_lalu = \App\Models\Employee::whereMonth('created_at', now()->subMonth()->month)
+            $karyawan_bulan_lalu = \App\Models\Employee::where('is_cv_approved', true)
+                                                        ->whereMonth('created_at', now()->subMonth()->month)
                                                         ->whereYear('created_at', now()->subMonth()->year)
                                                         ->count();
                                                         
@@ -165,7 +197,7 @@ Route::middleware(['auth'])->group(function () {
             $total_departemen = \Illuminate\Support\Facades\DB::table('departments')->count();
 
             return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'kenaikan_karyawan', 'total_manager', 'latest_managers', 'total_departemen'));
-        } elseif ($role === 'employee') {
+        } elseif ($role === 'karyawan') {
             $employeeId = session('employee_id');
             $employee = \App\Models\Employee::where('id', $employeeId)->orWhere('nik', $employeeId)->first();
             
@@ -237,28 +269,85 @@ Route::middleware(['auth'])->group(function () {
             $firstDayOfMonth = $targetDate->dayOfWeekIso; // 1 = Senin, 7 = Minggu
             $daysInMonth = $targetDate->daysInMonth;
             
-            return view('backoffice.dashboard_karyawan', compact('todayAttendance', 'historyAttendances', 'hadirCount', 'izinCount', 'sakitCount', 'alphaCount', 'masaKerja', 'lastPayroll', 'lastMonth', 'sisaCutiTahunan', 'monthlyAttendances', 'currentMonth', 'currentYear', 'daysInMonth', 'firstDayOfMonth'));
+            $monthlyTrainings = collect();
+            if ($employee) {
+                $monthlyTrainings = $employee->trainings()
+                    ->where(function($q) use ($currentYear, $currentMonth) {
+                        $q->whereYear('tanggal_mulai', $currentYear)->whereMonth('tanggal_mulai', $currentMonth)
+                          ->orWhere(function($q2) use ($currentYear, $currentMonth) {
+                              $q2->whereYear('tanggal_selesai', $currentYear)->whereMonth('tanggal_selesai', $currentMonth);
+                          });
+                    })->get();
+            }
+            
+            return view('backoffice.dashboard_karyawan', compact('todayAttendance', 'historyAttendances', 'hadirCount', 'izinCount', 'sakitCount', 'alphaCount', 'masaKerja', 'lastPayroll', 'lastMonth', 'sisaCutiTahunan', 'monthlyAttendances', 'currentMonth', 'currentYear', 'daysInMonth', 'firstDayOfMonth', 'monthlyTrainings'));
         }
         
         // Manager Dashboard (default fallback for 'manager')
         $user = \Illuminate\Support\Facades\Auth::user();
         
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            $department_id = $user->employee->department_id;
+            
+            $total_karyawan_dept = \App\Models\Employee::where('is_cv_approved', true)->where('department_id', $department_id)->count();
+            
+            $hadir_hari_ini_dept = \App\Models\Attendance::where('tanggal', \Carbon\Carbon::today()->toDateString())
+                ->where('status_kehadiran', 'hadir')
+                ->whereHas('employee', function($q) use ($department_id) {
+                    $q->where('department_id', $department_id);
+                })->count();
+                
+            $belum_absen_dept = $total_karyawan_dept > $hadir_hari_ini_dept ? $total_karyawan_dept - $hadir_hari_ini_dept : 0;
+            
+            $total_karyawan_perusahaan = \App\Models\Employee::where('is_cv_approved', true)->count();
+            
+            $latest_employees = \App\Models\Employee::where('is_cv_approved', true)
+                ->where('department_id', $department_id)
+                ->with('department', 'position')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+                
+            $status_tetap = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'tetap')->where('department_id', $department_id)->count();
+            $status_kontrak = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'kontrak')->where('department_id', $department_id)->count();
+            $status_magang = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'magang')->where('department_id', $department_id)->count();
+            
+            $attendance_trend = ['labels' => [], 'data' => []];
+            $currentMonth = \Carbon\Carbon::now()->month;
+            $currentYear = \Carbon\Carbon::now()->year;
+            $weeks = [
+                'Minggu 1' => [1, 7],
+                'Minggu 2' => [8, 14],
+                'Minggu 3' => [15, 21],
+                'Minggu 4' => [22, \Carbon\Carbon::now()->endOfMonth()->day]
+            ];
+            foreach ($weeks as $weekName => $range) {
+                $start = \Carbon\Carbon::create($currentYear, $currentMonth, $range[0])->toDateString();
+                $end = \Carbon\Carbon::create($currentYear, $currentMonth, $range[1])->toDateString();
+                $count = \App\Models\Attendance::whereBetween('tanggal', [$start, $end])
+                    ->where('status_kehadiran', 'hadir')
+                    ->whereHas('employee', function($q) use ($department_id) {
+                        $q->where('department_id', $department_id);
+                    })->count();
+                $attendance_trend['labels'][] = $weekName;
+                $attendance_trend['data'][] = $count;
+            }
+            
+            return view('backoffice.dashboard_manager', compact(
+                'total_karyawan_dept', 'hadir_hari_ini_dept', 'belum_absen_dept', 
+                'total_karyawan_perusahaan', 'latest_employees', 
+                'status_tetap', 'status_kontrak', 'status_magang', 'attendance_trend'
+            ));
+        }
+        
         $employeeQuery = \App\Models\Employee::query();
         $attendanceQuery = \App\Models\Attendance::query();
         
-        if ($role === 'manager_departemen' && $user && $user->employee) {
-            $department_id = $user->employee->department_id;
-            $employeeQuery->where('department_id', $department_id);
-            $attendanceQuery->whereHas('employee', function($q) use ($department_id) {
-                $q->where('department_id', $department_id);
-            });
-        }
+        $total_karyawan = \App\Models\Employee::where('is_cv_approved', true)->count();
+        $hadir_hari_ini = \App\Models\Attendance::where('tanggal', \Carbon\Carbon::today()->toDateString())->where('status_kehadiran', 'hadir')->count();
+        $belum_absen = $total_karyawan > $hadir_hari_ini ? $total_karyawan - $hadir_hari_ini : 0;
         
-        $total_karyawan = $employeeQuery->count();
-        $hadir_hari_ini = $attendanceQuery->where('tanggal', \Carbon\Carbon::today()->toDateString())->where('status_kehadiran', 'hadir')->count();
-        $belum_absen = max(0, $total_karyawan - $hadir_hari_ini);
-        
-        $latestEmployeesQuery = \App\Models\Employee::with('department', 'position')->orderBy('created_at', 'desc')->take(5);
+        $latestEmployeesQuery = \App\Models\Employee::where('is_cv_approved', true)->with('department', 'position')->orderBy('created_at', 'desc')->take(5);
         if ($role === 'manager_departemen' && $user && $user->employee) {
             $latestEmployeesQuery->where('department_id', $user->employee->department_id);
         }
@@ -268,30 +357,20 @@ Route::middleware(['auth'])->group(function () {
         $currentMonth = \Carbon\Carbon::now()->month;
         $currentYear = \Carbon\Carbon::now()->year;
         
-        $employeesQueryWithRel = \App\Models\Employee::with('department', 'position');
+        $employeesQueryWithRel = \App\Models\Employee::where('is_cv_approved', true)->with('department', 'position');
         if ($role === 'manager_departemen' && $user && $user->employee) {
             $employeesQueryWithRel->where('department_id', $user->employee->department_id);
         }
         $employees = $employeesQueryWithRel->get();
         $total_gaji_bulan_ini = 0;
         
-        $status_tetap = 0;
-        $status_kontrak = 0;
-        $status_magang = 0;
+        $status_tetap = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'tetap')->count();
+        $status_kontrak = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'kontrak')->count();
+        $status_magang = \App\Models\Employee::where('is_cv_approved', true)->where('status_kerja', 'magang')->count();
         
         foreach ($employees as $emp) {
             $data = \App\Http\Controllers\PayrollController::calculatePayroll($emp, $currentMonth, $currentYear);
             $total_gaji_bulan_ini += $data['gajiBersih'];
-            
-            $status = strtolower($emp->status_kerja ?? 'tetap');
-            if ($status === 'tetap') $status_kontrak++; // fixed typo from above logic manually
-            // wait, previously it was:
-            // if ($status === 'tetap') $status_tetap++;
-            // elseif ($status === 'kontrak') $status_kontrak++;
-            // else $status_magang++;
-            if ($status === 'tetap') $status_tetap++;
-            elseif ($status === 'kontrak') $status_kontrak++;
-            else $status_magang++;
         }
         
         // Attendance trend logic
@@ -311,7 +390,7 @@ Route::middleware(['auth'])->group(function () {
         }
         
         // For Modal Tambah Karyawan Baru (assign department)
-        $unassigned_employees = \App\Models\Employee::whereNull('department_id')->orWhere('department_id', 0)->get();
+        $unassigned_employees = \App\Models\Employee::where('is_cv_approved', true)->where(function($q) { $q->whereNull('department_id')->orWhere('department_id', 0); })->get();
         
         return view('backoffice.dashboard', compact('total_karyawan', 'hadir_hari_ini', 'belum_absen', 'latest_employees', 'total_gaji_bulan_ini', 'status_tetap', 'status_kontrak', 'status_magang', 'unassigned_employees', 'attendance_trend'));
     })->name('backoffice.dashboard');
@@ -510,30 +589,68 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // -- MANAGER & SUPER ADMIN ROUTES --
-    Route::middleware(['role:manager,super_admin'])->group(function () {
+    Route::middleware(['role:hr_manager,manager_departemen,super_admin'])->group(function () {
         
         // Karyawan
         Route::get("/backoffice/training", [App\Http\Controllers\TrainingController::class, "index"])->name("backoffice.training.index");
+        Route::post("/backoffice/training/store", [App\Http\Controllers\TrainingController::class, "store"])->name("backoffice.training.store");
+        Route::delete("/backoffice/training/{id}", [App\Http\Controllers\TrainingController::class, "destroy"])->name("backoffice.training.destroy");
         Route::get("/backoffice/cv", [App\Http\Controllers\CVController::class, "index"])->name("backoffice.cv.index");
+        Route::post("/backoffice/cv/{id}/approve", [App\Http\Controllers\CVController::class, "approve"])->name("backoffice.cv.approve");
+        Route::post("/backoffice/cv/{id}/reject", [App\Http\Controllers\CVController::class, "reject"])->name("backoffice.cv.reject");
 
         Route::get('/backoffice/karyawan', function () {
-            $employees = \App\Models\Employee::whereNotNull('department_id')
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $dbRole = $user->role;
+            
+            $employeesQuery = \App\Models\Employee::whereNotNull('department_id')
                             ->where('department_id', '>', 0)
-                            ->with(['department', 'position'])
-                            ->orderBy('created_at', 'desc')->get();
+                            ->where('is_cv_approved', true)
+                            ->whereDoesntHave('user', function ($q) {
+                                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                            })
+                            ->with(['department', 'position']);
                             
-            $unassigned_employees = \App\Models\Employee::whereNull('department_id')
-                            ->orWhere('department_id', 0)
-                            ->orderBy('created_at', 'desc')->get();
+            $unassignedQuery = \App\Models\Employee::where(function($q) {
+                                $q->whereNull('department_id')
+                                  ->orWhere('department_id', 0);
+                            })
+                            ->where('is_cv_approved', true)
+                            ->whereDoesntHave('user', function ($q) {
+                                $q->whereIn('role', ['hr_manager', 'superadmin', 'manager_departemen']);
+                            });
+                            
+            if ($dbRole === 'manager_departemen' && $user && $user->employee) {
+                $department_id = $user->employee->department_id;
+                $employeesQuery->where('department_id', $department_id);
+            }
+            
+            $employees = $employeesQuery->orderBy('created_at', 'desc')->get();
+            
+            if ($dbRole === 'manager_departemen') {
+                $unassigned_employees = collect([]);
+            } else {
+                $unassigned_employees = $unassignedQuery->orderBy('created_at', 'desc')->get();
+            }
             
             return view('backoffice.karyawan', compact('employees', 'unassigned_employees'));
         })->name('backoffice.karyawan');
 
         Route::get('/backoffice/karyawan/export', function (\Illuminate\Http\Request $request) {
-            $employees = \App\Models\Employee::whereNotNull('department_id')
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $dbRole = $user->role;
+            
+            $employeesQuery = \App\Models\Employee::whereNotNull('department_id')
                             ->where('department_id', '>', 0)
-                            ->with(['department', 'position'])
-                            ->orderBy('created_at', 'desc')->get();
+                            ->where('is_cv_approved', true)
+                            ->with(['department', 'position']);
+                            
+            if ($dbRole === 'manager_departemen' && $user && $user->employee) {
+                $department_id = $user->employee->department_id;
+                $employeesQuery->where('department_id', $department_id);
+            }
+            
+            $employees = $employeesQuery->orderBy('created_at', 'desc')->get();
                             
             $csvFileName = 'Data_Karyawan_' . date('Y-m-d') . '.csv';
             $headers = [
@@ -569,6 +686,23 @@ Route::middleware(['auth'])->group(function () {
         })->name('backoffice.karyawan.export');
 
         Route::get('/backoffice/karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.karyawan.show');
+
+        Route::post('/backoffice/karyawan/{id}/gaji', function (\Illuminate\Http\Request $request, $id) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            if ($user->role !== 'hr_manager') {
+                return redirect()->back()->with('error', 'Akses ditolak. Hanya HR Manager yang dapat mengubah gaji pokok.');
+            }
+            
+            $request->validate([
+                'gaji_pokok' => 'required|numeric'
+            ]);
+            
+            $employee = \App\Models\Employee::findOrFail($id);
+            $employee->gaji_pokok = $request->gaji_pokok;
+            $employee->save();
+            
+            return redirect()->back()->with('success', 'Gaji pokok berhasil diperbarui.');
+        })->name('backoffice.karyawan.update_gaji');
 
         Route::post('/backoffice/karyawan/lepas', function (\Illuminate\Http\Request $request) {
             $emp = \App\Models\Employee::where('nik', $request->nik)->first();
@@ -608,6 +742,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/backoffice/absensi', function (\Illuminate\Http\Request $request) {
             $query = \App\Models\Attendance::with('employee.department');
             
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $role = session('user_role');
+            
+            if ($role === 'manager_departemen' && $user && $user->employee) {
+                $department_id = $user->employee->department_id;
+                $query->whereHas('employee', function($q) use ($department_id) {
+                    $q->where('department_id', $department_id);
+                });
+            }
+            
             $dari = $request->input('dari_tanggal', \Carbon\Carbon::now()->startOfMonth()->toDateString());
             $sampai = $request->input('sampai_tanggal', \Carbon\Carbon::now()->endOfMonth()->toDateString());
             $query->whereBetween('tanggal', [$dari, $sampai]);
@@ -632,7 +776,11 @@ Route::middleware(['auth'])->group(function () {
                 'cuti' => $attendances->where('status_kehadiran', 'cuti')->count(),
             ];
             
-            $departments = \Illuminate\Support\Facades\DB::table('departments')->get();
+            if (isset($department_id)) {
+                $departments = \Illuminate\Support\Facades\DB::table('departments')->where('id', $department_id)->get();
+            } else {
+                $departments = \Illuminate\Support\Facades\DB::table('departments')->get();
+            }
             
             return view('backoffice.absensi', compact('attendances', 'stats', 'departments', 'dari', 'sampai'));
         })->name('backoffice.absensi');

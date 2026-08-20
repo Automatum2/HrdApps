@@ -22,7 +22,7 @@ class SuperAdminTest extends TestCase
 
     public function test_super_admin_can_access_dashboard()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])->get('/backoffice/dashboard');
+        $response = $this->withSession(['user_role' => 'superadmin'])->get('/backoffice/dashboard');
 
         $response->assertStatus(200);
     }
@@ -38,7 +38,7 @@ class SuperAdminTest extends TestCase
 
     public function test_super_admin_can_create_hr_manager()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->post(route('backoffice.super_admin.kelola_hr.store'), [
                 'nik' => 'HR-1234',
                 'nama' => 'HR Test',
@@ -79,7 +79,7 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->put(route('backoffice.super_admin.kelola_hr.update', $user->id), [
                 'nama' => 'Updated HR',
                 'email' => 'updatedhr@example.com',
@@ -114,7 +114,7 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->delete(route('backoffice.super_admin.kelola_hr.destroy', $user->id));
 
         $response->assertRedirect();
@@ -128,7 +128,7 @@ class SuperAdminTest extends TestCase
 
     public function test_super_admin_can_create_karyawan()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->post(route('backoffice.super_admin.kelola_karyawan.store'), [
                 'nama' => 'Karyawan Baru',
                 'email' => 'karyawanbaru@example.com',
@@ -169,7 +169,7 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->put(route('backoffice.super_admin.kelola_karyawan.update', $employee->id), [
                 'nama' => 'Updated Karyawan',
                 'email' => 'updatedkaryawan@example.com',
@@ -206,7 +206,7 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
+        $response = $this->withSession(['user_role' => 'superadmin'])
             ->delete(route('backoffice.super_admin.kelola_karyawan.destroy', $employee->id));
 
         $response->assertRedirect();

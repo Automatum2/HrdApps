@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola HR Manager - HRDApps')
-@section('page_title', 'Kelola HR Manager')
+@section('title', 'Kelola Manager - HRDApps')
+@section('page_title', 'Kelola Manager')
 
 @section('content')
 
@@ -39,13 +39,13 @@
         <nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm mb-1">
             <a class="hover:text-primary transition-colors" href="{{ route('backoffice.dashboard') }}">Beranda</a>
             <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-            <span class="text-primary font-semibold">Kelola HR Manager</span>
+            <span class="text-primary font-semibold">Kelola Manager</span>
         </nav>
-        <p class="text-on-surface-variant text-sm max-w-2xl">Manajemen akun administrator HRD untuk setiap departemen dan unit operasional.</p>
+        <p class="text-on-surface-variant text-sm max-w-2xl">Manajemen akun administrator HRD dan Manager Departemen.</p>
     </div>
     <button class="bg-[#0066ff] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow active:scale-95 whitespace-nowrap cursor-pointer" id="btn-tambah-hr">
         <span class="material-symbols-outlined text-[18px]">add</span>
-        <span>Tambah HR Manager</span>
+        <span>Tambah Manager</span>
     </button>
 </div>
 
@@ -57,22 +57,23 @@
             <div class="font-bold text-on-surface text-base">Daftar Manager Aktif</div>
             <span class="bg-primary/10 text-primary font-semibold px-3 py-0.5 rounded-full text-xs" id="total-count-badge">{{ $managers->count() }} Total</span>
         </div>
-        <button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-xs font-bold border border-outline-variant px-3 py-2 rounded-lg bg-white cursor-pointer hover:bg-slate-50">
-            <span class="material-symbols-outlined text-[18px]">filter_list</span>
-            <span>Filter</span>
-        </button>
+        <div class="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-lg">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+            <input class="pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-xs outline-none focus:border-primary w-48 sm:w-64 transition-all text-slate-800 placeholder:text-slate-400" placeholder="Cari nama atau email..." type="text" id="search-hr">
+        </div>
     </div>
     <!-- Table -->
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse whitespace-nowrap">
             <thead>
                 <tr class="bg-slate-50 border-b border-outline-variant text-slate-500 uppercase tracking-wider text-xs font-bold">
-                    <th class="py-4 px-6 w-16">NO</th>
-                    <th class="py-4 px-6">NAMA</th>
-                    <th class="py-4 px-6">EMAIL</th>
-                    <th class="py-4 px-6">JABATAN</th>
-                    <th class="py-4 px-6 w-32">STATUS</th>
-                    <th class="py-4 px-6 w-32 text-right">AKSI</th>
+                    <th class="py-4 px-6 w-16">No</th>
+                    <th class="py-4 px-6">Nama</th>
+                    <th class="py-4 px-6">Email</th>
+                    <th class="py-4 px-6">Peran</th>
+                    <th class="py-4 px-6">Departemen</th>
+                    <th class="py-4 px-6 w-32">Status</th>
+                    <th class="py-4 px-6 w-32 text-right">Aksi</th>
                 </tr>
             </thead>
             <tbody class="text-sm font-medium text-slate-700 divide-y divide-slate-100" id="hr-table-body">
@@ -81,7 +82,12 @@
                     <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
                     <td class="py-4 px-6 font-bold {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}</td>
                     <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $manager->email }}</td>
-                    <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $manager->employee && $manager->employee->position ? $manager->employee->position->nama_jabatan : 'HR Manager' }}</td>
+                    <td class="py-4 px-6 font-bold {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">
+                        {{ $manager->role === 'hr_manager' ? 'HR Manager' : 'Manager Departemen' }}
+                    </td>
+                    <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">
+                        {{ $manager->employee && $manager->employee->department ? $manager->employee->department->nama_department : '-' }}
+                    </td>
                     <td class="py-4 px-6" id="status-col-{{ $manager->id }}">
                         @if($manager->employee && $manager->employee->status === 'nonaktif')
                             <span class="status-badge inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] leading-none uppercase tracking-wide">
@@ -97,7 +103,7 @@
                     </td>
                     <td class="py-4 px-6 text-right">
                         <div class="flex items-center justify-end gap-2 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity">
-                            <button class="btn-edit-hr w-8 h-8 rounded border {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed flex items-center justify-center' : 'border-outline-variant flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary transition-colors bg-white cursor-pointer' }}" title="Edit" data-id="{{ $manager->id }}" data-nama="{{ $manager->employee ? $manager->employee->nama_lengkap : '' }}" data-email="{{ $manager->email }}" data-nik="{{ $manager->employee ? $manager->employee->nik : '' }}" {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'disabled' : '' }}>
+                            <button class="btn-edit-hr w-8 h-8 rounded border {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed flex items-center justify-center' : 'border-outline-variant flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary transition-colors bg-white cursor-pointer' }}" title="Edit" data-id="{{ $manager->id }}" data-nama="{{ $manager->employee ? $manager->employee->nama_lengkap : '' }}" data-email="{{ $manager->email }}" data-nik="{{ $manager->employee ? $manager->employee->nik : '' }}" data-role="{{ $manager->role }}" data-dept-id="{{ $manager->employee ? $manager->employee->department_id : '' }}" {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[18px]">edit</span>
                             </button>
                             <button class="btn-delete-hr w-8 h-8 rounded border {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed flex items-center justify-center' : 'border-outline-variant flex items-center justify-center text-slate-500 hover:text-error hover:border-error transition-colors bg-white cursor-pointer' }}" title="Hapus / Nonaktifkan" data-id="{{ $manager->id }}" data-nama="{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}" {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'disabled' : '' }}>
@@ -111,7 +117,7 @@
                     <td colspan="6" class="py-8 text-center text-slate-500">
                         <div class="flex flex-col items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-4xl text-slate-300">group_off</span>
-                            <p>Belum ada data HR Manager.</p>
+                            <p>Belum ada data Manager.</p>
                         </div>
                     </td>
                 </tr>
@@ -184,7 +190,7 @@
                 Batal
             </button>
             <button type="submit" form="form-hr-manager" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
-                Simpan HR Manager
+                Simpan Manager
             </button>
         </div>
     </div>
@@ -205,8 +211,8 @@
         
         // 1. Tampilkan / Tutup Modal
         btnTambahHr.addEventListener('click', () => {
-            document.getElementById('modal-title').innerText = 'Tambah HR Manager';
-            document.getElementById('modal-subtitle').innerText = 'Daftarkan akun administrator HRD yang baru.';
+            document.getElementById('modal-title').innerText = 'Tambah Manager';
+            document.getElementById('modal-subtitle').innerText = 'Daftarkan akun administrator HRD atau Manager Departemen yang baru.';
             formHrManager.action = "{{ route('backoffice.super_admin.kelola_hr.store') }}";
             formHrManager.innerHTML = `
                 @csrf
@@ -223,13 +229,34 @@
                     <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" placeholder="Contoh: rina.w@hrdapps.co.id" type="email" required>
                 </div>
                 <div class="space-y-1">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="role">Peran</label>
+                    <div class="relative">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role" name="role" onchange="document.getElementById('dept-container').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
+                            <option value="hr_manager">HR Manager</option>
+                            <option value="manager_departemen">Manager Departemen</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                    </div>
+                </div>
+                <div class="space-y-1" id="dept-container" style="display: none;">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="department_id">Departemen</label>
+                    <div class="relative">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id" name="department_id">
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                    </div>
+                </div>
+                <div class="space-y-1">
                     <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="jabatan">Jabatan</label>
                     <div class="relative">
                         <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan" name="jabatan">
                             @forelse($positions as $pos)
                                 <option value="{{ $pos->nama_jabatan }}">{{ $pos->nama_jabatan }}</option>
                             @empty
-                                <option value="HR Manager">HR Manager</option>
+                                <option value="Manager">Manager</option>
                             @endforelse
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
@@ -246,7 +273,7 @@
         btnCloseModal.addEventListener('click', tutupModal);
         btnCancelModal.addEventListener('click', tutupModal);
         
-        // 2. Edit HR Manager
+        // 2. Edit Manager
         hrTableBody.addEventListener('click', (e) => {
             const btnEdit = e.target.closest('.btn-edit-hr');
             if (btnEdit && !btnEdit.disabled) {
@@ -254,9 +281,11 @@
                 const nama = btnEdit.getAttribute('data-nama');
                 const email = btnEdit.getAttribute('data-email');
                 const nik = btnEdit.getAttribute('data-nik');
-                
-                document.getElementById('modal-title').innerText = 'Edit HR Manager';
-                document.getElementById('modal-subtitle').innerText = 'Perbarui data administrator HRD.';
+                const role = btnEdit.getAttribute('data-role') || 'hr_manager';
+                const dept_id = btnEdit.getAttribute('data-dept-id') || '';
+
+                document.getElementById('modal-title').innerText = 'Edit Manager';
+                document.getElementById('modal-subtitle').innerText = 'Perbarui data manager.';
                 formHrManager.action = `/backoffice/super-admin/kelola-hr/${id}`;
                 formHrManager.innerHTML = `
                     @csrf
@@ -274,9 +303,34 @@
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
                         <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" value="${email}" type="email" required>
                     </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="role_edit">Peran</label>
+                        <div class="relative">
+                            <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role_edit" name="role" onchange="document.getElementById('dept-container-edit').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
+                                <option value="hr_manager" ${role === 'hr_manager' ? 'selected' : ''}>HR Manager</option>
+                                <option value="manager_departemen" ${role === 'manager_departemen' ? 'selected' : ''}>Manager Departemen</option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1" id="dept-container-edit" style="display: ${role === 'manager_departemen' ? 'block' : 'none'};">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="department_id_edit">Departemen</label>
+                        <div class="relative">
+                            <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id_edit" name="department_id">
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
+                                @endforeach
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        </div>
+                    </div>
                 `;
                 
                 modalTambahHr.style.display = 'flex';
+                
+                if(role === 'manager_departemen') {
+                    document.getElementById('department_id_edit').value = dept_id;
+                }
             }
         });
 
@@ -288,7 +342,7 @@
                 const id = btnDelete.getAttribute('data-id');
                 const nama = btnDelete.getAttribute('data-nama');
                 
-                if (confirm(`Apakah Anda yakin ingin menonaktifkan HR Manager "${nama}"? Akun ini tidak akan dapat login lagi.`)) {
+                if (confirm(`Apakah Anda yakin ingin menonaktifkan Manager "${nama}"? Akun ini tidak akan dapat login lagi.`)) {
                     // Create hidden form to submit DELETE request
                     const deleteForm = document.createElement('form');
                     deleteForm.method = 'POST';
