@@ -162,7 +162,15 @@
                         </div>
                     </td>
                     <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">{{ $emp->nik }}</td>
-                    <td class="px-8 py-4 text-on-surface-variant">{{ $emp->jabatan ?? 'Karyawan' }}</td>
+                    <td class="px-8 py-4 text-on-surface-variant">
+                        @if($emp->position)
+                            {{ $emp->position->nama_jabatan }}
+                        @elseif($emp->user && $emp->user->role !== 'karyawan')
+                            {{ ucwords(str_replace('_', ' ', $emp->user->role)) }}
+                        @else
+                            Karyawan
+                        @endif
+                    </td>
                     <td class="px-8 py-4">
                         <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">{{ $emp->department->nama_department ?? 'Umum' }}</span>
                     </td>
@@ -171,7 +179,7 @@
                     </td>
                     <td class="px-8 py-4 text-right">
                         <div class="flex justify-end gap-2">
-                            <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
+                            <a href="{{ route('backoffice.karyawan.show', $emp->id) }}" class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></a>
                         </div>
                     </td>
                 </tr>

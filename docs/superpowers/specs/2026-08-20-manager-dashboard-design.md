@@ -19,9 +19,10 @@ Data yang akan dikirimkan ke view `dashboard_manager` meliputi:
 1. **Total Karyawan Departemen**: Count `Employee` di departemen terkait.
 2. **Hadir Hari Ini**: Count `Attendance` hari ini untuk karyawan di departemen terkait.
 3. **Belum Absen**: Hasil pengurangan (Total Karyawan Departemen - Hadir Hari Ini).
-4. **Total Gaji Departemen**: Sum dari kalkulasi payroll khusus karyawan departemen.
+4. **Total semua karyawan yang ada di perusahaan**: total karyawan.
 5. **Daftar Karyawan Terbaru**: List 5 karyawan terakhir di departemen.
 6. **Grafik Kehadiran**: Tren mingguan yang disesuaikan hanya untuk departemen.
+7.**absensi manager sendiri** : dashboard ke halaman absensi untuk manager
 
 ## 4. Keamanan
 Semua query yang berjalan pada dashboard manajer akan di-hardcode dengan `.where('department_id', $department_id)` untuk mencegah kebocoran data antar departemen jika terjadi manipulasi parameter atau ketidaksengajaan.

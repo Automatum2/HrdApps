@@ -4,12 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
-use App\Models\User;
 use App\Models\Department;
 use App\Models\Position;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 
 class EmployeeController extends Controller
 {
@@ -30,6 +26,140 @@ class EmployeeController extends Controller
         return view('backoffice.super_admin_kelola_karyawan', compact('employees', 'departments', 'positions'));
     }
 
+    public function manage()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $dbRole = $user->role;
+
+        $employeesQuery = Employee::whereNotNull('department_id')
+                        ->where('department_id', '>', 0)
+                        ->where('is_cv_approved', true)
+                        ->whereDoesntHave('user', function ($q) {
+                            $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
+                        })
+                        ->with(['department', 'position']);
+
+        $unassignedQuery = Employee::where(function($q) {
+                            $q->whereNull('department_id')
+                              ->orWhere('department_id', 0);
+                        })
+                        ->where('is_cv_approved', true)
+                        ->whereDoesntHave('user', function ($q) {
+                            $q->whereIn('role', ['hr_manager', 'super_admin', 'manager_departemen']);
+                        });
+
+        if ($dbRole === 'manager_departemen' && $user && $user->employee) {
+            $department_id = $user->employee->department_id;
+            $employeesQuery->where('department_id', $department_id);
+        }
+
+        $employees = $employeesQuery->orderBy('created_at', 'desc')->get();
+
+        if ($dbRole === 'manager_departemen') {
+            $unassigned_employees = collect([]);
+        } else {
+            $unassigned_employees = $unassignedQuery->orderBy('created_at', 'desc')->get();
+        }
+
+        $departments = Department::orderBy('nama_department', 'asc')->get();
+        $positions = Position::orderBy('nama_jabatan', 'asc')->get();
+
+        return view('backoffice.karyawan', compact('employees', 'unassigned_employees', 'departments', 'positions'));
+    }
+
+    public function export(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $dbRole = $user->role;
+
+        $employeesQuery = Employee::whereNotNull('department_id')
+                        ->where('department_id', '>', 0)
+                        ->where('is_cv_approved', true)
+                        ->with(['department', 'position']);
+
+        if ($dbRole === 'manager_departemen' && $user && $user->employee) {
+            $department_id = $user->employee->department_id;
+            $employeesQuery->where('department_id', $department_id);
+        }
+
+        $employees = $employeesQuery->orderBy('created_at', 'desc')->get();
+
+        $csvFileName = 'Data_Karyawan_' . date('Y-m-d') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = array('NIK', 'Nama Lengkap', 'Email', 'Departemen', 'Jabatan', 'Status', 'Gaji Pokok');
+
+        $callback = function() use($employees, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($employees as $emp) {
+                $row['NIK']  = $emp->nik;
+                $row['Nama Lengkap'] = $emp->nama_lengkap;
+                $row['Email']  = $emp->email;
+                $row['Departemen'] = $emp->department ? $emp->department->nama_department : '-';
+                $row['Jabatan'] = $emp->position ? $emp->position->nama_jabatan : '-';
+                $row['Status'] = ucfirst($emp->status_kerja);
+                $row['Gaji Pokok'] = 'Rp ' . number_format($emp->gaji_pokok, 0, ',', '.');
+                fputcsv($file, array($row['NIK'], $row['Nama Lengkap'], $row['Email'], $row['Departemen'], $row['Jabatan'], $row['Status'], $row['Gaji Pokok']));
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function updateGaji(Request $request, $id)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->role !== 'hr_manager') {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya HR Manager yang dapat mengubah gaji pokok.');
+        }
+
+        $request->validate([
+            'gaji_pokok' => 'required|numeric'
+        ]);
+
+        $employee = Employee::findOrFail($id);
+        $employee->gaji_pokok = $request->gaji_pokok;
+        $employee->save();
+
+        return redirect()->back()->with('success', 'Gaji pokok berhasil diperbarui.');
+    }
+
+    public function lepasDepartemen(Request $request)
+    {
+        $emp = Employee::where('nik', $request->nik)->first();
+        if ($emp) {
+            $emp->department_id = null;
+            $emp->save();
+            return redirect()->back()->with('success', 'Karyawan berhasil dilepas dari departemen.');
+        }
+        return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
+    }
+
+    public function assignDepartemen(Request $request)
+    {
+        $emp = Employee::where('nik', $request->nik)->first();
+        if ($emp) {
+            $dept = \Illuminate\Support\Facades\DB::table('departments')->where('nama_department', $request->departemen)->first();
+            if ($dept) {
+                $emp->department_id = $dept->id;
+            } else {
+                return redirect()->back()->with('error', 'Departemen tidak ditemukan.');
+            }
+            $emp->status_kerja = $request->status;
+            $emp->save();
+            return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan.');
+        }
+        return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
+    }
+
     public function show($id)
     {
         // For now, only Super Admin (and eventually HRD Manager) will access this specific controller method.
@@ -44,46 +174,6 @@ class EmployeeController extends Controller
         $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
 
         return view('backoffice.detail_karyawan', compact('employee', 'back_route'));
-    }
-
-    public function store(Request $request)
-    {
-        if (session('user_role') !== 'super_admin') {
-            return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
-        }
-
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email|unique:employees,email',
-        ]);
-
-        // Create random NIK
-        $nik = 'EMP-' . rand(1000, 9999);
-
-        $employee = Employee::create([
-            'nik' => $nik,
-            'nama_lengkap' => $request->nama,
-            'email' => $request->email,
-            'gaji_pokok' => 0,
-            'status_kerja' => 'magang', // Default based on mockup
-            'status' => 'aktif',
-            'is_cv_approved' => true
-        ]);
-
-        // Create User
-        $user = User::create([
-            'username' => strtolower(str_replace(' ', '', $request->nama)) . rand(10,99),
-            'email' => $request->email,
-            'password' => Hash::make(Str::random(24)), // Random temporary password
-            'role' => 'karyawan',
-            'employee_id' => $employee->id
-        ]);
-
-        // Send activation link
-        $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
-        $user->notify(new \App\Notifications\AccountActivation($token));
-
-        return redirect()->back()->with('success', 'Karyawan ' . $employee->nama_lengkap . ' berhasil ditambahkan dan email aktivasi telah dikirim.');
     }
 
     public function update(Request $request, $id)
@@ -104,7 +194,7 @@ class EmployeeController extends Controller
             'department_id' => 'nullable|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
             'gaji_pokok' => 'nullable|numeric|min:0',
-            'status_kerja' => 'nullable|in:tetap,kontrak,magang,musiman',
+            'status_kerja' => 'nullable|in:tetap,kontrak,magang,musiman,harian,tenaga_lepas',
         ]);
 
         $employee->update([

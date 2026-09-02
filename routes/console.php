@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('training:send-reminders')->dailyAt('08:00');
+Schedule::command('payroll:generate-monthly')->monthlyOn(1, '00:00');

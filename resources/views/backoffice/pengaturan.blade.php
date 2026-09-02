@@ -66,6 +66,15 @@
                 <span class="block text-[10px] text-on-surface-variant font-medium">Akses & Otentikasi</span>
             </div>
         </button>
+
+        <!-- Tab 5: Struktur Organisasi -->
+        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-struktur" onclick="switchTab('struktur')">
+            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">account_tree</span>
+            <div>
+                <span class="block font-bold text-xs text-on-surface">Struktur Organisasi</span>
+                <span class="block text-[10px] text-on-surface-variant font-medium">Hierarki akses</span>
+            </div>
+        </button>
     </div>
 
     <!-- Settings Panels (Right Column) -->
@@ -156,18 +165,28 @@
                         </div>
                         <form action="{{ route('backoffice.pengaturan.bank') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @csrf
+                            @php
+                                $hasBankInfo = !empty($user->employee->nama_bank) || !empty($user->employee->no_rekening);
+                            @endphp
                             <div class="space-y-1.5">
                                 <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Bank</label>
-                                <input name="nama_bank" class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white text-on-surface outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Contoh: BCA / Mandiri" value="{{ $user->employee->nama_bank ?? '' }}" required>
+                                <input name="nama_bank" class="w-full px-4 py-2 rounded-lg border border-outline-variant {{ $hasBankInfo ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white text-on-surface' }} outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Contoh: BCA / Mandiri" value="{{ $user->employee->nama_bank ?? '' }}" required {{ $hasBankInfo ? 'readonly' : '' }}>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nomor Rekening</label>
-                                <input name="no_rekening" class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-white text-on-surface outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Masukkan angka rekening" value="{{ $user->employee->no_rekening ?? '' }}" required>
+                                <input name="no_rekening" class="w-full px-4 py-2 rounded-lg border border-outline-variant {{ $hasBankInfo ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white text-on-surface' }} outline-none focus:ring-2 focus:ring-primary/20 transition-all" type="text" placeholder="Masukkan angka rekening" value="{{ $user->employee->no_rekening ?? '' }}" required {{ $hasBankInfo ? 'readonly' : '' }}>
                             </div>
-                            <div class="md:col-span-2 mt-2 flex justify-end">
-                                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
-                                    Simpan Informasi Bank
-                                </button>
+                            <div class="md:col-span-2 mt-2 flex justify-between items-center">
+                                @if($hasBankInfo)
+                                    <p class="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded border border-amber-200">
+                                        <span class="font-bold">Info:</span> Hubungi HRD jika Anda ingin mengubah informasi perbankan.
+                                    </p>
+                                @else
+                                    <div></div>
+                                    <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                                        Simpan Informasi Bank
+                                    </button>
+                                @endif
                             </div>
                         </form>
                     </div>
@@ -352,18 +371,192 @@
             </div>
         </div>
 
+        <!-- Panel 5: Struktur Organisasi (Hidden by default) -->
+        <div class="settings-panel space-y-6 hidden w-full" id="panel-struktur">
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm w-full">
+                <h3 class="font-bold text-sm text-on-surface mb-2">Struktur Organisasi & Hierarki Hak Akses</h3>
+                <p class="text-xs text-on-surface-variant mb-6">Berikut adalah gambaran visual struktur dan kewenangan di dalam sistem HRD ini.</p>
+                
+                <div class="w-full overflow-x-auto p-4 flex justify-center org-tree-container">
+                    <div class="org-tree">
+                        <ul>
+                            <li>
+                                <div class="org-node superadmin hover:scale-105 transition-transform duration-300">
+                                    <div class="node-icon"><span class="material-symbols-outlined">shield_person</span></div>
+                                    <div class="node-title">Supervisor / Super Admin</div>
+                                    <div class="node-desc">Akses penuh sistem</div>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="org-node hrmanager hover:scale-105 transition-transform duration-300">
+                                            <div class="node-icon"><span class="material-symbols-outlined">manage_accounts</span></div>
+                                            <div class="node-title">HR Manager</div>
+                                            <div class="node-desc">Mengelola seluruh karyawan</div>
+                                        </div>
+                                        <ul>
+                                            <li>
+                                                <div class="org-node manager hover:scale-105 transition-transform duration-300">
+                                                    <div class="node-icon"><span class="material-symbols-outlined">corporate_fare</span></div>
+                                                    <div class="node-title">Manager Departemen</div>
+                                                    <div class="node-desc">Mengelola karyawan departemen</div>
+                                                </div>
+                                                <ul>
+                                                    <li>
+                                                        <div class="org-node karyawan hover:scale-105 transition-transform duration-300">
+                                                            <div class="node-icon"><span class="material-symbols-outlined">badge</span></div>
+                                                            <div class="node-title">Karyawan Departemen</div>
+                                                            <div class="node-desc">Fokus absensi & data diri</div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </div>
 @endsection
 
 @push('scripts')
+
 <!-- Include Quill stylesheet -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <!-- Include the Quill library -->
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 <style>
+    /* Org Tree CSS */
+    .org-tree-container {
+        padding: 1rem 0;
+    }
+    .org-tree * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .org-tree ul {
+        padding-top: 20px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+    .org-tree li {
+        float: left;
+        text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 20px 10px 0 10px;
+    }
+    /* Pseudo-elements for lines */
+    .org-tree li::before, .org-tree li::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 50%;
+        border-top: 2px solid #cbd5e1;
+        width: 50%;
+        height: 20px;
+    }
+    .org-tree li::after {
+        right: auto;
+        left: 50%;
+        border-left: 2px solid #cbd5e1;
+    }
+    /* Remove connectors for only-child */
+    .org-tree li:only-child::after, .org-tree li:only-child::before {
+        display: none;
+    }
+    .org-tree li:only-child {
+        padding-top: 0;
+    }
+    /* Remove left/right connectors for first/last children */
+    .org-tree li:first-child::before, .org-tree li:last-child::after {
+        border: 0 none;
+    }
+    .org-tree li:last-child::before {
+        border-right: 2px solid #cbd5e1;
+        border-radius: 0 5px 0 0;
+    }
+    .org-tree li:first-child::after {
+        border-radius: 5px 0 0 0;
+    }
+    /* Downward connectors from parents */
+    .org-tree ul ul::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        border-left: 2px solid #cbd5e1;
+        width: 0;
+        height: 20px;
+        margin-left: -1px;
+    }
+    /* Styling Nodes */
+    .org-node {
+        display: inline-block;
+        padding: 16px 20px;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        min-width: 200px;
+        text-align: center;
+        position: relative;
+        cursor: default;
+    }
+    .node-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px auto;
+        background: #f8fafc;
+        color: #64748b;
+    }
+    .node-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 4px;
+        font-family: 'Inter', sans-serif;
+    }
+    .node-desc {
+        font-size: 10px;
+        color: #64748b;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+    }
+    /* Theming for different roles */
+    .org-node.superadmin {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+    .org-node.superadmin .node-icon { background: #fef3c7; color: #d97706; }
+    .org-node.hrmanager {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+    .org-node.hrmanager .node-icon { background: #dbeafe; color: #2563eb; }
+    .org-node.manager {
+        border-color: #10b981;
+        background: #ecfdf5;
+    }
+    .org-node.manager .node-icon { background: #d1fae5; color: #059669; }
+    .org-node.karyawan {
+        border-color: #94a3b8;
+        background: #f8fafc;
+    }
+    .org-node.karyawan .node-icon { background: #f1f5f9; color: #475569; }
     /* 
      * PERBAIKAN BUG QUILL.JS vs TAILWIND CSS
      * Tailwind Preflight kadang membuat kursor/caret menghilang di dalam span contenteditable.

@@ -38,11 +38,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('manageTraining', function (User $user) {
-            return in_array($user->role, ['super_admin', 'hr_training_manager', 'manager_departemen']);
+            return in_array($user->role, ['super_admin', 'hr_manager', 'manager_departemen']);
         });
 
         Gate::define('approveCV', function (User $user) {
-            return in_array($user->role, ['super_admin', 'hr_admin_manager']);
+            return in_array($user->role, ['hr_manager', 'manager_departemen']);
         });
 
         ResetPassword::toMailUsing(function ($notifiable, $token) {

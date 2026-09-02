@@ -12,13 +12,15 @@ class AccountActivation extends Notification
     use Queueable;
 
     public $token;
+    public $otp;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($token)
+    public function __construct($token, $otp = null)
     {
         $this->token = $token;
+        $this->otp = $otp;
     }
 
     /**
@@ -42,12 +44,19 @@ class AccountActivation extends Notification
             'type'  => 'activation', // Parameter to differentiate from normal reset
         ], false));
 
-        return (new MailMessage)
-            ->subject('Selamat Datang di HRDApps!')
-            ->greeting('Halo!')
-            ->line('Akun Anda telah berhasil didaftarkan di sistem HRDApps oleh administrator.')
-            ->line('Silakan klik tombol di bawah ini untuk mengaktifkan akun Anda sekaligus membuat kata sandi pertama Anda.')
-            ->action('Aktivasi Akun', $url)
+        $mail = (new MailMessage)
+            ->subject('Selamat Datang di HRDApps - Aktivasi Akun Anda')
+            ->greeting('Halo, ' . ($notifiable->employee ? $notifiable->employee->nama_lengkap : 'Kandidat') . '!')
+            ->line('Selamat! Lamaran Anda telah disetujui dan akun Anda telah didaftarkan di sistem HRDApps.')
+            ->line('Untuk mengaktifkan akun dan membuat kata sandi Anda, silakan gunakan tautan dan kode OTP di bawah ini:');
+
+        if ($this->otp) {
+            $mail->line('Kode OTP Aktivasi Anda: ' . $this->otp);
+            $mail->line('(Gunakan kode OTP ini saat melakukan aktivasi akun)');
+        }
+
+        return $mail
+            ->action('Aktivasi Akun & Buat Password', $url)
             ->line('Tautan aktivasi ini akan kedaluwarsa dalam ' . config('auth.passwords.'.config('auth.defaults.passwords').'.expire') . ' menit.')
             ->salutation('Salam hangat, Tim HRDApps');
     }

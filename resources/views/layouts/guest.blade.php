@@ -25,7 +25,8 @@
             background-size: 400% 400%;
             animation: bgGradientShift 12s ease infinite;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         @keyframes bgGradientShift {
             0% { background-position: 0% 50%; }
@@ -103,8 +104,10 @@
             animation: logoShine 3s ease-in-out infinite;
         }
     </style>
+    @stack('styles')
 </head>
 <body class="flex flex-col items-center justify-center p-md font-body-md text-on-surface">
     @yield('content')
+    @stack('scripts')
 </body>
 </html>

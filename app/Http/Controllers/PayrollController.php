@@ -94,7 +94,22 @@ class PayrollController extends Controller
         $totalGajiBersih = $payrolls->sum('gaji_bersih');
         $monthName = $period->nama_periode;
         
-        return view('backoffice.penggajian', compact('period', 'payrolls', 'totalGajiBersih', 'monthName'));
+        // Menghitung tahapan (currentStep) secara dinamis
+        $currentStep = 1; // Default: Tarik Data (belum ada data penggajian)
+        
+        if ($payrolls->isNotEmpty()) {
+            $allApproved = $payrolls->every(function ($payroll) {
+                return $payroll->status === 'approved';
+            });
+            
+            if ($allApproved) {
+                $currentStep = 4; // Semua approved -> Distribusi
+            } else {
+                $currentStep = 3; // Ada data tapi belum semua approved -> Review & Approve
+            }
+        }
+        
+        return view('backoffice.penggajian', compact('period', 'payrolls', 'totalGajiBersih', 'monthName', 'currentStep'));
     }
 
     public function generate(Request $request, $id)

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Employee;
+use App\Models\Department;
 
 class SuperAdminTest extends TestCase
 {
@@ -15,36 +16,53 @@ class SuperAdminTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Disable Exception Handling to see exact errors
-        // $this->withoutExceptionHandling();
+    }
+
+    protected function loginAs(string $role = 'super_admin', ?Employee $employee = null): User
+    {
+        $user = User::create([
+            'username' => $role . 'test',
+            'email' => $role . '@example.com',
+            'password' => bcrypt('password'),
+            'role' => $role,
+            'employee_id' => $employee ? $employee->id : null,
+        ]);
+
+        $this->actingAs($user)->withSession(['user_role' => $role]);
+
+        return $user;
     }
 
     public function test_super_admin_can_access_dashboard()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])->get('/backoffice/dashboard');
+        $this->loginAs();
+
+        $response = $this->get('/backoffice/dashboard');
 
         $response->assertStatus(200);
     }
 
     public function test_non_super_admin_redirected_from_super_admin_routes()
     {
-        $response = $this->withSession(['user_role' => 'karyawan'])->get(route('backoffice.super_admin.kelola_hr'));
+        $this->loginAs('karyawan');
+
+        $response = $this->get(route('backoffice.super_admin.kelola_hr'));
         $response->assertRedirect(route('backoffice.dashboard'));
 
-        $response = $this->withSession(['user_role' => 'karyawan'])->get(route('backoffice.super_admin.kelola_karyawan'));
+        $response = $this->get(route('backoffice.super_admin.kelola_karyawan'));
         $response->assertRedirect(route('backoffice.dashboard'));
     }
 
     public function test_super_admin_can_create_hr_manager()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->post(route('backoffice.super_admin.kelola_hr.store'), [
-                'nik' => 'HR-1234',
-                'nama' => 'HR Test',
-                'email' => 'hrtest@example.com',
-                'jabatan' => 'HR Manager',
-            ]);
+        $this->loginAs();
+
+        $response = $this->post(route('backoffice.super_admin.kelola_hr.store'), [
+            'nik' => 'HR-1234',
+            'nama' => 'HR Test',
+            'email' => 'hrtest@example.com',
+            'jabatan' => 'HR Manager',
+        ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -79,11 +97,12 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->put(route('backoffice.super_admin.kelola_hr.update', $user->id), [
-                'nama' => 'Updated HR',
-                'email' => 'updatedhr@example.com',
-            ]);
+        $this->loginAs();
+
+        $response = $this->put(route('backoffice.super_admin.kelola_hr.update', $user->id), [
+            'nama' => 'Updated HR',
+            'email' => 'updatedhr@example.com',
+        ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -114,8 +133,9 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->delete(route('backoffice.super_admin.kelola_hr.destroy', $user->id));
+        $this->loginAs();
+
+        $response = $this->delete(route('backoffice.super_admin.kelola_hr.destroy', $user->id));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -126,27 +146,75 @@ class SuperAdminTest extends TestCase
         ]);
     }
 
-    public function test_super_admin_can_create_karyawan()
+    public function test_super_admin_cannot_add_karyawan_directly()
     {
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->post(route('backoffice.super_admin.kelola_karyawan.store'), [
-                'nama' => 'Karyawan Baru',
-                'email' => 'karyawanbaru@example.com',
-                'gaji' => 5000000,
-            ]);
+        $this->loginAs();
+
+        $response = $this->post('/backoffice/super-admin/kelola-karyawan', [
+            'nama' => 'Karyawan Baru',
+            'email' => 'karyawanbaru@example.com',
+        ]);
+
+        $response->assertMethodNotAllowed();
+    }
+
+    public function test_super_admin_cannot_access_cv_review()
+    {
+        $this->loginAs();
+
+        $response = $this->get(route('backoffice.cv.index'));
+
+        $response->assertRedirect(route('backoffice.dashboard'));
+    }
+
+    public function test_super_admin_can_promote_employee_to_manager()
+    {
+        $this->loginAs();
+
+        $employee = Employee::create([
+            'nik' => 'EMP-5555',
+            'nama_lengkap' => 'Jaya Karyawan',
+            'email' => 'jaya@email.com',
+            'status_kerja' => 'tetap',
+            'status' => 'aktif',
+            'gaji_pokok' => 4000000,
+            'is_cv_approved' => true
+        ]);
+
+        $user = User::create([
+            'username' => 'jayakaryawan',
+            'email' => 'jaya@email.com',
+            'password' => bcrypt('password'),
+            'role' => 'karyawan',
+            'employee_id' => $employee->id
+        ]);
+
+        $department = Department::create([
+            'nama_department' => 'IT',
+            'kode_department' => 'IT',
+        ]);
+
+        $response = $this->post(route('backoffice.super_admin.kelola_hr.store'), [
+            'type' => 'promosi',
+            'employee_id' => $employee->id,
+            'role' => 'manager_departemen',
+            'jabatan' => 'Manager IT',
+            'department_id' => $department->id,
+        ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
+        // Tidak ada record ganda di employees
+        $this->assertDatabaseCount('employees', 1);
         $this->assertDatabaseHas('employees', [
-            'nama_lengkap' => 'Karyawan Baru',
-            'email' => 'karyawanbaru@example.com',
-            'gaji_pokok' => 5000000,
+            'id' => $employee->id,
+            'nik' => 'EMP-5555',
+            'department_id' => $department->id,
         ]);
-
         $this->assertDatabaseHas('users', [
-            'email' => 'karyawanbaru@example.com',
-            'role' => 'karyawan',
+            'id' => $user->id,
+            'role' => 'manager_departemen',
         ]);
     }
 
@@ -161,7 +229,7 @@ class SuperAdminTest extends TestCase
             'gaji_pokok' => 4000000
         ]);
 
-        $user = User::create([
+        User::create([
             'username' => 'oldkaryawan77',
             'email' => 'oldkaryawan@example.com',
             'password' => bcrypt('password'),
@@ -169,12 +237,13 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->put(route('backoffice.super_admin.kelola_karyawan.update', $employee->id), [
-                'nama' => 'Updated Karyawan',
-                'email' => 'updatedkaryawan@example.com',
-                'gaji' => 6000000,
-            ]);
+        $this->loginAs();
+
+        $response = $this->put(route('backoffice.super_admin.kelola_karyawan.update', $employee->id), [
+            'nama' => 'Updated Karyawan',
+            'email' => 'updatedkaryawan@example.com',
+            'gaji_pokok' => 6000000,
+        ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -198,7 +267,7 @@ class SuperAdminTest extends TestCase
             'gaji_pokok' => 4000000
         ]);
 
-        $user = User::create([
+        User::create([
             'username' => 'deletekaryawan66',
             'email' => 'deletekaryawan@example.com',
             'password' => bcrypt('password'),
@@ -206,8 +275,9 @@ class SuperAdminTest extends TestCase
             'employee_id' => $employee->id
         ]);
 
-        $response = $this->withSession(['user_role' => 'super_admin'])
-            ->delete(route('backoffice.super_admin.kelola_karyawan.destroy', $employee->id));
+        $this->loginAs();
+
+        $response = $this->delete(route('backoffice.super_admin.kelola_karyawan.destroy', $employee->id));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');

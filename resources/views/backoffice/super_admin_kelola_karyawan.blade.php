@@ -28,10 +28,6 @@
         </nav>
         <p class="text-on-surface-variant text-sm">Supervisori seluruh data karyawan, riwayat jabatan, departemen, dan gaji pokok.</p>
     </div>
-    <button class="bg-[#0066ff] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow active:scale-95 whitespace-nowrap cursor-pointer" id="btn-tambah-karyawan">
-        <span class="material-symbols-outlined text-[18px]">add</span>
-        <span>Tambah Karyawan</span>
-    </button>
 </div>
 
 <!-- Data Table Card -->
@@ -136,22 +132,9 @@
             </button>
         </div>
         
-        <!-- Form Content -->
-        <form id="form-karyawan" class="p-6 space-y-4 overflow-y-auto" method="POST" action="{{ route('backoffice.super_admin.kelola_karyawan.store') }}">
+        <!-- Form Content (diisi via JS pada mode Edit) -->
+        <form id="form-karyawan" class="p-6 space-y-4 overflow-y-auto" method="POST">
             @csrf
-            <!-- Nama Field -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
-                <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" placeholder="Contoh: Adi Saputra" type="text" required>
-            </div>
-            
-            <!-- Email Field -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
-                <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" placeholder="Contoh: adi.s@email.com" type="email" required>
-            </div>
-
-
         </form>
         
         <!-- Modal Footer -->
@@ -199,7 +182,6 @@
     window.departments = @json($departments);
     window.positions = @json($positions);
     document.addEventListener('DOMContentLoaded', () => {
-        const btnTambahKaryawan = document.getElementById('btn-tambah-karyawan');
         const modalTambahKaryawan = document.getElementById('modal-tambah-karyawan');
         const btnCloseModal = document.getElementById('btn-close-modal');
         const btnCancelModal = document.getElementById('btn-cancel-modal');
@@ -216,25 +198,6 @@
         const deleteKaryawanNama = document.getElementById('delete-karyawan-nama');
         
         let activeDeleteId = null;
-        
-        // 1. Tampilkan / Tutup Modal
-        btnTambahKaryawan.addEventListener('click', () => {
-            document.getElementById('modal-tambah-karyawan').querySelector('h3').innerText = 'Tambah Karyawan';
-            formKaryawan.action = "{{ route('backoffice.super_admin.kelola_karyawan.store') }}";
-            formKaryawan.innerHTML = `
-                @csrf
-                <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" type="text" required>
-                </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" type="email" required>
-                </div>
-
-            `;
-            modalTambahKaryawan.style.display = 'flex';
-        });
         
         const tutupModal = () => {
             modalTambahKaryawan.style.display = 'none';
@@ -295,8 +258,8 @@
                         <select class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="status_kerja" name="status_kerja">
                             <option value="tetap" ${statusKerja == 'tetap' ? 'selected' : ''}>Karyawan Tetap</option>
                             <option value="kontrak" ${statusKerja == 'kontrak' ? 'selected' : ''}>Karyawan Kontrak</option>
-                            <option value="magang" ${statusKerja == 'magang' ? 'selected' : ''}>Karyawan Magang</option>
-                            <option value="musiman" ${statusKerja == 'musiman' ? 'selected' : ''}>Karyawan Musiman</option>
+                            <option value="harian" ${statusKerja == 'harian' ? 'selected' : ''}>Karyawan Harian</option>
+                            <option value="tenaga_lepas" ${statusKerja == 'tenaga_lepas' ? 'selected' : ''}>Tenaga Lepas</option>
                         </select>
                     </div>
                     <div class="space-y-1">

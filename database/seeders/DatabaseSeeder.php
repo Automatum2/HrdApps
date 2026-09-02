@@ -15,11 +15,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create a department
+        $deptId = \Illuminate\Support\Facades\DB::table('departments')->insertGetId([
+            'kode_department' => 'IT',
+            'nama_department' => 'IT Department',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create a position
+        $posId = \Illuminate\Support\Facades\DB::table('positions')->insertGetId([
+            'nama_jabatan' => 'Staff',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create Super Admin
+        \App\Models\User::create([
+            'username' => 'superadmin',
+            'email' => 'superadmin@example.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('123456'),
+            'role' => 'super_admin'
         ]);
     }
 }

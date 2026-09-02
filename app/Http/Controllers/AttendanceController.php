@@ -23,7 +23,7 @@ class AttendanceController extends Controller
     public function clockIn(Request $request)
     {
         $request->validate([
-            'status_kerja' => 'required|in:WFO,WFH,WFF,WOD,WEH',
+            'status_kerja' => 'required|in:WFO,WFD,WFH,WFF,WOD,WEH',
             'foto' => 'required|string',
             'lokasi' => 'required|string',
             'keterangan' => 'nullable|string'
@@ -38,6 +38,39 @@ class AttendanceController extends Controller
 
         if ($attendance && $attendance->jam_masuk) {
             return back()->with('error', 'Anda sudah melakukan absensi masuk hari ini.');
+        }
+
+        // Haversine Radius Validation for WFO / WFD
+        if (in_array($request->status_kerja, ['WFO', 'WFD'])) {
+            // Extrak lat dan lon dari request->lokasi (format awal adalah: "lat,lon | alamat...")
+            $lokasiParts = explode('|', $request->lokasi);
+            $coords = explode(',', trim($lokasiParts[0]));
+            
+            if (count($coords) >= 2) {
+                $userLat = (float) trim($coords[0]);
+                $userLon = (float) trim($coords[1]);
+
+                // Koordinat Kantor Dummy (Monas)
+                $officeLat = -6.1753924;
+                $officeLon = 106.8271528;
+
+                // Haversine formula
+                $earthRadius = 6371000; // in meters
+                $dLat = deg2rad($userLat - $officeLat);
+                $dLon = deg2rad($userLon - $officeLon);
+                
+                $a = sin($dLat/2) * sin($dLat/2) +
+                     cos(deg2rad($officeLat)) * cos(deg2rad($userLat)) *
+                     sin($dLon/2) * sin($dLon/2);
+                $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+                $distance = $earthRadius * $c;
+
+                if ($distance > 100) {
+                    return back()->with('error', 'Jarak Anda (' . round($distance) . ' meter) melebihi batas maksimal 100 meter dari area kantor.');
+                }
+            } else {
+                return back()->with('error', 'Gagal memverifikasi koordinat lokasi Anda.');
+            }
         }
 
         $image_parts = explode(";base64,", $request->foto);

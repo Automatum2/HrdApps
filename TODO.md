@@ -88,3 +88,12 @@ Berikut adalah rekap fitur berdasarkan `konsep-dasar.md` beserta status pengerja
 - [x] Dashboard Karyawan (Status, Clock In/Out dengan GPS & Selfie, Laporan Harian dgn RTE)
 - [x] Masa Kerja (Tenure) & Profil CV (Upload Dokumen)
 - [x] Lihat & Download Slip Gaji Sendiri
+
+testing revisi :
+1. hierarki manager [x]
+2. hak akses pembuatan slip gaji oleh hrdmanager kepada karyawan serta manager departemen []
+3. sidebar training dan kelola cv [x]
+4. pengiriman cv berbentuk form [] kurang link resmi saja []
+5. pengajuan cuti melalui manager departement - hr manager []
+6. bank no antar karyawan bisa diinput (sekali)[x]
+7. 

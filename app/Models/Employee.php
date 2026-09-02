@@ -27,7 +27,13 @@ class Employee extends Model
         'tanggal_masuk',
         'tanggal_kontrak_berakhir',
         'status',
-        'foto'
+        'foto',
+        'cv_text',
+        'cv_file',
+        'cv_url',
+        'activation_otp',
+        'activation_otp_expires_at',
+        'is_cv_approved'
     ];
 
     public function user()
@@ -58,5 +64,10 @@ class Employee extends Model
     public function deductions()
     {
         return $this->hasMany(Deduction::class);
+    }
+
+    public function trainings()
+    {
+        return $this->belongsToMany(Training::class, 'employee_training')->withPivot('status')->withTimestamps();
     }
 }

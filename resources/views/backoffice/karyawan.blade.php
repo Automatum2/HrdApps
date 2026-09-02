@@ -40,6 +40,9 @@
                     <option value="Tetap">Karyawan Tetap</option>
                     <option value="Kontrak">Karyawan Kontrak</option>
                     <option value="Magang">Magang (Intern)</option>
+                    <option value="Musiman">Musiman</option>
+                    <option value="Harian (DW)">Harian (DW)</option>
+                    <option value="Tidak Tetap">Tidak Tetap</option>
                 </select>
             </div>
         </div>
@@ -306,12 +309,10 @@
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-departemen">Departemen</label>
                 <div class="relative">
                     <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="assign-departemen" name="assign-departemen" required>
-                        <option value="HRD">HRD</option>
-                        <option value="IT">IT</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Operasional">Operasional</option>
-                        <option value="Legal">Legal</option>
+                        <option value="">Pilih Departemen</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
+                        @endforeach
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                 </div>
@@ -325,6 +326,9 @@
                         <option value="Tetap">Karyawan Tetap</option>
                         <option value="Kontrak">Karyawan Kontrak</option>
                         <option value="Magang">Magang (Internship)</option>
+                        <option value="Musiman">Musiman</option>
+                        <option value="Harian (DW)">Harian (DW)</option>
+                        <option value="Tidak Tetap">Tidak Tetap</option>
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                 </div>

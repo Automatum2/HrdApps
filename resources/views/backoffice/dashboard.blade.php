@@ -166,7 +166,15 @@
                         </div>
                     </td>
                     <td class="px-8 py-4 text-on-surface-variant font-mono text-sm">{{ $emp->nik }}</td>
-                    <td class="px-8 py-4 text-on-surface-variant">{{ $emp->jabatan ?? 'Karyawan' }}</td>
+                    <td class="px-8 py-4 text-on-surface-variant">
+                        @if($emp->position)
+                            {{ $emp->position->nama_jabatan }}
+                        @elseif($emp->user && $emp->user->role !== 'karyawan')
+                            {{ ucwords(str_replace('_', ' ', $emp->user->role)) }}
+                        @else
+                            Karyawan
+                        @endif
+                    </td>
                     <td class="px-8 py-4">
                         <span class="px-2 py-1 rounded bg-secondary-container/30 text-secondary text-xs font-semibold uppercase">{{ $emp->department->nama_department ?? 'Umum' }}</span>
                     </td>
@@ -175,7 +183,7 @@
                     </td>
                     <td class="px-8 py-4 text-right">
                         <div class="flex justify-end gap-2">
-                            <button class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></button>
+                            <a href="{{ route('backoffice.karyawan.show', $emp->id) }}" class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer" title="Detail"><span class="material-symbols-outlined text-lg">search</span></a>
                         </div>
                     </td>
                 </tr>
@@ -317,12 +325,10 @@
                 <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="assign-departemen">Departemen</label>
                 <div class="relative">
                     <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="assign-departemen" name="assign-departemen" required>
-                        <option value="HRD">HRD</option>
-                        <option value="IT">IT</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Operasional">Operasional</option>
-                        <option value="Legal">Legal</option>
+                        <option value="">Pilih Departemen</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
+                        @endforeach
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                 </div>

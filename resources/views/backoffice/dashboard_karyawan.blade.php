@@ -113,10 +113,10 @@
             <span class="uppercase">Status Hari Ini: {{ $todayAttendance->status_kehadiran }}</span>
         </div>
     @elseif(!$todayAttendance || !$todayAttendance->jam_masuk)
-        <!-- Belum Clock In -> Tampilkan Clock In -->
+        <!-- Belum Clock In -> Tampilkan Update Perencanaan Harian -->
         <a href="{{ route('attendance.index') }}" class="hover-card-float bg-primary shadow-primary/20 hover:bg-primary/90 cursor-pointer group flex items-center justify-center gap-4 py-6 text-white rounded-xl font-bold text-lg shadow-lg transition-all active:scale-[0.98]" id="btn-clock-in">
             <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">schedule</span>
-            <span>Clock In Sekarang</span>
+            <span>Update Perencanaan Harian</span>
         </a>
     @elseif($todayAttendance && $todayAttendance->jam_masuk && !$todayAttendance->jam_keluar)
         <!-- Sudah Clock In, Belum Clock Out -> Tampilkan Clock Out -->

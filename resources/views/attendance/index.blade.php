@@ -50,7 +50,8 @@
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-on-surface-variant mb-1">Status Kerja</label>
                         <select name="status_kerja" class="w-full p-2 border border-outline-variant rounded-lg bg-surface text-on-surface">
-                            <option value="WFO">WFO - Work From Office</option>
+                            <option value="WFO">WFO - Work From Office (Kantor Pusat)</option>
+                            <option value="WFD">WFD - Work From Desk (Radius 100m)</option>
                             <option value="WFH">WFH - Work From Home</option>
                             <option value="WFF">WFF - Work From Field</option>
                             <option value="WOD">WOD - Work On Duty</option>

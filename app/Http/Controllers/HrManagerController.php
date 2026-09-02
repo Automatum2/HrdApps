@@ -13,23 +13,45 @@ class HrManagerController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'super_admin') {
+        if (!in_array(session('user_role'), ['super_admin', 'hr_manager'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         // Ambil User dengan role hr_manager atau manager_departemen beserta data employee-nya
-        $managers = User::whereIn('role', ['hr_manager', 'manager_departemen'])->with('employee')->orderBy('id', 'desc')->paginate(10);
+        if (session('user_role') === 'hr_manager') {
+            $managers = User::where('role', 'manager_departemen')->with('employee')->orderBy('id', 'desc')->paginate(10);
+        } else {
+            $managers = User::whereIn('role', ['hr_manager', 'manager_departemen'])->with('employee')->orderBy('id', 'desc')->paginate(10);
+        }
         $positions = \App\Models\Position::where('level', 'manager')->get();
         $departments = \App\Models\Department::all();
-        return view('backoffice.super_admin_kelola_hr', compact('managers', 'positions', 'departments'));
+        $employees = Employee::where('is_cv_approved', true)
+            ->where('status', 'aktif')
+            ->whereHas('user', function ($q) {
+                $q->where('role', 'karyawan');
+            })
+            ->with('department', 'position')
+            ->orderBy('nama_lengkap', 'asc')
+            ->get();
+        return view('backoffice.super_admin_kelola_hr', compact('managers', 'positions', 'departments', 'employees'));
     }
 
     public function store(Request $request)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (!in_array(session('user_role'), ['super_admin', 'hr_manager'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
+        
+        if (session('user_role') === 'hr_manager' && $request->role !== 'manager_departemen') {
+            return redirect()->back()->with('error', 'Akses ditolak. HR Manager hanya dapat menambah Manager Departemen.');
+        }
 
+        // Opsi 1: Promosi Karyawan Internal (tidak membuat record baru)
+        if ($request->type === 'promosi') {
+            return $this->storePromotion($request);
+        }
+
+        // Opsi 2: Manager Eksternal (record baru)
         $request->validate([
             'nik' => 'required|string|max:255|unique:employees,nik',
             'nama' => 'required|string|max:255',
@@ -72,6 +94,11 @@ class HrManagerController extends Controller
             'employee_id' => $employee->id
         ]);
 
+        // Otomatis set departemen manager_id jika role manager_departemen
+        if ($request->role === 'manager_departemen' && $request->filled('department_id')) {
+            \App\Models\Department::where('id', $request->department_id)->update(['manager_id' => $employee->id]);
+        }
+
         // Kirim link aktivasi
         $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
         $user->notify(new \App\Notifications\AccountActivation($token));
@@ -79,13 +106,80 @@ class HrManagerController extends Controller
         return redirect()->back()->with('success', 'HR Manager ' . $employee->nama_lengkap . ' berhasil ditambahkan dan email aktivasi telah dikirim.');
     }
 
+    protected function storePromotion(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'role' => 'required|in:hr_manager,manager_departemen',
+            'jabatan' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
+        ]);
+
+        if ($request->role === 'hr_manager') {
+            $existingHR = User::where('role', 'hr_manager')->count();
+            if ($existingHR >= 1) {
+                return redirect()->back()->with('error', 'Hanya boleh ada 1 HR Manager di dalam sistem.');
+            }
+        }
+
+        if ($request->role === 'manager_departemen' && blank($request->department_id)) {
+            return redirect()->back()->with('error', 'Departemen wajib dipilih untuk Manager Departemen.');
+        }
+
+        $employee = Employee::with('user')->findOrFail($request->employee_id);
+
+        if (!$employee->user) {
+            return redirect()->back()->with('error', 'Karyawan ini belum memiliki akun login, gunakan opsi Manager Eksternal.');
+        }
+
+        if ($employee->user->role !== 'karyawan') {
+            return redirect()->back()->with('error', 'Karyawan ini sudah memiliki role ' . $employee->user->role . ' dan tidak dapat dipromosikan lagi.');
+        }
+
+        // Jabatan Manager (tunjangan_jabatan otomatis merujuk pada data positions)
+        $position = \App\Models\Position::firstOrCreate(
+            ['nama_jabatan' => $request->jabatan],
+            ['level' => 'manager', 'tunjangan_jabatan' => 0]
+        );
+
+        $employee->update([
+            'position_id' => $position->id,
+            'department_id' => $request->role === 'manager_departemen' ? $request->department_id : null,
+            'status_kerja' => 'tetap',
+            'status' => 'aktif',
+        ]);
+
+        $employee->user->update([
+            'role' => $request->role === 'manager_departemen' ? 'manager_departemen' : 'hr_manager',
+        ]);
+
+        // Otomatis sinkronkan ID karyawan menjadi manager_id di departemen terkait
+        if ($request->role === 'manager_departemen' && $request->filled('department_id')) {
+            \App\Models\Department::where('id', $request->department_id)->update([
+                'manager_id' => $employee->id
+            ]);
+        }
+
+        $namaRole = $request->role === 'manager_departemen' ? 'Manager Departemen' : 'HR Manager';
+
+        return redirect()->back()->with('success', 'Karyawan ' . $employee->nama_lengkap . ' berhasil dipromosikan menjadi ' . $namaRole . '. NIK tetap sama dan tidak ada record duplikat.');
+    }
+
     public function update(Request $request, $id)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (!in_array(session('user_role'), ['super_admin', 'hr_manager'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         $user = User::whereIn('role', ['hr_manager', 'manager_departemen'])->findOrFail($id);
+        
+        if (session('user_role') === 'hr_manager' && $user->role !== 'manager_departemen') {
+            return redirect()->back()->with('error', 'Akses ditolak. HR Manager hanya dapat mengubah data Manager Departemen.');
+        }
+        if (session('user_role') === 'hr_manager' && $request->role !== 'manager_departemen') {
+            return redirect()->back()->with('error', 'Akses ditolak. HR Manager tidak dapat mengubah role menjadi HR Manager.');
+        }
+
         $employee = $user->employee;
 
         $request->validate([
@@ -123,12 +217,16 @@ class HrManagerController extends Controller
 
     public function destroy($id)
     {
-        if (session('user_role') !== 'super_admin') {
+        if (!in_array(session('user_role'), ['super_admin', 'hr_manager'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         $user = User::whereIn('role', ['hr_manager', 'manager_departemen'])->findOrFail($id);
-        
+
+        if (session('user_role') === 'hr_manager' && $user->role !== 'manager_departemen') {
+            return redirect()->back()->with('error', 'Akses ditolak. HR Manager hanya dapat menonaktifkan Manager Departemen.');
+        }
+
         if ($user->employee) {
             $user->employee->update(['status' => 'nonaktif']);
         }

@@ -29,12 +29,21 @@ class CVController extends Controller
         // Generate NIK random
         $nik = 'EMP-' . rand(1000, 9999);
 
-        // Update employee
+        // Generate 6-digit OTP aktivasi akun
+        $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Update employee (pertahankan status_kerja dari form lamaran jika ada, default 'tetap')
+        $statusKerja = in_array($employee->status_kerja, ['tetap', 'kontrak', 'harian', 'tenaga_lepas'])
+            ? $employee->status_kerja
+            : 'tetap';
+
         $employee->update([
             'nik' => $nik,
             'is_cv_approved' => true,
-            'status_kerja' => 'magang', // masuk masa magang
-            'status' => 'aktif'
+            'status_kerja' => $statusKerja,
+            'status' => 'aktif',
+            'activation_otp' => Hash::make($otp),
+            'activation_otp_expires_at' => now()->addHours(24),
         ]);
 
         // Create User account
@@ -46,11 +55,18 @@ class CVController extends Controller
             'employee_id' => $employee->id
         ]);
 
-        // Send activation link
+        // Send activation link with OTP
         $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
-        $user->notify(new \App\Notifications\AccountActivation($token));
+        $user->notify(new \App\Notifications\AccountActivation($token, $otp));
 
-        return redirect()->back()->with('success', 'Pelamar berhasil diterima. Karyawan baru telah didaftarkan dengan status Magang dan email aktivasi telah dikirim.');
+        $statusLabel = [
+            'tetap' => 'Tetap',
+            'kontrak' => 'Kontrak',
+            'harian' => 'Harian',
+            'tenaga_lepas' => 'Tenaga Lepas',
+        ][$statusKerja] ?? ucfirst($statusKerja);
+
+        return redirect()->back()->with('success', 'Pelamar ' . $employee->nama_lengkap . ' berhasil disetujui (Status: ' . $statusLabel . '). Email aktivasi beserta Kode OTP telah dikirim ke ' . $employee->email . '.');
     }
     
     public function reject(Request $request, $id)
