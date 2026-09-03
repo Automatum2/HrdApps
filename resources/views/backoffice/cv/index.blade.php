@@ -9,7 +9,6 @@
         <nav class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm mb-1">
             <a class="hover:text-primary transition-colors" href="{{ route('backoffice.dashboard') }}">Beranda</a>
             <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-         
             <span class="text-primary font-semibold">Kelola Lamaran (CV)</span>
         </nav>
         <p class="text-body-sm text-on-surface-variant">Review dan terima kandidat yang mengirimkan CV melalui portal karir.</p>
@@ -55,28 +54,35 @@
                     <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <button type="button" 
-                                class="btn-lihat-cv text-xs bg-primary/10 text-primary px-3 py-1.5 rounded font-semibold hover:bg-primary/20 transition-colors cursor-pointer inline-flex items-center gap-1"
+                                class="btn-lihat-cv text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-lg font-semibold hover:bg-primary/20 transition-colors cursor-pointer inline-flex items-center gap-1"
+                                data-id="{{ $applicant->id }}"
                                 data-nama="{{ $applicant->nama_lengkap }}"
                                 data-email="{{ $applicant->email }}"
                                 data-status="{{ $applicant->status_kerja }}"
                                 data-url="{{ $applicant->cv_url }}"
-                                data-file="{{ $applicant->cv_file }}">
+                                data-file="{{ $applicant->cv_file }}"
+                                data-approve-url="{{ route('backoffice.cv.approve', $applicant->id) }}"
+                                data-reject-url="{{ route('backoffice.cv.reject', $applicant->id) }}">
                                 <div class="hidden cv-text-data">{!! $applicant->cv_text !!}</div>
                                 <span class="material-symbols-outlined text-sm">visibility</span>
                                 <span>Lihat CV</span>
                             </button>
-                            <form action="{{ route('backoffice.cv.approve', $applicant->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin Menerima {{ $applicant->nama_lengkap }} sebagai Karyawan Magang?');">
-                                @csrf
-                                <button type="submit" class="text-xs bg-green-600 text-white px-3 py-1.5 rounded font-semibold hover:bg-green-700 transition-colors cursor-pointer">
-                                    Terima
-                                </button>
-                            </form>
-                            <form action="{{ route('backoffice.cv.reject', $applicant->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin Menolak pelamar {{ $applicant->nama_lengkap }}? Pelamar akan dihapus dan email penolakan akan dikirim.');">
-                                @csrf
-                                <button type="submit" class="text-xs bg-red-600 text-white px-3 py-1.5 rounded font-semibold hover:bg-red-700 transition-colors cursor-pointer">
-                                    Tolak
-                                </button>
-                            </form>
+
+                            <button type="button" 
+                                class="btn-confirm-approve text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
+                                data-nama="{{ $applicant->nama_lengkap }}"
+                                data-action="{{ route('backoffice.cv.approve', $applicant->id) }}">
+                                <span class="material-symbols-outlined text-sm">check_circle</span>
+                                <span>Terima</span>
+                            </button>
+
+                            <button type="button" 
+                                class="btn-confirm-reject text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-rose-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
+                                data-nama="{{ $applicant->nama_lengkap }}"
+                                data-action="{{ route('backoffice.cv.reject', $applicant->id) }}">
+                                <span class="material-symbols-outlined text-sm">cancel</span>
+                                <span>Tolak</span>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -132,12 +138,74 @@
             </div>
         </div>
 
-        <!-- Footer Modal -->
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
-            <button type="button" onclick="document.getElementById('modal-cv').classList.add('hidden')" class="border border-slate-300 hover:bg-slate-200 text-slate-700 px-5 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
+        <!-- Footer Modal dengan Aksi Langsung -->
+        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onclick="document.getElementById('modal-cv').classList.add('hidden')" class="border border-slate-300 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
                 Tutup
             </button>
+            <div class="flex items-center gap-2">
+                <button type="button" id="cv-modal-reject-btn" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-base">cancel</span>
+                    <span>Tolak Pelamar</span>
+                </button>
+                <button type="button" id="cv-modal-approve-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-base">check_circle</span>
+                    <span>Terima Pelamar</span>
+                </button>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Terima (Approve) -->
+<div id="modal-confirm-approve" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-md w-full text-center space-y-4 animate-modal-pop">
+        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <span class="material-symbols-outlined text-3xl">check_circle</span>
+        </div>
+        <div>
+            <h3 class="text-lg font-bold text-slate-800">Terima Pelamar?</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Apakah Anda yakin ingin menerima <strong id="approve-applicant-name" class="text-slate-800"></strong> sebagai Karyawan Magang? Notifikasi penerimaan akan dikirimkan.
+            </p>
+        </div>
+        <form id="form-confirm-approve" method="POST" action="">
+            @csrf
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('modal-confirm-approve').classList.add('hidden')" class="w-1/2 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                    Ya, Terima
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Tolak (Reject) -->
+<div id="modal-confirm-reject" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-md w-full text-center space-y-4 animate-modal-pop">
+        <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <span class="material-symbols-outlined text-3xl">warning</span>
+        </div>
+        <div>
+            <h3 class="text-lg font-bold text-slate-800">Tolak Lamaran?</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Apakah Anda yakin ingin menolak pelamar <strong id="reject-applicant-name" class="text-slate-800"></strong>? Data pelamar akan dihapus dan email penolakan akan dikirim.
+            </p>
+        </div>
+        <form id="form-confirm-reject" method="POST" action="">
+            @csrf
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('modal-confirm-reject').classList.add('hidden')" class="w-1/2 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                    Ya, Tolak
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -145,74 +213,122 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        let activeApplicantName = '';
+        let activeApproveUrl = '';
+        let activeRejectUrl = '';
+
+        // Helper untuk membuka modal konfirmasi Terima
+        window.showApproveModal = (nama, actionUrl) => {
+            document.getElementById('approve-applicant-name').innerText = nama;
+            document.getElementById('form-confirm-approve').action = actionUrl;
+            document.getElementById('modal-confirm-approve').classList.remove('hidden');
+        };
+
+        // Helper untuk membuka modal konfirmasi Tolak
+        window.showRejectModal = (nama, actionUrl) => {
+            document.getElementById('reject-applicant-name').innerText = nama;
+            document.getElementById('form-confirm-reject').action = actionUrl;
+            document.getElementById('modal-confirm-reject').classList.remove('hidden');
+        };
+
+        // Event listener klik untuk tombol Lihat CV, Terima, dan Tolak
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-lihat-cv');
-            if (!btn) return;
+            // 1. Tombol Lihat CV
+            const btnCv = e.target.closest('.btn-lihat-cv');
+            if (btnCv) {
+                activeApplicantName = btnCv.dataset.nama || 'Pelamar';
+                const email = btnCv.dataset.email || '-';
+                const statusKerja = btnCv.dataset.status || 'tetap';
+                const cvUrl = btnCv.dataset.url;
+                const cvFile = btnCv.dataset.file;
+                activeApproveUrl = btnCv.dataset.approveUrl;
+                activeRejectUrl = btnCv.dataset.rejectUrl;
+                
+                const cvTextHolder = btnCv.querySelector('.cv-text-data');
+                const cvHtml = cvTextHolder ? cvTextHolder.innerHTML.trim() : '';
 
-            const nama = btn.dataset.nama || 'Pelamar';
-            const email = btn.dataset.email || '-';
-            const statusKerja = btn.dataset.status || 'tetap';
-            const cvUrl = btn.dataset.url;
-            const cvFile = btn.dataset.file;
-            
-            const cvTextHolder = btn.querySelector('.cv-text-data');
-            const cvHtml = cvTextHolder ? cvTextHolder.innerHTML.trim() : '';
+                document.getElementById('cv-nama').innerText = activeApplicantName;
+                document.getElementById('cv-email').innerText = email;
 
-            document.getElementById('cv-nama').innerText = nama;
-            document.getElementById('cv-email').innerText = email;
+                const statusLabelMap = {
+                    'tetap': 'Karyawan Tetap',
+                    'kontrak': 'Karyawan Kontrak',
+                    'harian': 'Karyawan Harian',
+                    'tenaga_lepas': 'Tenaga Lepas'
+                };
+                document.getElementById('cv-status-kerja').innerText = statusLabelMap[statusKerja] || statusKerja;
 
-            const statusLabelMap = {
-                'tetap': 'Karyawan Tetap',
-                'kontrak': 'Karyawan Kontrak',
-                'harian': 'Karyawan Harian',
-                'tenaga_lepas': 'Tenaga Lepas'
-            };
-            document.getElementById('cv-status-kerja').innerText = statusLabelMap[statusKerja] || statusKerja;
+                // Handling Tautan URL & Dokumen File
+                const attachmentsContainer = document.getElementById('cv-attachments');
+                const urlBtn = document.getElementById('cv-url-btn');
+                const fileBtn = document.getElementById('cv-file-btn');
+                
+                let hasAttachments = false;
 
-            // Handling Tautan URL & Dokumen File
-            const attachmentsContainer = document.getElementById('cv-attachments');
-            const urlBtn = document.getElementById('cv-url-btn');
-            const fileBtn = document.getElementById('cv-file-btn');
-            
-            let hasAttachments = false;
+                if (cvUrl && cvUrl.trim() !== '') {
+                    urlBtn.href = cvUrl;
+                    urlBtn.classList.remove('hidden');
+                    urlBtn.classList.add('inline-flex');
+                    hasAttachments = true;
+                } else {
+                    urlBtn.classList.add('hidden');
+                    urlBtn.classList.remove('inline-flex');
+                }
 
-            if (cvUrl && cvUrl.trim() !== '') {
-                urlBtn.href = cvUrl;
-                urlBtn.classList.remove('hidden');
-                urlBtn.classList.add('inline-flex');
-                hasAttachments = true;
-            } else {
-                urlBtn.classList.add('hidden');
-                urlBtn.classList.remove('inline-flex');
+                if (cvFile && cvFile.trim() !== '') {
+                    fileBtn.href = '/storage/' + cvFile;
+                    fileBtn.classList.remove('hidden');
+                    fileBtn.classList.add('inline-flex');
+                    hasAttachments = true;
+                } else {
+                    fileBtn.classList.add('hidden');
+                    fileBtn.classList.remove('inline-flex');
+                }
+
+                if (hasAttachments) {
+                    attachmentsContainer.classList.remove('hidden');
+                    attachmentsContainer.classList.add('flex');
+                } else {
+                    attachmentsContainer.classList.add('hidden');
+                    attachmentsContainer.classList.remove('flex');
+                }
+
+                // Render HTML Profil secara bersih
+                const cvContentEl = document.getElementById('cv-content');
+                if (cvHtml && cvHtml !== '') {
+                    cvContentEl.innerHTML = cvHtml;
+                } else {
+                    cvContentEl.innerHTML = '<span class="text-slate-400 italic">Tidak ada ringkasan teks profil yang dituliskan pelamar.</span>';
+                }
+
+                document.getElementById('modal-cv').classList.remove('hidden');
+                return;
             }
 
-            if (cvFile && cvFile.trim() !== '') {
-                fileBtn.href = '/storage/' + cvFile;
-                fileBtn.classList.remove('hidden');
-                fileBtn.classList.add('inline-flex');
-                hasAttachments = true;
-            } else {
-                fileBtn.classList.add('hidden');
-                fileBtn.classList.remove('inline-flex');
+            // 2. Tombol Terima di Tabel
+            const btnApprove = e.target.closest('.btn-confirm-approve');
+            if (btnApprove) {
+                showApproveModal(btnApprove.dataset.nama, btnApprove.dataset.action);
+                return;
             }
 
-            if (hasAttachments) {
-                attachmentsContainer.classList.remove('hidden');
-                attachmentsContainer.classList.add('flex');
-            } else {
-                attachmentsContainer.classList.add('hidden');
-                attachmentsContainer.classList.remove('flex');
+            // 3. Tombol Tolak di Tabel
+            const btnReject = e.target.closest('.btn-confirm-reject');
+            if (btnReject) {
+                showRejectModal(btnReject.dataset.nama, btnReject.dataset.action);
+                return;
             }
+        });
 
-            // Render HTML Profil secara bersih
-            const cvContentEl = document.getElementById('cv-content');
-            if (cvHtml && cvHtml !== '') {
-                cvContentEl.innerHTML = cvHtml;
-            } else {
-                cvContentEl.innerHTML = '<span class="text-slate-400 italic">Tidak ada ringkasan teks profil yang dituliskan pelamar.</span>';
-            }
+        // Event Listener tombol Terima / Tolak dari dalam Modal CV
+        document.getElementById('cv-modal-approve-btn').addEventListener('click', () => {
+            document.getElementById('modal-cv').classList.add('hidden');
+            showApproveModal(activeApplicantName, activeApproveUrl);
+        });
 
-            document.getElementById('modal-cv').classList.remove('hidden');
+        document.getElementById('cv-modal-reject-btn').addEventListener('click', () => {
+            document.getElementById('modal-cv').classList.add('hidden');
+            showRejectModal(activeApplicantName, activeRejectUrl);
         });
     });
 </script>
