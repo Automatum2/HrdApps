@@ -54,8 +54,16 @@
                     <td class="px-6 py-4 text-on-surface-variant">{{ $applicant->created_at->format('d M Y, H:i') }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
-                            <button type="button" onclick="bukaModalCV('{{ e($applicant->nama_lengkap) }}', '{{ e($applicant->email) }}', '{{ e($applicant->status_kerja) }}', '{{ e($applicant->cv_url) }}', '{{ e($applicant->cv_file) }}', `{{ e($applicant->cv_text) }}`)" class="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded font-semibold hover:bg-primary/20 transition-colors cursor-pointer">
-                                Lihat CV
+                            <button type="button" 
+                                class="btn-lihat-cv text-xs bg-primary/10 text-primary px-3 py-1.5 rounded font-semibold hover:bg-primary/20 transition-colors cursor-pointer inline-flex items-center gap-1"
+                                data-nama="{{ $applicant->nama_lengkap }}"
+                                data-email="{{ $applicant->email }}"
+                                data-status="{{ $applicant->status_kerja }}"
+                                data-url="{{ $applicant->cv_url }}"
+                                data-file="{{ $applicant->cv_file }}">
+                                <div class="hidden cv-text-data">{!! $applicant->cv_text !!}</div>
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                <span>Lihat CV</span>
                             </button>
                             <form action="{{ route('backoffice.cv.approve', $applicant->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin Menerima {{ $applicant->nama_lengkap }} sebagai Karyawan Magang?');">
                                 @csrf
@@ -102,14 +110,14 @@
             <!-- Lampiran File & Tautan URL -->
             <div id="cv-attachments" class="hidden flex-wrap gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                 <!-- Tautan Portofolio / Medsos -->
-                <a id="cv-url-btn" href="#" target="_blank" class="hidden items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm">
+                <a id="cv-url-btn" href="#" target="_blank" class="hidden items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm">
                     <span class="material-symbols-outlined text-base">link</span>
                     <span>Buka LinkedIn / Portofolio</span>
                     <span class="material-symbols-outlined text-xs">open_in_new</span>
                 </a>
 
                 <!-- Download File CV -->
-                <a id="cv-file-btn" href="#" target="_blank" class="hidden items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm">
+                <a id="cv-file-btn" href="#" target="_blank" class="hidden items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm">
                     <span class="material-symbols-outlined text-base">download</span>
                     <span>Unduh Dokumen File CV</span>
                 </a>
@@ -136,70 +144,76 @@
 
 @push('scripts')
 <script>
-    function decodeHtml(html) {
-        var txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return txt.value;
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-lihat-cv');
+            if (!btn) return;
 
-    function bukaModalCV(nama, email, statusKerja, cvUrl, cvFile, cvText) {
-        document.getElementById('cv-nama').innerText = nama;
-        document.getElementById('cv-email').innerText = email;
-        
-        const statusLabelMap = {
-            'tetap': 'Karyawan Tetap',
-            'kontrak': 'Karyawan Kontrak',
-            'harian': 'Karyawan Harian',
-            'tenaga_lepas': 'Tenaga Lepas'
-        };
-        document.getElementById('cv-status-kerja').innerText = statusLabelMap[statusKerja] || statusKerja;
+            const nama = btn.dataset.nama || 'Pelamar';
+            const email = btn.dataset.email || '-';
+            const statusKerja = btn.dataset.status || 'tetap';
+            const cvUrl = btn.dataset.url;
+            const cvFile = btn.dataset.file;
+            
+            const cvTextHolder = btn.querySelector('.cv-text-data');
+            const cvHtml = cvTextHolder ? cvTextHolder.innerHTML.trim() : '';
 
-        // Handling Tautan URL & Dokumen File
-        const attachmentsContainer = document.getElementById('cv-attachments');
-        const urlBtn = document.getElementById('cv-url-btn');
-        const fileBtn = document.getElementById('cv-file-btn');
-        
-        let hasAttachments = false;
+            document.getElementById('cv-nama').innerText = nama;
+            document.getElementById('cv-email').innerText = email;
 
-        if (cvUrl && cvUrl.trim() !== '') {
-            urlBtn.href = cvUrl;
-            urlBtn.classList.remove('hidden');
-            urlBtn.classList.add('inline-flex');
-            hasAttachments = true;
-        } else {
-            urlBtn.classList.add('hidden');
-            urlBtn.classList.remove('inline-flex');
-        }
+            const statusLabelMap = {
+                'tetap': 'Karyawan Tetap',
+                'kontrak': 'Karyawan Kontrak',
+                'harian': 'Karyawan Harian',
+                'tenaga_lepas': 'Tenaga Lepas'
+            };
+            document.getElementById('cv-status-kerja').innerText = statusLabelMap[statusKerja] || statusKerja;
 
-        if (cvFile && cvFile.trim() !== '') {
-            fileBtn.href = '/storage/' + cvFile;
-            fileBtn.classList.remove('hidden');
-            fileBtn.classList.add('inline-flex');
-            hasAttachments = true;
-        } else {
-            fileBtn.classList.add('hidden');
-            fileBtn.classList.remove('inline-flex');
-        }
+            // Handling Tautan URL & Dokumen File
+            const attachmentsContainer = document.getElementById('cv-attachments');
+            const urlBtn = document.getElementById('cv-url-btn');
+            const fileBtn = document.getElementById('cv-file-btn');
+            
+            let hasAttachments = false;
 
-        if (hasAttachments) {
-            attachmentsContainer.classList.remove('hidden');
-            attachmentsContainer.classList.add('flex');
-        } else {
-            attachmentsContainer.classList.add('hidden');
-            attachmentsContainer.classList.remove('flex');
-        }
+            if (cvUrl && cvUrl.trim() !== '') {
+                urlBtn.href = cvUrl;
+                urlBtn.classList.remove('hidden');
+                urlBtn.classList.add('inline-flex');
+                hasAttachments = true;
+            } else {
+                urlBtn.classList.add('hidden');
+                urlBtn.classList.remove('inline-flex');
+            }
 
-        // Render HTML Profil
-        const decodedHtml = decodeHtml(cvText);
-        const cvContentEl = document.getElementById('cv-content');
-        
-        if (decodedHtml && decodedHtml.trim() !== '') {
-            cvContentEl.innerHTML = decodedHtml;
-        } else {
-            cvContentEl.innerHTML = '<span class="text-slate-400 italic">Tidak ada ringkasan teks profil yang dituliskan pelamar.</span>';
-        }
+            if (cvFile && cvFile.trim() !== '') {
+                fileBtn.href = '/storage/' + cvFile;
+                fileBtn.classList.remove('hidden');
+                fileBtn.classList.add('inline-flex');
+                hasAttachments = true;
+            } else {
+                fileBtn.classList.add('hidden');
+                fileBtn.classList.remove('inline-flex');
+            }
 
-        document.getElementById('modal-cv').classList.remove('hidden');
-    }
+            if (hasAttachments) {
+                attachmentsContainer.classList.remove('hidden');
+                attachmentsContainer.classList.add('flex');
+            } else {
+                attachmentsContainer.classList.add('hidden');
+                attachmentsContainer.classList.remove('flex');
+            }
+
+            // Render HTML Profil secara bersih
+            const cvContentEl = document.getElementById('cv-content');
+            if (cvHtml && cvHtml !== '') {
+                cvContentEl.innerHTML = cvHtml;
+            } else {
+                cvContentEl.innerHTML = '<span class="text-slate-400 italic">Tidak ada ringkasan teks profil yang dituliskan pelamar.</span>';
+            }
+
+            document.getElementById('modal-cv').classList.remove('hidden');
+        });
+    });
 </script>
 @endpush
