@@ -430,6 +430,9 @@ Route::middleware(['auth'])->group(function () {
 
     // 7. SUPER ADMIN ONLY ROUTES
     Route::middleware(['role:super_admin'])->group(function () {
+        // Monitoring Absensi Global
+        Route::get('/backoffice/super-admin/absensi', [\App\Http\Controllers\SuperAdminAttendanceController::class, 'index'])->name('backoffice.super_admin.absensi');
+
         // Jabatan (Positions)
         Route::get('/backoffice/posisi', [PositionController::class, 'index'])->name('backoffice.posisi.index');
         Route::post('/backoffice/posisi', [PositionController::class, 'store'])->name('backoffice.posisi.store');
