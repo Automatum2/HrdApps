@@ -15,6 +15,7 @@ class CVRejectedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $name;
+    public $applicantName;
 
     /**
      * Create a new message instance.
@@ -22,6 +23,7 @@ class CVRejectedMail extends Mailable
     public function __construct($name)
     {
         $this->name = $name;
+        $this->applicantName = $name;
     }
 
     /**
