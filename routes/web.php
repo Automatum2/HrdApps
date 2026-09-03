@@ -140,14 +140,16 @@ Route::post('/verify-otp', function (\Illuminate\Http\Request $request) {
 // Rute untuk aktivasi / reset password dari link email
 Route::get('/reset-password/{token}', function (string $token) {
     $email = request()->query('email');
-    $type = request()->query('type', 'reset'); // Ambil parameter type, default: reset
+    $type = request()->query('type', 'reset');
     $user = \App\Models\User::where('email', $email)->first();
     $username = $user ? $user->username : 'Tidak ditemukan';
+    $namaLengkap = $user && $user->employee ? $user->employee->nama_lengkap : request()->query('name', '');
     
     return view('auth.reset-password', [
         'token' => $token, 
         'email' => $email,
         'username' => $username,
+        'namaLengkap' => $namaLengkap,
         'type' => $type
     ]);
 })->name('password.reset');
