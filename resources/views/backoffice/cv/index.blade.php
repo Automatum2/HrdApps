@@ -69,7 +69,7 @@
                             </button>
 
                             <button type="button" 
-                                class="btn-confirm-approve text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
+                                class="btn-confirm-approve text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-green-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
                                 data-nama="{{ $applicant->nama_lengkap }}"
                                 data-action="{{ route('backoffice.cv.approve', $applicant->id) }}">
                                 <span class="material-symbols-outlined text-sm">check_circle</span>
@@ -77,7 +77,7 @@
                             </button>
 
                             <button type="button" 
-                                class="btn-confirm-reject text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-rose-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
+                                class="btn-confirm-reject text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-red-700 transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm active:scale-95"
                                 data-nama="{{ $applicant->nama_lengkap }}"
                                 data-action="{{ route('backoffice.cv.reject', $applicant->id) }}">
                                 <span class="material-symbols-outlined text-sm">cancel</span>
@@ -95,20 +95,22 @@
         </table>
     </div>
 </div>
+@endsection
 
+@push('modals')
 <!-- Modal Lihat CV -->
-<div id="modal-cv" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-xl shadow-2xl border border-slate-200 flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 650px; min-width: 280px;">
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-cv" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 650px; min-width: 280px; display: flex; flex-direction: column;">
         <!-- Header Modal -->
-        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
             <div>
-                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                <h3 class="font-title-sm text-title-sm text-on-surface font-bold flex items-center gap-2">
                     <span id="cv-nama">Nama Pelamar</span>
                     <span id="cv-status-kerja" class="text-[11px] font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700">Tetap</span>
                 </h3>
                 <p id="cv-email" class="text-xs text-slate-500 font-mono mt-0.5">email@example.com</p>
             </div>
-            <button type="button" onclick="document.getElementById('modal-cv').classList.add('hidden')" class="p-1.5 hover:bg-slate-200 rounded-full text-slate-500 cursor-pointer material-symbols-outlined transition-colors">close</button>
+            <button type="button" onclick="closeModal('modal-cv')" class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer material-symbols-outlined">close</button>
         </div>
 
         <!-- Body Content -->
@@ -139,16 +141,16 @@
         </div>
 
         <!-- Footer Modal dengan Aksi Langsung -->
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onclick="document.getElementById('modal-cv').classList.add('hidden')" class="border border-slate-300 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
+        <div class="px-6 py-4 border-t border-outline-variant bg-surface flex justify-between items-center">
+            <button type="button" onclick="closeModal('modal-cv')" class="border border-slate-300 hover:bg-slate-50 text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all">
                 Tutup
             </button>
             <div class="flex items-center gap-2">
-                <button type="button" id="cv-modal-reject-btn" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
+                <button type="button" id="cv-modal-reject-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
                     <span class="material-symbols-outlined text-base">cancel</span>
                     <span>Tolak Pelamar</span>
                 </button>
-                <button type="button" id="cv-modal-approve-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
+                <button type="button" id="cv-modal-approve-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer active:scale-95 transition-all inline-flex items-center gap-1.5 shadow-sm">
                     <span class="material-symbols-outlined text-base">check_circle</span>
                     <span>Terima Pelamar</span>
                 </button>
@@ -157,25 +159,23 @@
     </div>
 </div>
 
-<!-- Modal Konfirmasi Terima (Approve) -->
-<div id="modal-confirm-approve" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-md w-full text-center space-y-4 animate-modal-pop">
-        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+<!-- MODAL: Dialog Konfirmasi Terima (Approve) -->
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-confirm-approve" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 420px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
+        <div class="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-3xl">check_circle</span>
         </div>
-        <div>
-            <h3 class="text-lg font-bold text-slate-800">Terima Pelamar?</h3>
-            <p class="text-sm text-slate-600 mt-1">
-                Apakah Anda yakin ingin menerima <strong id="approve-applicant-name" class="text-slate-800"></strong> sebagai Karyawan Magang? Notifikasi penerimaan akan dikirimkan.
-            </p>
-        </div>
-        <form id="form-confirm-approve" method="POST" action="">
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Terima Pelamar?</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+            Apakah Anda yakin ingin menerima <span class="font-bold text-slate-800" id="approve-applicant-name">Nama</span> sebagai Karyawan Magang? Notifikasi penerimaan akan dikirimkan.
+        </p>
+        <form id="form-confirm-approve" method="POST" action="" class="w-full">
             @csrf
-            <div class="flex items-center justify-center gap-3 pt-2">
-                <button type="button" onclick="document.getElementById('modal-confirm-approve').classList.add('hidden')" class="w-1/2 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors cursor-pointer">
+            <div class="flex gap-3 justify-center w-full">
+                <button type="button" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" onclick="closeModal('modal-confirm-approve')">
                     Batal
                 </button>
-                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all">
                     Ya, Terima
                 </button>
             </div>
@@ -183,57 +183,61 @@
     </div>
 </div>
 
-<!-- Modal Konfirmasi Tolak (Reject) -->
-<div id="modal-confirm-reject" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-[#0b1c30]/60 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-md w-full text-center space-y-4 animate-modal-pop">
-        <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+<!-- MODAL: Dialog Konfirmasi Tolak (Reject) -->
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-confirm-reject" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 420px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
+        <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-3xl">warning</span>
         </div>
-        <div>
-            <h3 class="text-lg font-bold text-slate-800">Tolak Lamaran?</h3>
-            <p class="text-sm text-slate-600 mt-1">
-                Apakah Anda yakin ingin menolak pelamar <strong id="reject-applicant-name" class="text-slate-800"></strong>? Data pelamar akan dihapus dan email penolakan akan dikirim.
-            </p>
-        </div>
-        <form id="form-confirm-reject" method="POST" action="">
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Tolak Lamaran?</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+            Apakah Anda yakin ingin menolak pelamar <span class="font-bold text-slate-800" id="reject-applicant-name">Nama</span>? Data pelamar akan dihapus dan email penolakan akan dikirim.
+        </p>
+        <form id="form-confirm-reject" method="POST" action="" class="w-full">
             @csrf
-            <div class="flex items-center justify-center gap-3 pt-2">
-                <button type="button" onclick="document.getElementById('modal-confirm-reject').classList.add('hidden')" class="w-1/2 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors cursor-pointer">
+            <div class="flex gap-3 justify-center w-full">
+                <button type="button" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" onclick="closeModal('modal-confirm-reject')">
                     Batal
                 </button>
-                <button type="submit" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all">
                     Ya, Tolak
                 </button>
             </div>
         </form>
     </div>
 </div>
-@endsection
+@endpush
 
 @push('scripts')
 <script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         let activeApplicantName = '';
         let activeApproveUrl = '';
         let activeRejectUrl = '';
 
-        // Helper untuk membuka modal konfirmasi Terima
         window.showApproveModal = (nama, actionUrl) => {
             document.getElementById('approve-applicant-name').innerText = nama;
             document.getElementById('form-confirm-approve').action = actionUrl;
-            document.getElementById('modal-confirm-approve').classList.remove('hidden');
+            openModal('modal-confirm-approve');
         };
 
-        // Helper untuk membuka modal konfirmasi Tolak
         window.showRejectModal = (nama, actionUrl) => {
             document.getElementById('reject-applicant-name').innerText = nama;
             document.getElementById('form-confirm-reject').action = actionUrl;
-            document.getElementById('modal-confirm-reject').classList.remove('hidden');
+            openModal('modal-confirm-reject');
         };
 
-        // Event listener klik untuk tombol Lihat CV, Terima, dan Tolak
         document.addEventListener('click', (e) => {
-            // 1. Tombol Lihat CV
             const btnCv = e.target.closest('.btn-lihat-cv');
             if (btnCv) {
                 activeApplicantName = btnCv.dataset.nama || 'Pelamar';
@@ -258,7 +262,6 @@
                 };
                 document.getElementById('cv-status-kerja').innerText = statusLabelMap[statusKerja] || statusKerja;
 
-                // Handling Tautan URL & Dokumen File
                 const attachmentsContainer = document.getElementById('cv-attachments');
                 const urlBtn = document.getElementById('cv-url-btn');
                 const fileBtn = document.getElementById('cv-file-btn');
@@ -293,7 +296,6 @@
                     attachmentsContainer.classList.remove('flex');
                 }
 
-                // Render HTML Profil secara bersih
                 const cvContentEl = document.getElementById('cv-content');
                 if (cvHtml && cvHtml !== '') {
                     cvContentEl.innerHTML = cvHtml;
@@ -301,18 +303,16 @@
                     cvContentEl.innerHTML = '<span class="text-slate-400 italic">Tidak ada ringkasan teks profil yang dituliskan pelamar.</span>';
                 }
 
-                document.getElementById('modal-cv').classList.remove('hidden');
+                openModal('modal-cv');
                 return;
             }
 
-            // 2. Tombol Terima di Tabel
             const btnApprove = e.target.closest('.btn-confirm-approve');
             if (btnApprove) {
                 showApproveModal(btnApprove.dataset.nama, btnApprove.dataset.action);
                 return;
             }
 
-            // 3. Tombol Tolak di Tabel
             const btnReject = e.target.closest('.btn-confirm-reject');
             if (btnReject) {
                 showRejectModal(btnReject.dataset.nama, btnReject.dataset.action);
@@ -320,14 +320,13 @@
             }
         });
 
-        // Event Listener tombol Terima / Tolak dari dalam Modal CV
         document.getElementById('cv-modal-approve-btn').addEventListener('click', () => {
-            document.getElementById('modal-cv').classList.add('hidden');
+            closeModal('modal-cv');
             showApproveModal(activeApplicantName, activeApproveUrl);
         });
 
         document.getElementById('cv-modal-reject-btn').addEventListener('click', () => {
-            document.getElementById('modal-cv').classList.add('hidden');
+            closeModal('modal-cv');
             showRejectModal(activeApplicantName, activeRejectUrl);
         });
     });
