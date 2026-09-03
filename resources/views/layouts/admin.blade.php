@@ -107,6 +107,12 @@
                 <span class="font-body-md font-bold">Dashboard</span>
             </a>
 
+            <!-- Monitoring Absensi Global -->
+            <a class="{{ request()->routeIs('backoffice.super_admin.absensi') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.absensi') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.absensi') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+                <span class="font-medium font-body-md">Monitoring Absensi Global</span>
+            </a>
+
             <!-- Karyawan (Super Admin) -->
             <a class="{{ request()->routeIs('backoffice.super_admin.kelola_karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.kelola_karyawan') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.kelola_karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">groups</span>
@@ -116,7 +122,7 @@
             <!-- Kelola Manager -->
             <a class="{{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.kelola_hr') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">manage_accounts</span>
-                <span class="font-medium font-body-md">Kelola Manager</span>
+                <span class="font-medium font-body-md">Kelola HR & Manager</span>
             </a>
 
             <!-- Jabatan (Posisi) -->
