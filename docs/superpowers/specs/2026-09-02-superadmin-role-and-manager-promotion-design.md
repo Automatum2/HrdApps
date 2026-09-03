@@ -21,6 +21,7 @@ Dokumen ini mengatur perombakan hak akses dan wewenang **Super Admin** di HRDApp
   1. Pengelolaan alur Rekrutmen Publik & Review CV Pelamar (`/backoffice/cv`).
   2. Penerimaan karyawan baru (Magang/Kontrak/Tetap).
   3. Pengelolaan data operasional karyawan dan penyesuaian tunjangan individual.
+  4. Pengloalaan training karyawan
 
 ---
 

@@ -211,13 +211,13 @@
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3 items-end">
                     <div class="space-y-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="promosi-nik">NIK (Terisi Otomatis)</label>
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block" for="promosi-nik">NIK (Otomatis)</label>
                         <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500" id="promosi-nik" type="text" readonly tabindex="-1">
                     </div>
                     <div class="space-y-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="promosi-nama">Nama Lengkap (Terisi Otomatis)</label>
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block" for="promosi-nama">Nama Lengkap (Otomatis)</label>
                         <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500" id="promosi-nama" type="text" readonly tabindex="-1">
                     </div>
                 </div>
