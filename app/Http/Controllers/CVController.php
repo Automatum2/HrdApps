@@ -10,8 +10,18 @@ use Illuminate\Support\Str;
 
 class CVController extends Controller
 {
+    private function authorizeCvAccess()
+    {
+        $role = session('user_role');
+        if (!in_array($role, ['hr_manager', 'hr_admin_manager', 'manager_departemen'])) {
+            abort(403, 'Akses ditolak. Pengelolaan CV hanya untuk HR Manager.');
+        }
+    }
+
     public function index()
     {
+        $this->authorizeCvAccess();
+
         // Tampilkan semua employee yang belum di-approve (pelamar)
         $applicants = Employee::where('is_cv_approved', false)->orderBy('created_at', 'desc')->get();
         return view('backoffice.cv.index', compact('applicants'));
@@ -19,6 +29,7 @@ class CVController extends Controller
 
     public function approve(Request $request, $id)
     {
+        $this->authorizeCvAccess();
         $employee = Employee::findOrFail($id);
 
         // Jika sudah di-approve, abaikan
@@ -71,6 +82,7 @@ class CVController extends Controller
     
     public function reject(Request $request, $id)
     {
+        $this->authorizeCvAccess();
         $employee = Employee::findOrFail($id);
 
         if ($employee->is_cv_approved) {
