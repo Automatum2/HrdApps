@@ -13,7 +13,7 @@
         </nav>
         <p class="text-on-surface-variant text-sm">Kelola daftar jabatan dan standar tunjangan jabatan.</p>
     </div>
-    <button onclick="openModal('modal-tambah-posisi')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
+    <button onclick="openModal('modal-tambah-posisi')" class="bg-primary hover:bg-primary-container text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm cursor-pointer">
         <span class="material-symbols-outlined text-[18px]">add</span>
         <span>Tambah Jabatan</span>
     </button>
@@ -60,7 +60,7 @@
                     <td class="px-6 py-4 text-center text-sm">{{ $index + 1 }}</td>
                     <td class="px-6 py-4 text-sm font-bold text-slate-800">{{ $posisi->nama_jabatan }}</td>
                     <td class="px-6 py-4 text-sm">{{ $posisi->level }}</td>
-                    <td class="px-6 py-4 text-sm font-mono text-right text-blue-600 font-medium">{{ number_format($posisi->tunjangan_jabatan, 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-sm font-mono text-right text-primary font-medium">{{ number_format($posisi->tunjangan_jabatan, 0, ',', '.') }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="openEditModal({{ $posisi->id }}, '{{ addslashes($posisi->nama_jabatan) }}', '{{ addslashes($posisi->level) }}', {{ $posisi->tunjangan_jabatan }})" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer" title="Edit">
@@ -101,11 +101,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Jabatan</label>
-                    <input type="text" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all text-slate-800">
+                    <input type="text" name="nama_jabatan" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Level</label>
-                    <select name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all text-slate-800">
+                    <select name="level" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                         <option value="">-- Pilih Level --</option>
                         <option value="staff">Staff</option>
                         <option value="supervisor">Supervisor</option>
@@ -115,12 +115,12 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Jabatan (Rp)</label>
-                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all text-slate-800">
+                    <input type="text" name="tunjangan_jabatan" required placeholder="Contoh: 1500000 atau 1.500.000" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800">
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeModal('modal-tambah-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm cursor-pointer">Simpan</button>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan</button>
             </div>
         </form>
     </div>
@@ -160,7 +160,7 @@
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeModal('modal-edit-posisi')" class="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Batal</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm cursor-pointer">Simpan Perubahan</button>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-container rounded-lg transition-colors shadow-sm cursor-pointer">Simpan Perubahan</button>
             </div>
         </form>
     </div>

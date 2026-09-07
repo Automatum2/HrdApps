@@ -78,7 +78,7 @@
 
             <!-- Submit Button -->
             <div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <button type="submit" class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
                     <span class="material-symbols-outlined text-sm">filter_alt</span>
                     <span>Terapkan Filter</span>
                 </button>
@@ -143,7 +143,7 @@
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-xs text-slate-500">
-                                {{ strip_tags($att->keterangan ?? '') ?: '-' }}
+                                {{ $att->keterangan ?? '-' }}
                             </td>
                         </tr>
                     @empty
