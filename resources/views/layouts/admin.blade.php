@@ -228,7 +228,7 @@
             $userRole = session('user_role', 'karyawan');
             
             // Dapatkan nama lengkap asli dari database atau fallback ke username/session
-            $userName = ($user && $user->employee) ? $user->employee->nama_lengkap : session('user_name', 'Budi Santoso');
+            $userName = ($user && $user->employee) ? $user->employee->nama_lengkap : ($user ? $user->username : session('user_name', 'User'));
             
             // Dapatkan foto
             if ($user && $user->employee && $user->employee->foto) {
@@ -240,10 +240,12 @@
             // Dapatkan ID
             if ($userRole === 'super_admin') {
                 $userTitle = 'Administrator';
-            } elseif ($userRole === 'manager') {
-                $userTitle = 'Manager HRD';
+            } elseif ($userRole === 'hr_manager' || $userRole === 'manager') {
+                $userTitle = 'HR Manager';
+            } elseif ($userRole === 'manager_departemen') {
+                $userTitle = 'Manager Departemen';
             } else {
-                $employeeId = ($user && $user->employee) ? $user->employee->nik : session('employee_id', '00001221');
+                $employeeId = ($user && $user->employee) ? $user->employee->nik : session('employee_id', '-');
                 $userTitle = 'Employee ID: ' . $employeeId;
             }
         @endphp
@@ -260,7 +262,6 @@
                 <div class="overflow-hidden">
                     <p class="text-sm font-bold text-white truncate">{{ $userName }}</p>
                     <p class="text-[10px] text-white/70 uppercase tracking-wider truncate">{{ $userTitle }}</p>
-                    <!-- debug: {{ $userPhoto }} | user: {{ $user ? $user->username : 'none' }} | has_employee: {{ $user && $user->employee ? 'yes' : 'no' }} | foto: {{ $user && $user->employee ? $user->employee->foto : 'none' }} -->
                 </div>
             </div>
             
@@ -360,12 +361,7 @@
                                 <a href="#" class="text-[10px] font-bold text-primary hover:underline">Lihat semua notifikasi</a>
                             </div>
                             @endif
-                        </div>
                     </div>
-
-                    <button class="relative p-2 hover:bg-surface-container-low rounded-full transition-colors active:opacity-80 hidden sm:block">
-                        <span class="material-symbols-outlined text-on-surface-variant">help</span>
-                    </button>
                 </div>
             </div>
         </header>
