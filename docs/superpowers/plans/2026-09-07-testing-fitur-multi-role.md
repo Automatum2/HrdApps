@@ -26,39 +26,39 @@
 - **Role Terlibat:** Super Admin (Akses eksklusif)
 - **Checklist Pengujian:**
   - [x] 1.2.1 Buka halaman Kelola Jabatan (`/backoffice/posisi`).
-  - [ ] 1.2.2 Tambah Jabatan Baru (misal: "Lead Engineer", level: "staff", tunjangan: Rp 1.000.000).
-  - [ ] 1.2.3 Edit Jabatan yang ada (ubah nama jabatan atau nominal tunjangan).
-  - [ ] 1.2.4 Hapus Jabatan yang tidak terpakai.
+  - [x] 1.2.2 Tambah Jabatan Baru (misal: "Lead Engineer", level: "staff", tunjangan: Rp 1.000.000).
+  - [x] 1.2.3 Edit Jabatan yang ada (ubah nama jabatan atau nominal tunjangan).
+  - [x] 1.2.4 Hapus Jabatan yang tidak terpakai.
 - **Indikator Keberhasilan:** Data jabatan berhasil ditambah, diubah, dan dihapus dari database.
 
 ### Fitur 1.3: Kelola Akun HR & Manager (Manajemen Akun HR)
 - **URL:** `/backoffice/super-admin/kelola-hr`
 - **Role Terlibat:** Super Admin & HR Manager
 - **Checklist Pengujian:**
-  - [ ] 1.3.1 Buka halaman Kelola HR & Manager (`/backoffice/super-admin/kelola-hr`).
-  - [ ] 1.3.2 Buat Akun HR / Manager baru.
-  - [ ] 1.3.3 Edit data profil / email / role akun HR.
-  - [ ] 1.3.4 Hapus akun HR / Manager.
+  - [x] 1.3.1 Buka halaman Kelola HR & Manager (`/backoffice/super-admin/kelola-hr`).
+  - [x] 1.3.2 Buat Akun HR / Manager baru.
+  - [x] 1.3.3 Edit data profil / email / role akun HR.
+  - [x] 1.3.4 Hapus akun HR / Manager.
 - **Indikator Keberhasilan:** Akun berhasil dibuat dan bisa digunakan untuk login sesuai role yang ditetapkan.
 
 ### Fitur 1.4: Kelola Karyawan (Global Employee Directory)
 - **URL:** `/backoffice/super-admin/kelola-karyawan`
 - **Role Terlibat:** Super Admin
 - **Checklist Pengujian:**
-  - [ ] 1.4.1 Buka halaman Kelola Karyawan (`/backoffice/super-admin/kelola-karyawan`).
-  - [ ] 1.4.2 Lihat daftar seluruh karyawan dari semua departemen.
-  - [ ] 1.4.3 Klik tombol **Detail** untuk melihat profil lengkap karyawan.
-  - [ ] 1.4.4 Edit data karyawan (NIK, Nama, Email, Status).
-  - [ ] 1.4.5 Hapus data karyawan (opsional).
+  - [x] 1.4.1 Buka halaman Kelola Karyawan (`/backoffice/super-admin/kelola-karyawan`).
+  - [x] 1.4.2 Lihat daftar seluruh karyawan dari semua departemen.
+  - [] 1.4.3 Klik tombol **Detail** untuk melihat profil lengkap karyawan.
+  - [] 1.4.4 Edit data karyawan (NIK, Nama, Email, Status).
+  - [] 1.4.5 Hapus data karyawan (opsional).
 - **Indikator Keberhasilan:** Data seluruh karyawan dari berbagai departemen dapat dikelola secara penuh.
 
 ### Fitur 1.5: Monitoring Absensi Global
 - **URL:** `/backoffice/super-admin/absensi`
 - **Role Terlibat:** Super Admin & Karyawan
 - **Checklist Pengujian:**
-  - [ ] 1.5.1 Buka halaman Monitoring Absensi Global (`/backoffice/super-admin/absensi`).
-  - [ ] 1.5.2 Filter absensi berdasarkan rentang tanggal, departemen, dan status kehadiran.
-  - [ ] 1.5.3 Periksa apakah absensi seluruh karyawan perusahaan dari semua departemen muncul dengan benar.
+  - [x] 1.5.1 Buka halaman Monitoring Absensi Global (`/backoffice/super-admin/absensi`).
+  - [] 1.5.2 Filter absensi berdasarkan rentang tanggal, departemen, dan status kehadiran.
+  - [] 1.5.3 Periksa apakah absensi seluruh karyawan perusahaan dari semua departemen muncul dengan benar.
 - **Indikator Keberhasilan:** Data absensi lintas departemen tampil secara transparan dan akurat.
 
 ---
@@ -89,7 +89,7 @@
 - **Indikator Keberhasilan:** Rincian tunjangan dan potongan tersimpan dan otomatis dihitung pada kalkulasi penggajian.
 
 ### Fitur 2.3: Pemrosesan & Approval Penggajian (Payroll)
-- **URL:** `/backoffice/penggajian`
+- **URL:** `/backoffice/penggajian` (masih pending karena email belum terhubung)
 - **Role Terlibat:** HR Manager & Karyawan
 - **Langkah Pengujian:**
   1. Buat Periode Penggajian Baru (misal: September 2026).

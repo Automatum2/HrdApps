@@ -13,6 +13,16 @@ use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\PositionController;
 
 // --- PUBLIC ROUTES ---
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!\Illuminate\Support\Facades\File::exists($fullPath)) {
+        abort(404);
+    }
+
+    return response()->file($fullPath);
+})->where('path', '.*');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
