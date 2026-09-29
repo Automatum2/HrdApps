@@ -173,23 +173,26 @@ Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
         'otp' => 'nullable|string',
     ]);
     
-    // Jika flow aktivasi akun pelamar yang memiliki OTP
     $user = \App\Models\User::where('email', $request->email)->first();
-    if ($user && $user->employee && $user->employee->activation_otp) {
-        if (!$request->filled('otp')) {
-            return redirect()->back()->withErrors(['otp' => 'Kode OTP wajib diisi untuk aktivasi akun baru.']);
+
+    // Jika flow aktivasi akun pelamar yang memiliki OTP
+    if ($request->type === 'activation') {
+        if ($user && $user->employee && $user->employee->activation_otp) {
+            if (!$request->filled('otp')) {
+                return redirect()->back()->withErrors(['otp' => 'Kode OTP wajib diisi untuk aktivasi akun baru.']);
+            }
+            if ($user->employee->activation_otp_expires_at && now()->greaterThan($user->employee->activation_otp_expires_at)) {
+                return redirect()->back()->withErrors(['otp' => 'Kode OTP aktivasi telah kadaluarsa. Silakan hubungi HRD.']);
+            }
+            if (!\Illuminate\Support\Facades\Hash::check($request->otp, $user->employee->activation_otp)) {
+                return redirect()->back()->withErrors(['otp' => 'Kode OTP aktivasi tidak sesuai.']);
+            }
+            // Bersihkan OTP setelah dipakai
+            $user->employee->update([
+                'activation_otp' => null,
+                'activation_otp_expires_at' => null,
+            ]);
         }
-        if ($user->employee->activation_otp_expires_at && now()->greaterThan($user->employee->activation_otp_expires_at)) {
-            return redirect()->back()->withErrors(['otp' => 'Kode OTP aktivasi telah kadaluarsa. Silakan hubungi HRD.']);
-        }
-        if (!\Illuminate\Support\Facades\Hash::check($request->otp, $user->employee->activation_otp)) {
-            return redirect()->back()->withErrors(['otp' => 'Kode OTP aktivasi tidak sesuai.']);
-        }
-        // Bersihkan OTP setelah dipakai
-        $user->employee->update([
-            'activation_otp' => null,
-            'activation_otp_expires_at' => null,
-        ]);
     }
 
     // Validasi token password broker yang dikirim dari form
@@ -205,8 +208,14 @@ Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
         $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         $user->save();
         
-        // Hapus token setelah digunakan
+        // Bersihkan token dan sisa activation_otp jika ada
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        if ($user->employee && $user->employee->activation_otp) {
+            $user->employee->update([
+                'activation_otp' => null,
+                'activation_otp_expires_at' => null,
+            ]);
+        }
     }
 
     $msg = $request->type === 'activation'
