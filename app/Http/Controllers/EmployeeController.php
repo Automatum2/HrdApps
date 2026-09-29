@@ -147,15 +147,40 @@ class EmployeeController extends Controller
     {
         $emp = Employee::where('nik', $request->nik)->first();
         if ($emp) {
-            $dept = \Illuminate\Support\Facades\DB::table('departments')->where('nama_department', $request->departemen)->first();
+            $dept = Department::where('id', $request->departemen)
+                ->orWhere('nama_department', $request->departemen)
+                ->first();
+
             if ($dept) {
                 $emp->department_id = $dept->id;
             } else {
                 return redirect()->back()->with('error', 'Departemen tidak ditemukan.');
             }
-            $emp->status_kerja = $request->status;
+
+            if ($request->filled('jabatan')) {
+                $pos = Position::firstOrCreate(
+                    ['nama_jabatan' => trim($request->jabatan)],
+                    ['level' => 'staff', 'tunjangan_jabatan' => 0]
+                );
+                $emp->position_id = $pos->id;
+            }
+
+            if ($request->filled('status')) {
+                $statusMap = [
+                    'Tetap' => 'tetap',
+                    'Kontrak' => 'kontrak',
+                    'Magang' => 'magang',
+                    'Musiman' => 'musiman',
+                    'Harian (DW)' => 'harian',
+                    'Harian' => 'harian',
+                    'Tidak Tetap' => 'tenaga_lepas',
+                    'Tenaga Lepas' => 'tenaga_lepas',
+                ];
+                $emp->status_kerja = $statusMap[$request->status] ?? strtolower($request->status);
+            }
+
             $emp->save();
-            return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan.');
+            return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan ke departemen.');
         }
         return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
     }

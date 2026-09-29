@@ -126,6 +126,12 @@
                 <span class="font-medium font-body-md">Kelola HR & Manager</span>
             </a>
 
+            <!-- Departemen -->
+            <a class="{{ request()->routeIs('backoffice.departemen.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.departemen.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.departemen.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">domain</span>
+                <span class="font-medium font-body-md">Departemen</span>
+            </a>
+
             <!-- Jabatan (Posisi) -->
             <a class="{{ request()->routeIs('backoffice.posisi.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.posisi.index') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
@@ -362,6 +368,7 @@
                                 <a href="#" class="text-[10px] font-bold text-primary hover:underline">Lihat semua notifikasi</a>
                             </div>
                             @endif
+                        </div>
                     </div>
                 </div>
             </div>

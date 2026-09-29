@@ -456,12 +456,17 @@ Route::middleware(['auth'])->group(function () {
         // Monitoring Absensi Global
         Route::get('/backoffice/super-admin/absensi', [\App\Http\Controllers\SuperAdminAttendanceController::class, 'index'])->name('backoffice.super_admin.absensi');
 
+        // Departemen
+        Route::get('/backoffice/departemen', [\App\Http\Controllers\DepartmentController::class, 'index'])->name('backoffice.departemen.index');
+        Route::post('/backoffice/departemen', [\App\Http\Controllers\DepartmentController::class, 'store'])->name('backoffice.departemen.store');
+        Route::put('/backoffice/departemen/{id}', [\App\Http\Controllers\DepartmentController::class, 'update'])->name('backoffice.departemen.update');
+        Route::delete('/backoffice/departemen/{id}', [\App\Http\Controllers\DepartmentController::class, 'destroy'])->name('backoffice.departemen.destroy');
+
         // Jabatan (Positions)
         Route::get('/backoffice/posisi', [PositionController::class, 'index'])->name('backoffice.posisi.index');
         Route::post('/backoffice/posisi', [PositionController::class, 'store'])->name('backoffice.posisi.store');
         Route::put('/backoffice/posisi/{id}', [PositionController::class, 'update'])->name('backoffice.posisi.update');
         Route::delete('/backoffice/posisi/{id}', [PositionController::class, 'destroy'])->name('backoffice.posisi.destroy');
-
 
         Route::get('/backoffice/super-admin/kelola-karyawan', [EmployeeController::class, 'index'])->name('backoffice.super_admin.kelola_karyawan');
         Route::put('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'update'])->name('backoffice.super_admin.kelola_karyawan.update');
