@@ -263,6 +263,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get("/backoffice/cv", [App\Http\Controllers\CVController::class, "index"])->name("backoffice.cv.index");
         Route::post("/backoffice/cv/{id}/approve", [App\Http\Controllers\CVController::class, "approve"])->name("backoffice.cv.approve");
         Route::post("/backoffice/cv/{id}/reject", [App\Http\Controllers\CVController::class, "reject"])->name("backoffice.cv.reject");
+        Route::get("/backoffice/cv/{id}/approve", function() { return redirect()->route('backoffice.cv.index'); });
+        Route::get("/backoffice/cv/{id}/reject", function() { return redirect()->route('backoffice.cv.index'); });
     });
 
     // -- MANAGER & SUPER ADMIN ROUTES --

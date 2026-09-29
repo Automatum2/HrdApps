@@ -30,11 +30,15 @@ class CVController extends Controller
     public function approve(Request $request, $id)
     {
         $this->authorizeCvAccess();
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->route('backoffice.cv.index')->with('error', 'Data pelamar tidak ditemukan atau sudah diproses.');
+        }
 
         // Jika sudah di-approve, abaikan
         if ($employee->is_cv_approved) {
-            return redirect()->back()->with('error', 'Pelamar ini sudah disetujui sebelumnya.');
+            return redirect()->route('backoffice.cv.index')->with('error', 'Pelamar ini sudah disetujui sebelumnya.');
         }
 
         // Generate NIK random
@@ -77,16 +81,20 @@ class CVController extends Controller
             'tenaga_lepas' => 'Tenaga Lepas',
         ][$statusKerja] ?? ucfirst($statusKerja);
 
-        return redirect()->back()->with('success', 'Pelamar ' . $employee->nama_lengkap . ' berhasil disetujui (Status: ' . $statusLabel . '). Email aktivasi beserta Kode OTP telah dikirim ke ' . $employee->email . '.');
+        return redirect()->route('backoffice.cv.index')->with('success', 'Pelamar ' . $employee->nama_lengkap . ' berhasil disetujui (Status: ' . $statusLabel . '). Email aktivasi beserta Kode OTP telah dikirim ke ' . $employee->email . '.');
     }
     
     public function reject(Request $request, $id)
     {
         $this->authorizeCvAccess();
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->route('backoffice.cv.index')->with('error', 'Data pelamar tidak ditemukan atau sudah dihapus.');
+        }
 
         if ($employee->is_cv_approved) {
-            return redirect()->back()->with('error', 'Pelamar ini sudah disetujui sebelumnya.');
+            return redirect()->route('backoffice.cv.index')->with('error', 'Pelamar ini sudah disetujui sebelumnya.');
         }
 
         $email = $employee->email;
@@ -105,9 +113,9 @@ class CVController extends Controller
             \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\CVRejectedMail($name));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send CV rejection email: ' . $e->getMessage());
-            return redirect()->back()->with('success', 'Pelamar berhasil ditolak, namun gagal mengirim email notifikasi.');
+            return redirect()->route('backoffice.cv.index')->with('success', 'Pelamar berhasil ditolak, namun gagal mengirim email notifikasi.');
         }
 
-        return redirect()->back()->with('success', 'Pelamar berhasil ditolak dan email pemberitahuan telah dikirim.');
+        return redirect()->route('backoffice.cv.index')->with('success', 'Pelamar berhasil ditolak dan email pemberitahuan telah dikirim.');
     }
 }
