@@ -56,11 +56,11 @@
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-3">
             <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                 <span class="material-symbols-outlined text-[14px]">corporate_fare</span>
-                Departemen: Belum Ditempatkan
+                Departemen: {{ $employee->department ? $employee->department->nama_department : 'Belum Ditempatkan' }}
             </span>
             <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                 <span class="material-symbols-outlined text-[14px]">badge</span>
-                Jabatan: Belum Ditentukan
+                Jabatan: {{ $employee->position ? $employee->position->nama_jabatan : ($employee->jabatan ?: 'Belum Ditentukan') }}
             </span>
             <span class="inline-flex items-center gap-1 text-xs font-semibold {{ $employee->status === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200' }} border px-3 py-1 rounded-full">
                 <span class="material-symbols-outlined text-[14px]">fiber_manual_record</span>

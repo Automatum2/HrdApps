@@ -318,42 +318,57 @@
                         </button>
 
                         <!-- Notification Dropdown -->
-                        <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-[320px] bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden flex flex-col origin-top-right transform transition-all duration-200 scale-95 opacity-0">
+                        <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-[340px] bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden flex flex-col origin-top-right transform transition-all duration-200 scale-95 opacity-0">
                             <!-- Header -->
-                            <div class="px-4 py-3 border-b border-outline-variant flex items-center justify-between bg-surface">
-                                <h3 class="font-bold text-sm text-on-surface">Notifikasi</h3>
-                                @if($unreadCount > 0)
-                                    <button id="mark-all-read-btn" class="text-primary text-[10px] font-bold hover:underline bg-primary/5 px-2 py-1 rounded-md transition-colors">Tandai semua dibaca</button>
-                                @endif
+                            <div class="px-4 py-3 border-b border-outline-variant flex items-center justify-between bg-surface" id="notification-dropdown-header">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm text-on-surface">Notifikasi</h3>
+                                    @if($unreadCount > 0)
+                                        <span id="unread-count-tag" class="px-1.5 py-0.5 text-[10px] font-bold bg-primary/10 text-primary rounded-full">{{ $unreadCount }} baru</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-1.5" id="notification-header-actions">
+                                    @if($unreadCount > 0)
+                                        <button id="mark-all-read-btn" class="text-primary text-[10px] font-bold hover:underline bg-primary/5 hover:bg-primary/10 px-2 py-1 rounded-md transition-colors" title="Tandai semua dibaca">Baca Semua</button>
+                                    @endif
+                                    @if($allNotifications->count() > 0)
+                                        <button id="clear-all-notif-btn" class="text-error text-[10px] font-bold hover:underline bg-error/5 hover:bg-error/10 px-2 py-1 rounded-md transition-colors" title="Hapus semua notifikasi">Hapus Semua</button>
+                                    @endif
+                                </div>
                             </div>
                             
                             <!-- List -->
-                            <div class="overflow-y-auto max-h-[350px] custom-scrollbar bg-surface-container-low/30">
+                            <div id="notification-list-container" class="overflow-y-auto max-h-[350px] custom-scrollbar bg-surface-container-low/30 divide-y divide-outline-variant/30">
                                 @forelse($allNotifications as $notification)
-                                    <div class="notification-item p-4 border-b border-outline-variant/50 hover:bg-surface-container-low transition-colors cursor-pointer {{ is_null($notification->read_at) ? 'bg-primary/5' : 'bg-white' }}" data-id="{{ $notification->id }}" data-read="{{ is_null($notification->read_at) ? 'false' : 'true' }}">
+                                    <div class="notification-item group relative p-3.5 hover:bg-surface-container-low transition-all cursor-pointer {{ is_null($notification->read_at) ? 'bg-primary/5' : 'bg-white' }}" data-id="{{ $notification->id }}" data-read="{{ is_null($notification->read_at) ? 'false' : 'true' }}">
                                         <div class="flex gap-3">
-                                            <div class="mt-0.5">
+                                            <div class="mt-0.5 shrink-0">
                                                 <div class="w-8 h-8 rounded-full {{ is_null($notification->read_at) ? 'bg-primary text-white' : 'bg-surface-container-high text-on-surface-variant' }} flex items-center justify-center shadow-sm">
                                                     <span class="material-symbols-outlined text-[16px]">{{ $notification->data['icon'] ?? 'notifications' }}</span>
                                                 </div>
                                             </div>
-                                            <div class="flex-1">
-                                                <div class="flex items-start justify-between gap-2">
-                                                    <p class="text-xs font-bold text-on-surface {{ is_null($notification->read_at) ? 'text-primary' : '' }}">{{ $notification->data['title'] ?? 'Notifikasi Sistem' }}</p>
+                                            <div class="flex-1 min-w-0 pr-6">
+                                                <div class="flex items-start justify-between gap-1">
+                                                    <p class="text-xs font-bold text-on-surface truncate {{ is_null($notification->read_at) ? 'text-primary' : '' }}">{{ $notification->data['title'] ?? 'Notifikasi Sistem' }}</p>
                                                     @if(is_null($notification->read_at))
                                                         <div class="w-1.5 h-1.5 bg-error rounded-full mt-1 shrink-0 unread-dot"></div>
                                                     @endif
                                                 </div>
-                                                <p class="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed">{{ $notification->data['message'] ?? '' }}</p>
-                                                <p class="text-[9px] text-outline mt-1.5 font-medium flex items-center gap-1">
+                                                <p class="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed break-words">{{ $notification->data['message'] ?? '' }}</p>
+                                                <p class="text-[9px] text-outline mt-1 font-medium flex items-center gap-1">
                                                     <span class="material-symbols-outlined text-[10px]">schedule</span>
                                                     {{ $notification->created_at->diffForHumans() }}
                                                 </p>
                                             </div>
                                         </div>
+                                        
+                                        <!-- Tombol Hapus per Item -->
+                                        <button type="button" class="delete-notif-btn absolute top-2.5 right-2.5 opacity-60 hover:opacity-100 p-1 text-outline hover:text-error hover:bg-error/10 rounded-md transition-all" title="Hapus notifikasi ini" data-id="{{ $notification->id }}">
+                                            <span class="material-symbols-outlined text-[14px]">close</span>
+                                        </button>
                                     </div>
                                 @empty
-                                    <div class="px-4 py-10 text-center flex flex-col items-center justify-center bg-white">
+                                    <div id="empty-notif-state" class="px-4 py-10 text-center flex flex-col items-center justify-center bg-white">
                                         <div class="w-12 h-12 bg-surface-container-low rounded-full flex items-center justify-center mb-3">
                                             <span class="material-symbols-outlined text-outline text-2xl">notifications_paused</span>
                                         </div>
@@ -362,12 +377,6 @@
                                     </div>
                                 @endforelse
                             </div>
-                            
-                            @if($allNotifications->count() > 0)
-                            <div class="p-2 text-center border-t border-outline-variant bg-surface">
-                                <a href="#" class="text-[10px] font-bold text-primary hover:underline">Lihat semua notifikasi</a>
-                            </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -423,7 +432,50 @@
         const notifBtn = document.getElementById('notification-btn');
         const notifDropdown = document.getElementById('notification-dropdown');
         const notifBadge = document.getElementById('notification-badge');
+        const notifListContainer = document.getElementById('notification-list-container');
+        const unreadCountTag = document.getElementById('unread-count-tag');
         
+        function updateEmptyState() {
+            const items = notifListContainer ? notifListContainer.querySelectorAll('.notification-item') : [];
+            if (items.length === 0 && notifListContainer) {
+                notifListContainer.innerHTML = `
+                    <div id="empty-notif-state" class="px-4 py-10 text-center flex flex-col items-center justify-center bg-white">
+                        <div class="w-12 h-12 bg-surface-container-low rounded-full flex items-center justify-center mb-3">
+                            <span class="material-symbols-outlined text-outline text-2xl">notifications_paused</span>
+                        </div>
+                        <p class="text-xs font-bold text-on-surface mb-1">Belum ada notifikasi</p>
+                        <p class="text-[10px] text-on-surface-variant">Semua pemberitahuan akan muncul di sini.</p>
+                    </div>
+                `;
+                const markAllBtn = document.getElementById('mark-all-read-btn');
+                if (markAllBtn) markAllBtn.remove();
+                const clearAllBtn = document.getElementById('clear-all-notif-btn');
+                if (clearAllBtn) clearAllBtn.remove();
+                if (unreadCountTag) unreadCountTag.remove();
+                if (notifBadge) notifBadge.remove();
+                if (notifBtn) notifBtn.classList.remove('animate-bell-swing');
+            }
+        }
+
+        function decrementBadge() {
+            if (notifBadge) {
+                let count = parseInt(notifBadge.innerText.replace('+', ''));
+                if (!isNaN(count) && count > 0) {
+                    count--;
+                    if (count === 0) {
+                        notifBadge.remove();
+                        if (notifBtn) notifBtn.classList.remove('animate-bell-swing');
+                        const markAllBtn = document.getElementById('mark-all-read-btn');
+                        if (markAllBtn) markAllBtn.remove();
+                        if (unreadCountTag) unreadCountTag.remove();
+                    } else {
+                        notifBadge.innerText = count > 9 ? '9+' : count;
+                        if (unreadCountTag) unreadCountTag.innerText = count + ' baru';
+                    }
+                }
+            }
+        }
+
         if (notifBtn && notifDropdown) {
             // Toggle dropdown
             notifBtn.addEventListener('click', function(e) {
@@ -453,9 +505,11 @@
                 }
             });
 
-            // Handle clicking a notification
+            // Handle clicking a notification (Mark as Read)
             document.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('.delete-notif-btn')) return;
+
                     if (this.getAttribute('data-read') === 'false') {
                         const notifId = this.getAttribute('data-id');
                         
@@ -476,21 +530,7 @@
                             iconContainer.classList.add('bg-surface-container-high', 'text-on-surface-variant');
                         }
 
-                        // Update Badge Count
-                        if (notifBadge) {
-                            let count = parseInt(notifBadge.innerText.replace('+', ''));
-                            if (!isNaN(count) && count > 0) {
-                                count--;
-                                if (count === 0) {
-                                    notifBadge.remove();
-                                    notifBtn.classList.remove('animate-bell-swing');
-                                    const markAllBtn = document.getElementById('mark-all-read-btn');
-                                    if(markAllBtn) markAllBtn.remove();
-                                } else {
-                                    notifBadge.innerText = count;
-                                }
-                            }
-                        }
+                        decrementBadge();
 
                         // AJAX Call
                         fetch(`/backoffice/notifications/${notifId}/read`, {
@@ -502,6 +542,40 @@
                             }
                         }).catch(err => console.error(err));
                     }
+                });
+            });
+
+            // Handle delete single notification
+            document.querySelectorAll('.delete-notif-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const notifItem = this.closest('.notification-item');
+                    if (!notifItem) return;
+
+                    const notifId = this.getAttribute('data-id');
+                    const isUnread = notifItem.getAttribute('data-read') === 'false';
+
+                    // Optimistic UI remove
+                    notifItem.classList.add('opacity-0', '-translate-x-2');
+                    setTimeout(() => {
+                        notifItem.remove();
+                        if (isUnread) {
+                            decrementBadge();
+                        }
+                        updateEmptyState();
+                    }, 200);
+
+                    // AJAX Call
+                    fetch(`/backoffice/notifications/${notifId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    }).catch(err => console.error(err));
                 });
             });
 
@@ -531,15 +605,43 @@
                         }
                     });
 
-                    if (notifBadge) {
-                        notifBadge.remove();
-                        notifBtn.classList.remove('animate-bell-swing');
-                    }
+                    if (notifBadge) notifBadge.remove();
+                    if (unreadCountTag) unreadCountTag.remove();
+                    if (notifBtn) notifBtn.classList.remove('animate-bell-swing');
                     this.remove();
 
                     // AJAX Call
                     fetch('/backoffice/notifications/read-all', {
                         method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    }).catch(err => console.error(err));
+                });
+            }
+
+            // Handle clear all notifications
+            const clearAllBtn = document.getElementById('clear-all-notif-btn');
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    if (!confirm('Apakah Anda yakin ingin menghapus semua notifikasi?')) {
+                        return;
+                    }
+
+                    // Optimistic UI clear
+                    if (notifListContainer) {
+                        notifListContainer.querySelectorAll('.notification-item').forEach(item => item.remove());
+                    }
+                    updateEmptyState();
+
+                    // AJAX Call
+                    fetch('/backoffice/notifications/clear-all', {
+                        method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Content-Type': 'application/json',

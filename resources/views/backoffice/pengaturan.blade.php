@@ -38,43 +38,45 @@
 @endif
 
 <!-- Settings Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-stagger animate-page-in">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-stagger animate-page-in min-w-0">
     <!-- Navigation Tabs (Left Column) -->
-    <div class="lg:col-span-3 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-4 lg:pb-0 custom-scrollbar whitespace-nowrap">
-        <!-- Tab 1: Profil -->
-        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer" id="tab-profil" onclick="switchTab('profil')">
-            <span class="material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10">person</span>
-            <div>
-                <span class="block font-bold text-xs text-on-surface">Profil Akun</span>
-                <span class="block text-[10px] text-on-surface-variant font-medium">Informasi personal</span>
-            </div>
-        </button>
-        <!-- Tab 2: Notifikasi -->
-        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-notifikasi" onclick="switchTab('notifikasi')">
-            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">notifications_active</span>
-            <div>
-                <span class="block font-bold text-xs text-on-surface">Notifikasi</span>
-                <span class="block text-[10px] text-on-surface-variant font-medium">Preferensi waspada</span>
-            </div>
-        </button>
+    <div class="w-full min-w-0 lg:col-span-3">
+        <div class="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2.5 pb-2 lg:pb-0 touch-pan-x whitespace-nowrap scroll-smooth" id="nav-tabs-container">
+            <!-- Tab 1: Profil -->
+            <button class="tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer" id="tab-profil" onclick="switchTab('profil')">
+                <span class="material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10 shrink-0">person</span>
+                <div>
+                    <span class="block font-bold text-xs text-on-surface">Profil Akun</span>
+                    <span class="block text-[10px] text-on-surface-variant font-medium">Informasi personal</span>
+                </div>
+            </button>
+            <!-- Tab 2: Notifikasi -->
+            <button class="tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-transparent bg-surface-container-low/60 hover:bg-surface-container-low text-left transition-all cursor-pointer" id="tab-notifikasi" onclick="switchTab('notifikasi')">
+                <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high shrink-0">notifications_active</span>
+                <div>
+                    <span class="block font-bold text-xs text-on-surface">Notifikasi</span>
+                    <span class="block text-[10px] text-on-surface-variant font-medium">Preferensi waspada</span>
+                </div>
+            </button>
 
-        <!-- Tab 4: Keamanan -->
-        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-keamanan" onclick="switchTab('keamanan')">
-            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">security</span>
-            <div>
-                <span class="block font-bold text-xs text-on-surface">Keamanan</span>
-                <span class="block text-[10px] text-on-surface-variant font-medium">Akses & Otentikasi</span>
-            </div>
-        </button>
+            <!-- Tab 4: Keamanan -->
+            <button class="tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-transparent bg-surface-container-low/60 hover:bg-surface-container-low text-left transition-all cursor-pointer" id="tab-keamanan" onclick="switchTab('keamanan')">
+                <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high shrink-0">security</span>
+                <div>
+                    <span class="block font-bold text-xs text-on-surface">Keamanan</span>
+                    <span class="block text-[10px] text-on-surface-variant font-medium">Akses & Otentikasi</span>
+                </div>
+            </button>
 
-        <!-- Tab 5: Struktur Organisasi -->
-        <button class="tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer" id="tab-struktur" onclick="switchTab('struktur')">
-            <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high">account_tree</span>
-            <div>
-                <span class="block font-bold text-xs text-on-surface">Struktur Organisasi</span>
-                <span class="block text-[10px] text-on-surface-variant font-medium">Hierarki akses</span>
-            </div>
-        </button>
+            <!-- Tab 5: Struktur Organisasi -->
+            <button class="tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-transparent bg-surface-container-low/60 hover:bg-surface-container-low text-left transition-all cursor-pointer" id="tab-struktur" onclick="switchTab('struktur')">
+                <span class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high shrink-0">account_tree</span>
+                <div>
+                    <span class="block font-bold text-xs text-on-surface">Struktur Organisasi</span>
+                    <span class="block text-[10px] text-on-surface-variant font-medium">Hierarki akses</span>
+                </div>
+            </button>
+        </div>
     </div>
 
     <!-- Settings Panels (Right Column) -->
@@ -672,27 +674,38 @@
         
         // Tampilkan panel yang dituju dengan animasi masuk
         const targetPanel = document.getElementById('panel-' + tabId);
-        targetPanel.classList.remove('hidden');
-        
-        // Memaksa browser me-render ulang (reflow) agar animasi diulang dari awal
-        void targetPanel.offsetWidth; 
-        targetPanel.classList.add('animate-page-in');
+        if (targetPanel) {
+            targetPanel.classList.remove('hidden');
+            
+            // Memaksa browser me-render ulang (reflow) agar animasi diulang dari awal
+            void targetPanel.offsetWidth; 
+            targetPanel.classList.add('animate-page-in');
+        }
 
         // Reset semua gaya tombol tab
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.className = "tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-transparent bg-transparent text-left hover:bg-surface-container-low transition-all cursor-pointer";
+            btn.className = "tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-transparent bg-surface-container-low/60 hover:bg-surface-container-low text-left transition-all cursor-pointer";
             
             // Ubah icon warna ke default
             const icon = btn.querySelector('.material-symbols-outlined');
-            icon.className = "material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high";
+            if (icon) {
+                icon.className = "material-symbols-outlined p-2 rounded-lg text-on-surface-variant bg-surface-container-high shrink-0";
+            }
         });
 
         // Set style aktif untuk tab yang diklik
         const activeBtn = document.getElementById('tab-' + tabId);
-        activeBtn.className = "tab-btn flex-1 lg:flex-none flex items-center gap-3 p-4 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer";
-        
-        const activeIcon = activeBtn.querySelector('.material-symbols-outlined');
-        activeIcon.className = "material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10";
+        if (activeBtn) {
+            activeBtn.className = "tab-btn shrink-0 min-w-[180px] lg:min-w-0 lg:w-full flex items-center gap-3 p-3.5 rounded-xl border border-primary bg-white text-left shadow-sm transition-all cursor-pointer";
+            
+            const activeIcon = activeBtn.querySelector('.material-symbols-outlined');
+            if (activeIcon) {
+                activeIcon.className = "material-symbols-outlined p-2 rounded-lg text-primary bg-primary/10 shrink-0";
+            }
+
+            // Scroll tab aktif ke posisi terlihat di mobile
+            activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+        }
     }
 
 

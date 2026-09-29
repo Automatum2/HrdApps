@@ -108,7 +108,9 @@ class AttendanceController extends Controller
         $request->validate([
             'foto' => 'required|string',
             'lokasi' => 'required|string',
-            'keterangan' => 'nullable|string'
+            'keterangan' => 'required|string'
+        ], [
+            'keterangan.required' => 'Laporan harian wajib diisi sebelum melakukan absensi keluar.'
         ]);
 
         $employeeId = session('employee_id');

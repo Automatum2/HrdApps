@@ -61,9 +61,22 @@ class CVController extends Controller
             'activation_otp_expires_at' => now()->addHours(24),
         ]);
 
+        // Generate username ringkas & mudah diingat (nama depan + 2 digit angka)
+        $firstName = explode(' ', trim($employee->nama_lengkap))[0];
+        $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $firstName));
+        if (strlen($baseUsername) < 3) {
+            $parts = explode(' ', trim($employee->nama_lengkap));
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', ($parts[0] ?? '') . ($parts[1] ?? '')));
+        }
+        $baseUsername = substr($baseUsername ?: 'user', 0, 8);
+        $username = $baseUsername . rand(10, 99);
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . rand(100, 999);
+        }
+
         // Create User account
         $user = User::create([
-            'username' => strtolower(str_replace(' ', '', $employee->nama_lengkap)) . rand(10,99),
+            'username' => $username,
             'email' => $employee->email,
             'password' => Hash::make(Str::random(24)), // Random temporary password
             'role' => 'karyawan',

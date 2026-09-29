@@ -193,7 +193,7 @@ class EmployeeController extends Controller
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::with(['department', 'position', 'user', 'documents'])->findOrFail($id);
         
         // Pass a 'back_route' variable to know where the "Kembali" button should point
         $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 

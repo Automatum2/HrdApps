@@ -237,6 +237,8 @@ Route::middleware(['auth'])->group(function () {
     // -- NOTIFICATIONS (All Roles) --
     Route::post('/backoffice/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('backoffice.notifications.read');
     Route::post('/backoffice/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('backoffice.notifications.read_all');
+    Route::delete('/backoffice/notifications/{id}', [NotificationController::class, 'destroy'])->name('backoffice.notifications.destroy');
+    Route::delete('/backoffice/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('backoffice.notifications.clear_all');
 
     // -- LEAVES (Approval workflow) --
     Route::get('/backoffice/leaves', [App\Http\Controllers\LeaveController::class, 'index'])->name('backoffice.leaves.index');

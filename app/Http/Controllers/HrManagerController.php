@@ -85,9 +85,22 @@ class HrManagerController extends Controller
             'is_cv_approved' => true
         ]);
 
+        // Generate username ringkas & mudah diingat
+        $firstName = explode(' ', trim($request->nama))[0];
+        $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $firstName));
+        if (strlen($baseUsername) < 3) {
+            $parts = explode(' ', trim($request->nama));
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', ($parts[0] ?? '') . ($parts[1] ?? '')));
+        }
+        $baseUsername = substr($baseUsername ?: 'manager', 0, 8);
+        $username = $baseUsername . rand(10, 99);
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . rand(100, 999);
+        }
+
         // Buat record User
         $user = User::create([
-            'username' => strtolower(str_replace(' ', '', $request->nama)) . rand(10,99),
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make(Str::random(24)),
             'role' => $request->role === 'manager_departemen' ? 'manager_departemen' : 'hr_manager',

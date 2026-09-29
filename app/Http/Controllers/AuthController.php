@@ -9,12 +9,20 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        \Illuminate\Support\Facades\Log::info('Login attempt', ['username' => $credentials['username']]);
+        $loginInput = $request->input('username');
+        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $loginType => $loginInput,
+            'password' => $request->input('password')
+        ];
+
+        \Illuminate\Support\Facades\Log::info('Login attempt', ['login' => $loginInput]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
