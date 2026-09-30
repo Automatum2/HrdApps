@@ -50,9 +50,10 @@ class AttendanceController extends Controller
                 $userLat = (float) trim($coords[0]);
                 $userLon = (float) trim($coords[1]);
 
-                // Koordinat Kantor Dummy (Monas)
-                $officeLat = -6.1753924;
-                $officeLon = 106.8271528;
+                // Koordinat Kantor PT. Indo Apps Solusindo & Batas Radius (Toleransi 200 Meter)
+                $officeLat = -8.6388158;
+                $officeLon = 115.2326675;
+                $maxRadius = 200; // Batas radius 200 meter
 
                 // Haversine formula
                 $earthRadius = 6371000; // in meters
@@ -65,8 +66,8 @@ class AttendanceController extends Controller
                 $c = 2 * atan2(sqrt($a), sqrt(1-$a));
                 $distance = $earthRadius * $c;
 
-                if ($distance > 100) {
-                    return back()->with('error', 'Jarak Anda (' . round($distance) . ' meter) melebihi batas maksimal 100 meter dari area kantor.');
+                if ($distance > $maxRadius) {
+                    return back()->with('error', 'Jarak Anda (' . round($distance) . ' meter) melebihi batas maksimal ' . $maxRadius . ' meter dari area kantor.');
                 }
             } else {
                 return back()->with('error', 'Gagal memverifikasi koordinat lokasi Anda.');
