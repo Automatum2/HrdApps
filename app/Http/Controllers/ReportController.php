@@ -76,7 +76,7 @@ class ReportController extends Controller
         $deptName = 'Semua Departemen';
         if ($dept_id != 'all') {
             $department = \Illuminate\Support\Facades\DB::table('departments')->where('id', $dept_id)->first();
-            if ($department) $deptName = $department->nama_departemen;
+            if ($department) $deptName = $department->nama_department ?? $department->nama_departemen ?? 'Departemen';
         }
 
         $data = [];
@@ -103,7 +103,7 @@ class ReportController extends Controller
                 foreach ($data as $att) {
                     $nama = $att->employee->nama_lengkap ?? '-';
                     $nik = $att->employee->nik ?? '-';
-                    $dept = $att->employee->department->nama_departemen ?? 'Umum';
+                    $dept = $att->employee->department->nama_department ?? 'Umum';
                     $csvData .= "$i,\"$nama\",\"$nik\",\"$dept\",\"{$att->tanggal}\",\"{$att->jam_masuk}\",\"{$att->jam_keluar}\",\"" . ucfirst($att->status_kehadiran) . "\",\"{$att->total_jam_kerja}\"\n";
                     $i++;
                 }
@@ -136,7 +136,7 @@ class ReportController extends Controller
                 $i = 1;
                 foreach ($data as $pay) {
                     $nama = $pay->employee->nama_lengkap ?? '-';
-                    $dept = $pay->employee->department->nama_departemen ?? 'Umum';
+                    $dept = $pay->employee->department->nama_department ?? 'Umum';
                     $periode = $pay->period->nama_periode ?? '-';
                     $csvData .= "$i,\"$nama\",\"$dept\",\"$periode\",{$pay->gaji_pokok},{$pay->total_tunjangan},{$pay->total_potongan},{$pay->gaji_bersih},\"{$pay->status}\"\n";
                     $i++;

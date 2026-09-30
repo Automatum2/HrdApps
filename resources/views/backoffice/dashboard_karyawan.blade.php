@@ -439,7 +439,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <button class="w-8 h-8 rounded-lg hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer" onclick="alert('Detail absensi {{ $att->tanggal }}: Masuk: {{ $att->jam_masuk }}, Keluar: {{ $att->jam_keluar }}. Lokasi: {{ addslashes($att->lokasi_masuk) }}')">
+                        <button type="button" class="w-8 h-8 rounded-lg hover:bg-slate-100 transition-all text-slate-400 hover:text-primary active:scale-90 cursor-pointer flex items-center justify-center mx-auto" onclick="showAttDetailModal('{{ \Carbon\Carbon::parse($att->tanggal)->translatedFormat('d F Y') }}', '{{ $att->jam_masuk ? substr($att->jam_masuk, 0, 5) : '--:--' }}', '{{ $att->jam_keluar ? substr($att->jam_keluar, 0, 5) : '--:--' }}', '{{ $att->total_jam_kerja ?? '--' }}', '{{ ucfirst($att->status_kehadiran) }}', '{{ $att->status_kerja ?? 'WFO' }}', '{{ $att->foto_masuk ? asset('storage/' . $att->foto_masuk) : '' }}', '{{ $att->foto_keluar ? asset('storage/' . $att->foto_keluar) : '' }}', '{{ addslashes($att->lokasi_masuk ?? '') }}', '{{ addslashes($att->lokasi_keluar ?? '') }}', '{{ addslashes(strip_tags($att->keterangan ?? 'Tidak ada catatan.')) }}')">
                             <span class="material-symbols-outlined text-[20px]">info</span>
                         </button>
                     </td>
@@ -451,6 +451,71 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Modal Detail Absensi Karyawan -->
+<div id="modal-att-detail" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-outline-variant w-full max-w-xl overflow-hidden animate-modal-pop">
+        <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
+            <div>
+                <h3 class="font-bold text-slate-800 text-base" id="att-detail-date">Detail Kehadiran</h3>
+                <p class="text-xs text-slate-500 mt-0.5" id="att-detail-status-badge">Status Kehadiran</p>
+            </div>
+            <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer p-1" onclick="document.getElementById('modal-att-detail').classList.add('hidden')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            <!-- Summary Info -->
+            <div class="grid grid-cols-3 gap-3 text-center bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div>
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Jam Masuk</p>
+                    <p class="text-sm font-bold text-slate-800 mt-0.5" id="att-detail-in">--:--</p>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Jam Keluar</p>
+                    <p class="text-sm font-bold text-slate-800 mt-0.5" id="att-detail-out">--:--</p>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Total Durasi</p>
+                    <p class="text-sm font-bold text-primary mt-0.5" id="att-detail-duration">-- Jam</p>
+                </div>
+            </div>
+
+            <!-- Foto & Lokasi -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <p class="text-xs font-bold text-slate-700">Foto & Lokasi Masuk</p>
+                    <div class="w-full h-36 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center">
+                        <img id="att-detail-photo-in" src="" class="w-full h-full object-cover hidden" alt="Foto Masuk">
+                        <span id="att-detail-photo-in-none" class="text-xs text-slate-400">Tidak ada foto</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 font-mono break-words leading-tight" id="att-detail-loc-in"></p>
+                </div>
+                <div class="space-y-1.5">
+                    <p class="text-xs font-bold text-slate-700">Foto & Lokasi Keluar</p>
+                    <div class="w-full h-36 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center">
+                        <img id="att-detail-photo-out" src="" class="w-full h-full object-cover hidden" alt="Foto Keluar">
+                        <span id="att-detail-photo-out-none" class="text-xs text-slate-400">Tidak ada foto</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 font-mono break-words leading-tight" id="att-detail-loc-out"></p>
+                </div>
+            </div>
+
+            <!-- Catatan Laporan -->
+            <div class="space-y-1 pt-2 border-t border-slate-100">
+                <p class="text-xs font-bold text-slate-700">Laporan Singkat / Keterangan</p>
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 max-h-28 overflow-y-auto" id="att-detail-notes">
+                    Tidak ada keterangan.
+                </div>
+            </div>
+        </div>
+        <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+            <button type="button" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition-colors cursor-pointer" onclick="document.getElementById('modal-att-detail').classList.add('hidden')">
+                Tutup
+            </button>
+        </div>
     </div>
 </div>
 @endsection
@@ -494,5 +559,43 @@
             });
         }
     });
+
+    function showAttDetailModal(tanggal, masuk, keluar, durasi, status, kerja, fotoIn, fotoOut, locIn, locOut, notes) {
+        document.getElementById('att-detail-date').innerText = 'Presensi: ' + tanggal;
+        document.getElementById('att-detail-status-badge').innerText = status + ' (' + kerja + ')';
+        document.getElementById('att-detail-in').innerText = masuk;
+        document.getElementById('att-detail-out').innerText = keluar;
+        document.getElementById('att-detail-duration').innerText = durasi + (durasi !== '--' ? ' Jam' : '');
+        document.getElementById('att-detail-notes').innerText = notes || 'Tidak ada catatan.';
+
+        const pIn = document.getElementById('att-detail-photo-in');
+        const pInNone = document.getElementById('att-detail-photo-in-none');
+        if (fotoIn && fotoIn.trim() !== '') {
+            pIn.src = fotoIn;
+            pIn.classList.remove('hidden');
+            pInNone.classList.add('hidden');
+        } else {
+            pIn.src = '';
+            pIn.classList.add('hidden');
+            pInNone.classList.remove('hidden');
+        }
+
+        const pOut = document.getElementById('att-detail-photo-out');
+        const pOutNone = document.getElementById('att-detail-photo-out-none');
+        if (fotoOut && fotoOut.trim() !== '') {
+            pOut.src = fotoOut;
+            pOut.classList.remove('hidden');
+            pOutNone.classList.add('hidden');
+        } else {
+            pOut.src = '';
+            pOut.classList.add('hidden');
+            pOutNone.classList.remove('hidden');
+        }
+
+        document.getElementById('att-detail-loc-in').innerText = locIn || '-';
+        document.getElementById('att-detail-loc-out').innerText = locOut || '-';
+
+        document.getElementById('modal-att-detail').classList.remove('hidden');
+    }
 </script>
 @endpush

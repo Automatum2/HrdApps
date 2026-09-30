@@ -138,6 +138,12 @@
                 <span class="font-medium font-body-md">Jabatan</span>
             </a>
 
+            <!-- Persetujuan Cuti (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.leaves.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.leaves.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.leaves.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">event_available</span>
+                <span class="font-medium font-body-md">Persetujuan Cuti</span>
+            </a>
+
             
             <!-- MENU UNTUK MANAGER DAN EMPLOYEE -->
             @else

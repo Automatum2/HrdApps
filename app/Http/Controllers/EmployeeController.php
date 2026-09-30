@@ -26,10 +26,10 @@ class EmployeeController extends Controller
         return view('backoffice.super_admin_kelola_karyawan', compact('employees', 'departments', 'positions'));
     }
 
-    public function manage()
+    public function manage(Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        $dbRole = $user->role;
+        $dbRole = $user ? $user->role : session('user_role');
 
         $employeesQuery = Employee::whereNotNull('department_id')
                         ->where('department_id', '>', 0)
@@ -53,7 +53,47 @@ class EmployeeController extends Controller
             $employeesQuery->where('department_id', $department_id);
         }
 
-        $employees = $employeesQuery->orderBy('created_at', 'desc')->get();
+        // Stats counter
+        $statsBaseQuery = clone $employeesQuery;
+        $allAssigned = $statsBaseQuery->get();
+        $totalStaff = $allAssigned->count();
+        $totalAktif = $allAssigned->where('status', 'aktif')->count();
+        
+        $todayStr = \Carbon\Carbon::today()->toDateString();
+        $totalCuti = \App\Models\Attendance::where('tanggal', $todayStr)
+            ->whereIn('status_kehadiran', ['cuti', 'izin'])
+            ->whereIn('employee_id', $allAssigned->pluck('id'))
+            ->count();
+            
+        $totalBaru = $allAssigned->filter(function($emp) {
+            return $emp->created_at && $emp->created_at->isCurrentMonth();
+        })->count();
+
+        $stats = [
+            'total_staff' => $totalStaff,
+            'aktif' => $totalAktif,
+            'cuti' => $totalCuti,
+            'baru' => $totalBaru
+        ];
+
+        if ($request->filled('status')) {
+            $statusVal = strtolower($request->status);
+            if (in_array($statusVal, ['aktif', 'nonaktif'])) {
+                $employeesQuery->where('status', $statusVal);
+            } else {
+                $employeesQuery->where('status_kerja', $statusVal);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $employeesQuery->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        $employees = $employeesQuery->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         if ($dbRole === 'manager_departemen') {
             $unassigned_employees = collect([]);
@@ -64,7 +104,7 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('nama_department', 'asc')->get();
         $positions = Position::orderBy('nama_jabatan', 'asc')->get();
 
-        return view('backoffice.karyawan', compact('employees', 'unassigned_employees', 'departments', 'positions'));
+        return view('backoffice.karyawan', compact('employees', 'unassigned_employees', 'departments', 'positions', 'stats'));
     }
 
     public function export(Request $request)
@@ -187,16 +227,23 @@ class EmployeeController extends Controller
 
     public function show($id)
     {
-        // For now, only Super Admin (and eventually HRD Manager) will access this specific controller method.
-        // Karyawan themselves might have a different route (e.g. /profile) pointing to a different controller/method.
-        if (!in_array(session('user_role'), ['super_admin', 'hr_manager', 'manager_departemen'])) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $role = $user ? $user->role : session('user_role');
+
+        if (!in_array($role, ['super_admin', 'hr_manager', 'manager_departemen'])) {
             return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
         }
 
         $employee = Employee::with(['department', 'position', 'user', 'documents'])->findOrFail($id);
+
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            if ($employee->department_id !== $user->employee->department_id) {
+                return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Karyawan berada di luar departemen Anda.');
+            }
+        }
         
         // Pass a 'back_route' variable to know where the "Kembali" button should point
-        $back_route = session('user_role') === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
+        $back_route = $role === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
 
         return view('backoffice.detail_karyawan', compact('employee', 'back_route'));
     }

@@ -94,6 +94,17 @@
             </tbody>
         </table>
     </div>
+    
+    @if($applicants->hasPages())
+    <div class="px-6 py-4 border-t border-outline-variant bg-surface flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-on-surface-variant">
+            Menampilkan <span class="font-bold text-on-surface">{{ $applicants->firstItem() ?? 0 }} - {{ $applicants->lastItem() ?? 0 }}</span> dari <span class="font-bold text-on-surface">{{ $applicants->total() }}</span> pelamar
+        </p>
+        <div>
+            {{ $applicants->links() }}
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 

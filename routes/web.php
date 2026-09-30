@@ -21,7 +21,7 @@ Route::get('/storage/{path}', function ($path) {
     }
 
     return response()->file($fullPath);
-})->where('path', '.*');
+})->where('path', '.*')->middleware('auth');
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -66,8 +66,12 @@ Route::post('/karir/submit', function (\Illuminate\Http\Request $request) {
         $filePath = $request->file('cv_file')->store('cv_files', 'public');
     }
 
+    do {
+        $tempNik = 'APP-' . random_int(1000, 9999);
+    } while (\App\Models\Employee::where('nik', $tempNik)->exists());
+
     \App\Models\Employee::create([
-        'nik' => 'APP-' . rand(1000, 9999), // Temporary NIK untuk pelamar
+        'nik' => $tempNik, // Temporary NIK unik untuk pelamar
         'nama_lengkap' => $request->nama,
         'email' => $request->email,
         'cv_text' => $request->cv_text,
@@ -329,15 +333,18 @@ Route::middleware(['auth'])->group(function () {
                 $query->where('status_kehadiran', $request->status);
             }
             
-            $attendances = $query->orderBy('tanggal', 'desc')->get();
-            
+            // Hitung statistik untuk seluruh filter (sebelum dipaginate)
+            $allFiltered = (clone $query)->get();
             $stats = [
-                'hadir' => $attendances->where('status_kehadiran', 'hadir')->count(),
-                'izin' => $attendances->where('status_kehadiran', 'izin')->count(),
-                'sakit' => $attendances->where('status_kehadiran', 'sakit')->count(),
-                'alpha' => $attendances->where('status_kehadiran', 'alpha')->count(),
-                'cuti' => $attendances->where('status_kehadiran', 'cuti')->count(),
+                'hadir' => $allFiltered->where('status_kehadiran', 'hadir')->count(),
+                'izin' => $allFiltered->where('status_kehadiran', 'izin')->count(),
+                'sakit' => $allFiltered->where('status_kehadiran', 'sakit')->count(),
+                'alpha' => $allFiltered->where('status_kehadiran', 'alpha')->count(),
+                'cuti' => $allFiltered->where('status_kehadiran', 'cuti')->count(),
             ];
+            
+            // Pagination dinamis 10 data per halaman
+            $attendances = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
             
             if (isset($department_id)) {
                 $departments = \Illuminate\Support\Facades\DB::table('departments')->where('id', $department_id)->get();
@@ -475,11 +482,4 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'destroy'])->name('backoffice.super_admin.kelola_karyawan.destroy');
         Route::get('/backoffice/super-admin/kelola-karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.super_admin.kelola_karyawan.show'); // duplicate fallback
     });
-
-});
-
-// Temporary route to reset attendance for testing
-Route::get('/reset-absen', function () {
-    \App\Models\Attendance::where('tanggal', \Carbon\Carbon::today()->toDateString())->delete();
-    return 'Berhasil reset data absensi hari ini!';
 });

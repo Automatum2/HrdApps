@@ -25,6 +25,9 @@ class PayrollController extends Controller
             if (!$employee) {
                 return redirect()->route('backoffice.dashboard')->with('error', 'Data karyawan tidak ditemukan.');
             }
+
+            $hrManagerUser = \App\Models\User::where('role', 'hr_manager')->with('employee')->first();
+            $hrManagerName = $hrManagerUser && $hrManagerUser->employee ? $hrManagerUser->employee->nama_lengkap : ($hrManagerUser->username ?? 'HR Manager');
             
             $latestPayroll = Payroll::where('employee_id', $employeeId)
                 ->whereIn('status', ['approved', 'paid'])
@@ -48,6 +51,7 @@ class PayrollController extends Controller
                 $data['totalPotongan'] = $latestPayroll->total_potongan;
                 $data['gajiBersih'] = $latestPayroll->gaji_bersih;
                 $data['currentTime'] = Carbon::now();
+                $data['hrManagerName'] = $hrManagerName;
                 
                 return view('backoffice.slip_gaji_karyawan', $data);
             } else {
@@ -56,6 +60,7 @@ class PayrollController extends Controller
                 $data = self::calculatePayroll($employee, $currentMonth, $currentYear);
                 $data['monthName'] = Carbon::now()->translatedFormat('F Y');
                 $data['currentTime'] = Carbon::now();
+                $data['hrManagerName'] = $hrManagerName;
                 return view('backoffice.slip_gaji_karyawan', $data);
             }
         }
@@ -270,7 +275,8 @@ class PayrollController extends Controller
         $hadir = $attendances->where('status_kehadiran', 'hadir')->count();
         $sakit = $attendances->where('status_kehadiran', 'sakit')->count();
         $izin = $attendances->where('status_kehadiran', 'izin')->count();
-        $alpha = $hariKerjaNormal - ($hadir + $sakit + $izin);
+        $cuti = $attendances->where('status_kehadiran', 'cuti')->count();
+        $alpha = $hariKerjaNormal - ($hadir + $sakit + $izin + $cuti);
         if ($alpha < 0) $alpha = 0;
         
         $allowancesList = [];

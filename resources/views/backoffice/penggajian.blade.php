@@ -181,9 +181,9 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center gap-2">
-                            <button class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Lihat Detail Slip">
+                            <a href="{{ route('backoffice.penggajian.download.pdf', $payroll->employee_id) }}" class="p-1.5 bg-white border border-outline-variant text-primary rounded hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer" title="Unduh / Lihat Slip Gaji (PDF)" target="_blank">
                                 <span class="material-symbols-outlined text-sm">visibility</span>
-                            </button>
+                            </a>
                             @if($payroll->status == 'approved' || $payroll->status == 'paid')
                                 <button class="p-1.5 bg-white border border-outline-variant text-[#A1A1AA] rounded cursor-not-allowed opacity-50" title="Telah Disetujui" disabled>
                                     <span class="material-symbols-outlined text-sm">done</span>
@@ -208,20 +208,9 @@
         </table>
     </div>
     
-    <!-- Pagination -->
+    <!-- Footer Info -->
     <div class="px-6 py-4 bg-white border-t border-outline-variant flex items-center justify-between">
-        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-entries">{{ count($payrolls) > 0 ? '1-'.count($payrolls) : '0' }}</span> dari <span class="font-bold text-on-surface">{{ count($payrolls) }}</span> karyawan</p>
-        <div class="flex items-center gap-2">
-            <button class="p-2 border border-outline-variant rounded hover:bg-surface-container-low transition-all disabled:opacity-50 cursor-pointer" disabled>
-                <span class="material-symbols-outlined text-lg">chevron_left</span>
-            </button>
-            <button class="px-3 py-1 bg-primary text-white font-bold rounded text-xs">1</button>
-            <button class="px-3 py-1 text-on-surface-variant hover:bg-surface-container-low rounded text-xs cursor-pointer">2</button>
-            <button class="px-3 py-1 text-on-surface-variant hover:bg-surface-container-low rounded text-xs cursor-pointer">3</button>
-            <button class="p-2 border border-outline-variant rounded hover:bg-surface-container-low transition-all cursor-pointer">
-                <span class="material-symbols-outlined text-lg">chevron_right</span>
-            </button>
-        </div>
+        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-entries">{{ count($payrolls) > 0 ? '1-'.count($payrolls) : '0' }}</span> dari <span class="font-bold text-on-surface">{{ count($payrolls) }}</span> karyawan pada periode ini</p>
     </div>
 </div>
 @endsection

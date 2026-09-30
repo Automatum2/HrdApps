@@ -63,8 +63,8 @@
                     <img alt="HRDApps Logo" class="w-full h-full object-contain" src="{{ asset('images/logo.svg') }}">
                 </div>
                 <div>
-                    <h3 class="font-display-lg text-display-lg text-primary leading-tight">PT Global Tech Solusindo</h3>
-                    <p class="font-body-md text-on-surface-variant italic">Cyber Tower Suite 10, Jakarta Pusat, Indonesia</p>
+                    <h3 class="font-display-lg text-display-lg text-primary leading-tight">{{ config('app.name', 'PT Indo Apps Solusindo') }}</h3>
+                    <p class="font-body-md text-on-surface-variant italic">Portal Manajemen HRD Digital Terpadu</p>
                 </div>
             </div>
             <div class="text-right mt-4 md:mt-0">
@@ -195,22 +195,26 @@
                     <div class="absolute inset-0 bg-primary/5 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow"></div>
                     <img class="w-full h-full object-contain relative z-10 opacity-80 grayscale group-hover:grayscale-0 transition-all" alt="Digital Signature" src="{{ asset('images/signature.svg') }}">
                 </div>
-                <p class="font-body-md font-bold mt-2">Jane Doe</p>
+                <p class="font-body-md font-bold mt-2">{{ $hrManagerName ?? 'HR Manager' }}</p>
                 <p class="text-xs text-on-surface-variant">Manager HRD</p>
             </div>
         </div>
     </div>
     
     <!-- Additional Help/Contact -->
-    <div class="no-print mt-xl p-lg bg-surface-container-high rounded-xl flex items-center gap-4 border border-primary/10">
-        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined">help_outline</span>
+    <div class="no-print mt-xl p-lg bg-surface-container-high rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-primary/10">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined">help_outline</span>
+            </div>
+            <div>
+                <h6 class="font-title-sm text-primary font-bold">Ada pertanyaan mengenai rincian gaji Anda?</h6>
+                <p class="font-body-md text-on-surface-variant text-xs">Hubungi departemen keuangan atau HRD melalui tiket bantuan di portal HRDApps.</p>
+            </div>
         </div>
-        <div>
-            <h6 class="font-title-sm text-primary">Ada pertanyaan mengenai rincian gaji Anda?</h6>
-            <p class="font-body-md text-on-surface-variant">Hubungi departemen keuangan atau HRD melalui tiket bantuan di portal HRDApps.</p>
-        </div>
-        <button class="ml-auto px-md py-2 bg-white rounded-lg font-bold text-primary shadow-sm hover:shadow-md transition-all btn-ripple">Kirim Tiket</button>
+        <a href="mailto:admin@dhs.or.id?subject=Pertanyaan%20Slip%20Gaji%20{{ urlencode($monthName) }}%20-%20{{ urlencode($employee->nama_lengkap) }}&body=Halo%20Tim%20HRD,%0A%0ASaya%20ingin%20menanyakan%20mengenai%20rincian%20slip%20gaji%20saya%20periode%20{{ urlencode($monthName) }}:%0ANIK:%20{{ $employee->nik }}%0ANama:%20{{ urlencode($employee->nama_lengkap) }}%0A%0APertanyaan:%0A" class="px-5 py-2.5 bg-white text-primary font-bold text-xs rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all btn-ripple whitespace-nowrap cursor-pointer">
+            Hubungi HRD
+        </a>
     </div>
 </div>
 @endsection

@@ -52,40 +52,53 @@
                             </td>
                             <td class="py-3 px-4">
                                 @if($leave->status === 'menunggu_manager')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                                         Menunggu Manager
                                     </span>
                                 @elseif($leave->status === 'menunggu_hr')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
                                         Menunggu HR
                                     </span>
+                                @elseif($leave->status === 'menunggu_super_admin')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-800 border border-purple-200">
+                                        Menunggu Super Admin
+                                    </span>
                                 @elseif($leave->status === 'disetujui')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-800 border border-green-200">
                                         Disetujui
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" title="{{ $leave->alasan_penolakan }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-800 border border-red-200" title="{{ $leave->alasan_penolakan }}">
                                         Ditolak
                                     </span>
                                 @endif
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex justify-center gap-2">
-                                    @php $role = session('user_role'); @endphp
+                                    @php 
+                                        $user = auth()->user();
+                                        $role = $user ? $user->role : session('user_role'); 
+                                    @endphp
                                     @if($role === 'manager_departemen' && $leave->status === 'menunggu_manager')
                                         <form action="{{ route('backoffice.leaves.approve', $leave->id) }}" method="POST" class="inline">
                                             @csrf
-                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">Setujui</button>
+                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Setujui</button>
                                         </form>
-                                        <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">Tolak</button>
-                                    @elseif(in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager', 'super_admin']) && $leave->status === 'menunggu_hr')
+                                        <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Tolak</button>
+                                    @elseif(in_array($role, ['hr_manager', 'hr_admin_manager', 'hr_training_manager']) && $leave->status === 'menunggu_hr')
                                         <form action="{{ route('backoffice.leaves.approve', $leave->id) }}" method="POST" class="inline">
                                             @csrf
-                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">Setujui</button>
+                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Setujui</button>
                                         </form>
-                                        <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">Tolak</button>
+                                        <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Tolak</button>
+                                    @elseif($role === 'super_admin' && in_array($leave->status, ['menunggu_super_admin', 'menunggu_hr']))
+                                        <form action="{{ route('backoffice.leaves.approve', $leave->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Setujui (Super Admin)</button>
+                                        </form>
+                                        <button onclick="document.getElementById('rejectModal-{{ $leave->id }}').classList.remove('hidden')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">Tolak</button>
                                     @else
-                                        <span class="text-gray-400 text-sm">Tidak ada aksi</span>
+                                        <span class="text-slate-400 text-xs">Selesai</span>
                                     @endif
                                 </div>
                             </td>

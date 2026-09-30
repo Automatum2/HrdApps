@@ -157,6 +157,17 @@
                 </tbody>
             </table>
         </div>
+        
+        @if($attendances->hasPages())
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+            <p class="text-xs text-slate-500">
+                Menampilkan <span class="font-bold text-slate-700">{{ $attendances->firstItem() ?? 0 }} - {{ $attendances->lastItem() ?? 0 }}</span> dari <span class="font-bold text-slate-700">{{ $attendances->total() }}</span> entri
+            </p>
+            <div>
+                {{ $attendances->links() }}
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

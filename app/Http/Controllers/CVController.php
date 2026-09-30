@@ -22,8 +22,8 @@ class CVController extends Controller
     {
         $this->authorizeCvAccess();
 
-        // Tampilkan semua employee yang belum di-approve (pelamar)
-        $applicants = Employee::where('is_cv_approved', false)->orderBy('created_at', 'desc')->get();
+        // Tampilkan semua employee yang belum di-approve (pelamar) dengan pagination
+        $applicants = Employee::where('is_cv_approved', false)->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         return view('backoffice.cv.index', compact('applicants'));
     }
 
@@ -41,8 +41,10 @@ class CVController extends Controller
             return redirect()->route('backoffice.cv.index')->with('error', 'Pelamar ini sudah disetujui sebelumnya.');
         }
 
-        // Generate NIK random
-        $nik = 'EMP-' . rand(1000, 9999);
+        // Generate NIK random unik
+        do {
+            $nik = 'EMP-' . random_int(1000, 9999);
+        } while (Employee::where('nik', $nik)->exists());
 
         // Generate 6-digit OTP aktivasi akun
         $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);

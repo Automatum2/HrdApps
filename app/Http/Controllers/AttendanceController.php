@@ -200,7 +200,7 @@ class AttendanceController extends Controller
             // Tambahkan cuti/izin yang masih pending
             $pendingLeaveDays = \App\Models\LeaveRequest::where('employee_id', $employeeId)
                 ->whereYear('tanggal_mulai', $mulai->year)
-                ->whereIn('status', ['menunggu_manager', 'menunggu_hr'])
+                ->whereIn('status', ['menunggu_manager', 'menunggu_hr', 'menunggu_super_admin'])
                 ->whereIn('tipe', ['izin', 'cuti'])
                 ->get()
                 ->sum(function($leave) {
@@ -239,7 +239,16 @@ class AttendanceController extends Controller
             $leaveRequest->dokumen_pendukung = $dokumenPath;
         }
 
-        $leaveRequest->status = 'menunggu_manager';
+        // Tentukan initial status berdasarkan role pemohon
+        $userRole = auth()->check() ? auth()->user()->role : session('user_role');
+        if ($userRole === 'hr_manager') {
+            $leaveRequest->status = 'menunggu_super_admin';
+        } elseif ($userRole === 'manager_departemen') {
+            $leaveRequest->status = 'menunggu_hr';
+        } else {
+            $leaveRequest->status = 'menunggu_manager';
+        }
+
         $leaveRequest->save();
 
         return back()->with('success', 'Pengajuan ' . ucfirst($request->tipe) . ' berhasil dikirim.');

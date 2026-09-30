@@ -66,6 +66,10 @@
     </div>
     
     <div class="flex items-center gap-3 w-full md:w-auto z-10">
+        <button type="button" onclick="document.getElementById('form-request-leave-modal-hr').classList.remove('hidden')" class="flex-1 md:flex-none px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">event_busy</span>
+            Ajukan Cuti/Izin
+        </button>
         <a href="{{ route('attendance.index') }}" class="flex-1 md:flex-none px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer btn-ripple group">
             <span class="material-symbols-outlined text-[18px] group-hover:animate-bounce">location_on</span>
             Halaman Absensi
@@ -76,6 +80,58 @@
         </button>
     </div>
 </section>
+
+<!-- Modal Pengajuan Cuti HR Manager -->
+<div id="form-request-leave-modal-hr" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-xl border border-outline-variant w-full max-w-2xl overflow-hidden animate-modal-pop">
+        <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
+            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">edit_document</span>
+                Pengajuan Cuti / Izin HR Manager (Ke Super Admin)
+            </h3>
+            <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer" onclick="document.getElementById('form-request-leave-modal-hr').classList.add('hidden')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form action="{{ route('attendance.leave') }}" method="POST" class="p-6 space-y-4" enctype="multipart/form-data">
+            @csrf
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tipe Pengajuan</label>
+                    <select name="tipe" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary bg-white">
+                        <option value="cuti">Cuti Tahunan</option>
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Dokumen Pendukung (Opsional)</label>
+                    <input type="file" name="dokumen_pendukung" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tanggal Mulai</label>
+                    <input type="date" name="tanggal_mulai" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tanggal Selesai</label>
+                    <input type="date" name="tanggal_selesai" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Keterangan / Alasan</label>
+                <textarea name="keterangan" rows="4" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Tuliskan keterangan detail pengajuan cuti ke Super Admin..."></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave-modal-hr').classList.add('hidden')">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-lg shadow transition-colors cursor-pointer">
+                    Kirim Pengajuan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Charts Bento Grid -->
 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -686,65 +742,6 @@
             document.body.appendChild(form);
             form.submit();
         }
-    });
-
-    // ==========================================
-    // 6. Fungsi Update Widget Statistik
-    // ==========================================
-    function updateStatistics() {
-        const totalRows = tableAnggotaBody.querySelectorAll('tr').length;
-        statTotalKaryawan.innerText = totalRows;
-        statHadirKaryawan.innerText = totalRows; // Semua hadir dalam simulasi
-        donutTotal.innerText = totalRows;
-        
-        // Gaji simulasi (Tetap = 8.5jt, Kontrak = 7jt, Magang = 4jt)
-        let totalGaji = 0;
-        tableAnggotaBody.querySelectorAll('tr').forEach(row => {
-            const status = row.getAttribute('data-status');
-            if (status === 'Tetap') totalGaji += 8.5;
-            else if (status === 'Kontrak') totalGaji += 7.0;
-            else totalGaji += 4.0;
-        });
-        
-        statHadirKaryawan.innerText = totalRows;
-        document.getElementById('stat-belum-absen').innerText = "0";
-        document.getElementById('stat-estimasi-gaji').innerText = `Rp ${totalGaji.toFixed(1)}jt`;
-        document.getElementById('table-entries-info').innerText = `Menampilkan 1 - ${totalRows} dari ${totalRows} entri`;
-    }
-
-    // ==========================================
-    // 7. Logika Tooltip Interaktif untuk Chart SVG
-    // ==========================================
-    const chartTooltip = document.getElementById('chart-tooltip');
-    const tooltipTitle = document.getElementById('tooltip-title');
-    const tooltipValue = document.getElementById('tooltip-value');
-    const chartContainer = document.getElementById('chart-container');
-
-    document.querySelectorAll('.chart-point').forEach(point => {
-        point.addEventListener('mouseenter', (e) => {
-            const title = point.getAttribute('data-title');
-            const value = point.getAttribute('data-value');
-            
-            tooltipTitle.innerText = title;
-            tooltipValue.innerText = value;
-            
-            chartTooltip.classList.remove('hidden');
-            
-            // Dapatkan ukuran kontainer dan titik koordinat
-            const rect = point.getBoundingClientRect();
-            const containerRect = chartContainer.getBoundingClientRect();
-            
-            // Atur posisi tooltip melayang tepat di atas titik circle
-            const x = rect.left - containerRect.left + (rect.width / 2) - (chartTooltip.offsetWidth / 2);
-            const y = rect.top - containerRect.top - chartTooltip.offsetHeight - 10;
-            
-            chartTooltip.style.left = `${x}px`;
-            chartTooltip.style.top = `${y}px`;
-        });
-        
-        point.addEventListener('mouseleave', () => {
-            chartTooltip.classList.add('hidden');
-        });
     });
 
     // ==========================================

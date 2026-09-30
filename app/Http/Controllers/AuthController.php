@@ -25,8 +25,18 @@ class AuthController extends Controller
         \Illuminate\Support\Facades\Log::info('Login attempt', ['login' => $loginInput]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
             $user = Auth::user();
+
+            if ($user->employee && $user->employee->status === 'nonaktif') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'username' => 'Akun Anda telah dinonaktifkan oleh administrator.',
+                ])->onlyInput('username');
+            }
+
+            $request->session()->regenerate();
 
             session([
                 'user_role' => $user->role,

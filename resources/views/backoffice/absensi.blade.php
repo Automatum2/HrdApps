@@ -219,7 +219,7 @@
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-absensi-body">
                 @forelse($attendances as $index => $att)
                 <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $att->employee->nik ?? '' }}" data-dept="{{ $att->employee->department->nama_department ?? 'Umum' }}" data-status="{{ ucfirst($att->status_kehadiran) }}" data-kerja="{{ $att->status_kerja }}">
-                    <td class="px-6 py-4">{{ $index + 1 }}</td>
+                    <td class="px-6 py-4">{{ $attendances->firstItem() ? $attendances->firstItem() + $index : $index + 1 }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
@@ -265,17 +265,9 @@
     </div>
     
     <div class="p-6 bg-surface-container-low border-t border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">4</span> dari <span class="font-bold text-on-surface" id="total-count-footer">4</span> entri</p>
-        <div class="flex gap-1">
-            <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors disabled:opacity-30 cursor-pointer" disabled>
-                <span class="material-symbols-outlined text-lg">chevron_left</span>
-            </button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold shadow-sm text-xs">1</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors text-xs cursor-pointer">2</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors text-xs cursor-pointer">3</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors cursor-pointer">
-                <span class="material-symbols-outlined text-lg">chevron_right</span>
-            </button>
+        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">{{ $attendances->firstItem() ?? 0 }} - {{ $attendances->lastItem() ?? 0 }}</span> dari <span class="font-bold text-on-surface" id="total-count-footer">{{ $attendances->total() }}</span> entri</p>
+        <div>
+            {{ $attendances->links() }}
         </div>
     </div>
 </div>

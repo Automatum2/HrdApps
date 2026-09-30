@@ -35,14 +35,20 @@
         <div class="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
             <div class="flex items-center gap-3 w-full sm:w-auto">
                 <label class="text-xs uppercase font-bold text-on-surface-variant whitespace-nowrap">Filter Status:</label>
-                <select class="form-select bg-white border border-outline-variant rounded-lg text-sm py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-status">
-                    <option value="">Semua Status</option>
-                    <option value="Tetap">Karyawan Tetap</option>
-                    <option value="Kontrak">Karyawan Kontrak</option>
-                    <option value="Magang">Magang (Intern)</option>
-                    <option value="Musiman">Musiman</option>
-                    <option value="Harian (DW)">Harian (DW)</option>
-                    <option value="Tidak Tetap">Tidak Tetap</option>
+                <select class="form-select bg-white border border-outline-variant rounded-lg text-sm py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-status" onchange="window.location.href='{{ route('backoffice.karyawan') }}?status=' + this.value">
+                    <option value="">Semua Karyawan</option>
+                    <optgroup label="Status Akun">
+                        <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Hanya Aktif</option>
+                        <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Hanya Nonaktif</option>
+                    </optgroup>
+                    <optgroup label="Status Kerja">
+                        <option value="tetap" {{ request('status') === 'tetap' ? 'selected' : '' }}>Karyawan Tetap</option>
+                        <option value="kontrak" {{ request('status') === 'kontrak' ? 'selected' : '' }}>Karyawan Kontrak</option>
+                        <option value="magang" {{ request('status') === 'magang' ? 'selected' : '' }}>Magang (Intern)</option>
+                        <option value="musiman" {{ request('status') === 'musiman' ? 'selected' : '' }}>Musiman</option>
+                        <option value="harian" {{ request('status') === 'harian' ? 'selected' : '' }}>Harian (DW)</option>
+                        <option value="tenaga_lepas" {{ request('status') === 'tenaga_lepas' ? 'selected' : '' }}>Tenaga Lepas</option>
+                    </optgroup>
                 </select>
             </div>
         </div>
@@ -53,15 +59,7 @@
     </div>
     
     <div class="p-4 bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
-        <p class="text-xs text-on-surface-variant font-medium">Menampilkan <span class="font-bold text-on-surface" id="showing-range">1-{{ count($employees) }}</span> dari <span class="font-bold text-on-surface" id="total-entries-top">{{ count($employees) }}</span> karyawan</p>
-        <div class="flex gap-2">
-            <button class="p-1 hover:bg-surface-container-high rounded transition-colors text-outline cursor-pointer" title="Filter List">
-                <span class="material-symbols-outlined text-[20px]">filter_list</span>
-            </button>
-            <button class="p-1 hover:bg-surface-container-high rounded transition-colors text-outline cursor-pointer" title="Grid View">
-                <span class="material-symbols-outlined text-[20px]">grid_view</span>
-            </button>
-        </div>
+        <p class="text-xs text-on-surface-variant font-medium">Menampilkan <span class="font-bold text-on-surface" id="showing-range">{{ $employees->firstItem() ?? 0 }}-{{ $employees->lastItem() ?? 0 }}</span> dari <span class="font-bold text-on-surface" id="total-entries-top">{{ $employees->total() }}</span> karyawan</p>
     </div>
     
     <!-- Table Content -->
@@ -75,7 +73,8 @@
                     <th class="px-6 py-4">NIK</th>
                     <th class="px-6 py-4">Jabatan</th>
                     <th class="px-6 py-4">Departemen</th>
-                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Status Kerja</th>
+                    <th class="px-6 py-4">Status Akun</th>
                     @if(session('user_role') !== 'manager_departemen')
                     <th class="px-6 py-4 text-center">Aksi</th>
                     @endif
@@ -83,7 +82,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="table-karyawan-body">
                 @forelse($employees as $index => $emp)
-                <tr class="hover:bg-primary/5 transition-colors group" data-nik="{{ $emp->nik }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="{{ $emp->department->nama_department ?? '-' }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
+                <tr class="{{ $emp->status === 'nonaktif' ? 'bg-slate-50 opacity-60 grayscale' : 'hover:bg-primary/5 group' }} transition-colors" data-nik="{{ $emp->nik }}" data-jabatan="{{ $emp->position->nama ?? 'Staff' }}" data-dept="{{ $emp->department->nama_department ?? '-' }}" data-status="{{ $emp->status_kerja ?? 'Tetap' }}">
                     <td class="px-6 py-4 text-center text-on-surface font-semibold font-mono">{{ $index + 1 }}</td>
                     <td class="px-6 py-4">
                         @if($emp->foto)
@@ -94,16 +93,29 @@
                             </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 font-bold text-on-surface">{{ $emp->nama_lengkap }}</td>
+                    <td class="px-6 py-4 font-bold {{ $emp->status === 'nonaktif' ? 'text-slate-400' : 'text-on-surface' }}">{{ $emp->nama_lengkap }}</td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant text-sm">{{ $emp->nik }}</td>
                     <td class="px-6 py-4">
-                        <div class="text-on-surface-variant">{{ $emp->position->nama ?? 'Staff' }}</div>
+                        <div class="text-on-surface-variant">{{ $emp->position->nama_jabatan ?? ($emp->position->nama ?? 'Staff') }}</div>
                     </td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 bg-secondary-container/30 text-secondary rounded-full font-semibold text-xs uppercase">{{ $emp->department->nama_department ?? '-' }}</span></td>
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ strtolower($emp->status_kerja ?? '') == 'kontrak' ? 'bg-surface-container-highest text-secondary' : (strtolower($emp->status_kerja ?? '') == 'magang' ? 'bg-tertiary-container/10 text-tertiary' : 'bg-primary-container/10 text-primary') }}">
-                            {{ $emp->status_kerja ?? 'Tetap' }}
+                            {{ ucfirst($emp->status_kerja ?? 'Tetap') }}
                         </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        @if($emp->status === 'nonaktif')
+                            <span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                <span>Nonaktif</span>
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                                <span>Aktif</span>
+                            </span>
+                        @endif
                     </td>
                     @if(session('user_role') !== 'manager_departemen')
                     <td class="px-6 py-4">
@@ -120,7 +132,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="{{ session('user_role') !== 'manager_departemen' ? '8' : '7' }}" class="px-6 py-8 text-center text-slate-500">
+                    <td colspan="{{ session('user_role') !== 'manager_departemen' ? '9' : '8' }}" class="px-6 py-8 text-center text-slate-500">
                         <span class="material-symbols-outlined text-4xl mb-2 text-outline">group_off</span>
                         <p>Belum ada data karyawan.</p>
                     </td>
@@ -132,14 +144,9 @@
     
     <!-- Pagination Footer -->
     <div class="p-6 border-t border-outline-variant bg-surface-bright flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">{{ count($employees) }}</span> karyawan dari total <span class="font-bold text-on-surface" id="total-count-footer">{{ count($employees) }}</span></p>
-        <div class="flex items-center gap-1">
-            <button class="px-4 py-2 border border-outline-variant rounded-lg text-xs font-semibold hover:bg-surface-container transition-colors disabled:opacity-50 cursor-pointer" disabled>Sebelumnya</button>
-            <button class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg text-xs font-bold shadow-sm">1</button>
-            <button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-lg text-xs hover:bg-surface-container transition-colors cursor-pointer">2</button>
-            <button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-lg text-xs hover:bg-surface-container transition-colors cursor-pointer">3</button>
-            <span class="px-2 text-outline">...</span>
-            <button class="px-4 py-2 border border-outline-variant rounded-lg text-xs font-semibold hover:bg-surface-container transition-colors cursor-pointer">Lanjut</button>
+        <p class="text-xs text-on-surface-variant">Menampilkan <span class="font-bold text-on-surface" id="showing-count-footer">{{ $employees->firstItem() ?? 0 }} - {{ $employees->lastItem() ?? 0 }}</span> karyawan dari total <span class="font-bold text-on-surface" id="total-count-footer">{{ $employees->total() }}</span></p>
+        <div>
+            {{ $employees->links() }}
         </div>
     </div>
 </div>
@@ -153,7 +160,7 @@
         </div>
         <div>
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Total Staff</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-total-staff">5</p>
+            <p class="text-headline-md font-bold text-on-surface" id="widget-total-staff">{{ $stats['total_staff'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 2: Aktif -->
@@ -163,7 +170,7 @@
         </div>
         <div>
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Aktif</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-aktif">5</p>
+            <p class="text-headline-md font-bold text-on-surface" id="widget-aktif">{{ $stats['aktif'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 3: Cuti/Off -->
@@ -172,8 +179,8 @@
             <span class="material-symbols-outlined">person_off</span>
         </div>
         <div>
-            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Cuti/Off</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-cuti">0</p>
+            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Cuti/Izin Hari Ini</p>
+            <p class="text-headline-md font-bold text-on-surface" id="widget-cuti">{{ $stats['cuti'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 4: Baru Bulan Ini -->
@@ -183,7 +190,7 @@
         </div>
         <div>
             <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Baru (Bulan Ini)</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-baru">2</p>
+            <p class="text-headline-md font-bold text-on-surface" id="widget-baru">{{ $stats['baru'] ?? 0 }}</p>
         </div>
     </div>
 </div>
@@ -452,204 +459,5 @@
     
     searchKaryawan.addEventListener('input', filterTableUtama);
     filterStatus.addEventListener('change', filterTableUtama);
-
-    // ==========================================
-    // 3. Pencarian Karyawan Baru pada Modal
-    // ==========================================
-    searchModalKaryawan.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        filterModalKaryawan(query);
-    });
-
-    function filterModalKaryawan(query) {
-        const rows = modalTableBody.querySelectorAll('tr');
-        let matchCount = 0;
-        
-        rows.forEach(row => {
-            const nama = row.getAttribute('data-nama').toLowerCase();
-            const nik = row.getAttribute('data-nik').toLowerCase();
-            
-            if (nama.includes(query) || nik.includes(query)) {
-                row.classList.remove('hidden');
-                matchCount++;
-            } else {
-                row.classList.add('hidden');
-            }
-        });
-        
-        if (matchCount === 0 && rows.length > 0) {
-            modalEmptyState.classList.remove('hidden');
-        } else {
-            modalEmptyState.classList.add('hidden');
-        }
-    }
-
-    // ==========================================
-    // 4. Aksi Tambah / Pilih Karyawan Baru
-    // ==========================================
-    // Dihapus hardcode localStorage, data langsung dari backend via view.
-    
-    modalTableBody.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-assign')) {
-            const row = e.target.closest('tr');
-            const nama = row.getAttribute('data-nama');
-            const nik = row.getAttribute('data-nik');
-            
-            activeAssignData = { row, nama, nik };
-            assignNamaKaryawan.innerText = nama;
-            
-            // Tutup modal pilihan awal
-            tutupModalTambah();
-            
-            // Buka modal detail penempatan
-            modalAssignDetail.style.display = 'flex';
-            document.getElementById('assign-jabatan').focus();
-        }
-    });
-    
-    const tutupModalAssignDetail = () => {
-        modalAssignDetail.style.display = 'none';
-        formAssignDetail.reset();
-        activeAssignData = null;
-    };
-    
-    btnCloseAssignModal.addEventListener('click', tutupModalAssignDetail);
-    btnCancelAssignModal.addEventListener('click', tutupModalAssignDetail);
-    
-    formAssignDetail.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (activeAssignData) {
-            const nik = activeAssignData.nik;
-            const jabatan = document.getElementById('assign-jabatan').value;
-            const status = document.getElementById('assign-status').value;
-            const dept = document.getElementById('assign-departemen').value;
-            
-            // Buat form submission permanen
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("backoffice.karyawan.assign") }}';
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            const nikInput = document.createElement('input');
-            nikInput.type = 'hidden';
-            nikInput.name = 'nik';
-            nikInput.value = nik;
-
-            const jabatanInput = document.createElement('input');
-            jabatanInput.type = 'hidden';
-            jabatanInput.name = 'jabatan';
-            jabatanInput.value = jabatan;
-
-            const deptInput = document.createElement('input');
-            deptInput.type = 'hidden';
-            deptInput.name = 'departemen';
-            deptInput.value = dept;
-
-            const statusInput = document.createElement('input');
-            statusInput.type = 'hidden';
-            statusInput.name = 'status';
-            statusInput.value = status;
-            
-            form.appendChild(csrfToken);
-            form.appendChild(nikInput);
-            form.appendChild(jabatanInput);
-            form.appendChild(deptInput);
-            form.appendChild(statusInput);
-            document.body.appendChild(form);
-            
-            const btnSubmit = formAssignDetail.querySelector('button[type="submit"]');
-            if(btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.innerText = 'Memproses...';
-            }
-            
-            form.submit();
-        }
-    });
-
-    // ==========================================
-    // 5. Aksi Lepas Karyawan (Trigger Konfirmasi)
-    // ==========================================
-    tableKaryawanBody.addEventListener('click', (e) => {
-        const btnLepas = e.target.closest('.btn-lepas');
-        if (btnLepas) {
-            const nama = btnLepas.getAttribute('data-nama');
-            const nik = btnLepas.getAttribute('data-nik');
-            
-            targetNikToRelease = nik;
-            
-            document.getElementById('konfirmasi-nama').innerText = nama;
-            document.getElementById('konfirmasi-nik').innerText = nik;
-            
-            modalKonfirmasi.style.display = 'flex';
-        }
-    });
-    
-    // Batal Konfirmasi
-    btnKonfirmasiBatal.addEventListener('click', () => {
-        modalKonfirmasi.style.display = 'none';
-        targetRowToRelease = null;
-        targetNikToRelease = '';
-    });
-    
-    // Setuju Konfirmasi (Proses Lepas secara Realtime dan Permanen)
-    btnKonfirmasiLepas.addEventListener('click', () => {
-        if (targetNikToRelease) {
-            // Buat form untuk submit aksi lepas secara permanen
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("backoffice.karyawan.lepas") }}';
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            const nikInput = document.createElement('input');
-            nikInput.type = 'hidden';
-            nikInput.name = 'nik';
-            nikInput.value = targetNikToRelease;
-            
-            form.appendChild(csrfToken);
-            form.appendChild(nikInput);
-            document.body.appendChild(form);
-            
-            btnKonfirmasiLepas.disabled = true;
-            btnKonfirmasiLepas.innerText = 'Memproses...';
-            
-            form.submit();
-        }
-    });
-
-    // ==========================================
-    // 6. Fungsi Update Widget Statistik
-    // ==========================================
-    function updateStatistics() {
-        const totalRows = tableKaryawanBody.querySelectorAll('tr').length;
-        
-        widgetTotalStaff.innerText = totalRows;
-        widgetAktif.innerText = totalRows; // Diasumsikan aktif semua dalam demo
-        widgetCuti.innerText = "0";
-        
-        // Jumlah karyawan dengan NIK baru "EMP-..." sebagai penanda karyawan baru
-        let countBaru = 0;
-        tableKaryawanBody.querySelectorAll('tr').forEach(row => {
-            const nik = row.getAttribute('data-nik');
-            if (nik.startsWith('EMP')) {
-                countBaru++;
-            }
-        });
-        widgetBaru.innerText = countBaru + 2; // Default 2 data baru dari awal
-        
-        totalEntriesTop.innerText = totalRows;
-        totalCountFooter.innerText = totalRows;
-    }
-    
-    // Panggil inisialisasi awal stat
-    updateStatistics();
 </script>
 @endpush

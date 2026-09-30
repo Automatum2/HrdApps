@@ -36,7 +36,7 @@ class SuperAdminAttendanceController extends Controller
             });
         }
 
-        $attendances = $query->orderBy('jam_masuk', 'desc')->get();
+        $attendances = $query->orderBy('jam_masuk', 'desc')->paginate(10)->withQueryString();
         $departments = Department::orderBy('nama_department')->get();
 
         // Calculate summary stats for today
