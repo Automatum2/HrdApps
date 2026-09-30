@@ -67,8 +67,9 @@
                         <input type="hidden" name="keterangan" id="keterangan-in">
                     </div>
 
-                    <button type="button" id="btn-submit-in" class="w-full bg-primary text-white font-bold py-3 rounded-lg shadow-md hover:brightness-110 transition cursor-pointer">
-                        Jepret Foto & Clock In
+                    <button type="button" id="btn-submit-in" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-md hover:brightness-110 active:scale-98 transition cursor-pointer flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">send</span>
+                        <span id="btn-submit-in-text">Kirim Absensi Masuk (Clock In)</span>
                     </button>
                 </form>
             @elseif(!$attendance->jam_keluar)
@@ -94,8 +95,9 @@
                         <input type="hidden" name="keterangan" id="keterangan-out">
                     </div>
 
-                    <button type="button" id="btn-submit-out" class="w-full border border-error text-error bg-error/10 font-bold py-3 rounded-lg shadow-md hover:bg-error hover:text-white transition cursor-pointer">
-                        Jepret Foto & Clock Out
+                    <button type="button" id="btn-submit-out" class="w-full border border-error text-error bg-error/10 font-bold py-3.5 rounded-xl shadow-md hover:bg-error hover:text-white active:scale-98 transition cursor-pointer flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span id="btn-submit-out-text">Kirim Absensi Keluar (Clock Out)</span>
                     </button>
                 </form>
             @else
@@ -165,19 +167,19 @@
             <canvas id="camera-canvas" class="hidden"></canvas>
         </div>
 
-        <!-- Tombol Aksi Langsung Kamera (Mobile Friendly Action Bar) -->
+        <!-- Tombol Aksi Kamera (Hanya untuk Kontrol Kamera & Jepret Foto) -->
         <div id="camera-action-bar" class="mb-5 space-y-2">
             @if(!$attendance || !$attendance->jam_masuk)
-                <!-- Tombol Cepat Clock In saat Kamera Aktif / Foto Selesai -->
-                <button type="button" id="btn-cam-clockin" class="w-full bg-primary text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:brightness-110 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
+                <!-- Tombol Kamera saat Clock In -->
+                <button type="button" id="btn-cam-takephoto-in" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-sm">
                     <span class="material-symbols-outlined text-xl" id="btn-cam-icon-in">photo_camera</span>
-                    <span id="btn-cam-text-in">Buka Kamera & Clock In</span>
+                    <span id="btn-cam-text-in">Buka Kamera Selfie</span>
                 </button>
             @elseif(!$attendance->jam_keluar)
-                <!-- Tombol Ambil Foto saat Clock Out -->
+                <!-- Tombol Kamera saat Clock Out -->
                 <button type="button" id="btn-cam-takephoto-out" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-sm">
-                    <span class="material-symbols-outlined text-xl" id="btn-cam-icon-take-out">photo_camera</span>
-                    <span id="btn-cam-text-take-out">Buka Kamera Selfie</span>
+                    <span class="material-symbols-outlined text-xl" id="btn-cam-icon-out">photo_camera</span>
+                    <span id="btn-cam-text-out">Buka Kamera Selfie</span>
                 </button>
             @endif
 
@@ -232,16 +234,18 @@
     const btnRetakePhoto = document.getElementById('btn-retake-photo');
     const cameraBadge = document.getElementById('camera-status-badge');
     
-    const btnCamClockIn = document.getElementById('btn-cam-clockin');
+    const btnCamTakeIn = document.getElementById('btn-cam-takephoto-in');
     const btnCamTextIn = document.getElementById('btn-cam-text-in');
     const btnCamIconIn = document.getElementById('btn-cam-icon-in');
     
-    const btnCamClockOut = document.getElementById('btn-cam-clockout');
+    const btnCamTakeOut = document.getElementById('btn-cam-takephoto-out');
     const btnCamTextOut = document.getElementById('btn-cam-text-out');
     const btnCamIconOut = document.getElementById('btn-cam-icon-out');
     
     const btnSubmitIn = document.getElementById('btn-submit-in');
+    const btnSubmitInText = document.getElementById('btn-submit-in-text');
     const btnSubmitOut = document.getElementById('btn-submit-out');
+    const btnSubmitOutText = document.getElementById('btn-submit-out-text');
 
     const locationText = document.getElementById('location-text');
     const addressText = document.getElementById('address-text');
@@ -307,11 +311,11 @@
                 
                 if (btnCamTextIn) {
                     btnCamTextIn.innerText = "Jepret Foto Selfie";
-                    btnCamIconIn.innerText = "camera";
+                    if (btnCamIconIn) btnCamIconIn.innerText = "camera";
                 }
                 if (btnCamTextOut) {
                     btnCamTextOut.innerText = "Jepret Foto Selfie";
-                    btnCamIconOut.innerText = "camera";
+                    if (btnCamIconOut) btnCamIconOut.innerText = "camera";
                 }
             })
             .catch(function(err) {
@@ -365,23 +369,9 @@
         cameraBadge.innerText = 'Foto Siap Dikirim';
         cameraBadge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200';
 
-        if (btnCamTextIn) {
-            btnCamTextIn.innerText = "Kirim Absensi Masuk (Clock In)";
-            btnCamIconIn.innerText = "send";
-        }
-        
-        const btnCamTakeOut = document.getElementById('btn-cam-takephoto-out');
-        const btnCamTextTakeOut = document.getElementById('btn-cam-text-take-out');
-        const btnCamIconTakeOut = document.getElementById('btn-cam-icon-take-out');
-        if (btnCamTakeOut && btnCamTextTakeOut) {
-            btnCamTextTakeOut.innerText = "Foto Selesai (Isi Laporan di Bawah)";
-            if (btnCamIconTakeOut) btnCamIconTakeOut.innerText = "check_circle";
-            btnCamTakeOut.classList.remove('bg-slate-800', 'hover:bg-slate-700');
-            btnCamTakeOut.classList.add('bg-green-600', 'hover:bg-green-700');
-        }
-
-        if (btnSubmitIn) btnSubmitIn.innerText = "Kirim Absensi Sekarang";
-        if (btnSubmitOut) btnSubmitOut.innerText = "Kirim Absensi Keluar Sekarang";
+        // Sembunyikan tombol jepret foto agar user tidak bingung
+        if (btnCamTakeIn) btnCamTakeIn.classList.add('hidden');
+        if (btnCamTakeOut) btnCamTakeOut.classList.add('hidden');
     };
 
     // Tombol Ulangi Foto (Retake)
@@ -395,23 +385,18 @@
         cameraBadge.innerText = 'Kamera Aktif';
         cameraBadge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold bg-green-100 text-green-700 border border-green-200';
 
-        if (btnCamTextIn) {
+        // Tampilkan kembali tombol jepret foto
+        if (btnCamTakeIn) {
+            btnCamTakeIn.classList.remove('hidden');
             btnCamTextIn.innerText = "Jepret Foto Selfie";
-            btnCamIconIn.innerText = "camera";
+            if (btnCamIconIn) btnCamIconIn.innerText = "camera";
         }
 
-        const btnCamTakeOut = document.getElementById('btn-cam-takephoto-out');
-        const btnCamTextTakeOut = document.getElementById('btn-cam-text-take-out');
-        const btnCamIconTakeOut = document.getElementById('btn-cam-icon-take-out');
-        if (btnCamTakeOut && btnCamTextTakeOut) {
-            btnCamTextTakeOut.innerText = "Jepret Foto Selfie";
-            if (btnCamIconTakeOut) btnCamIconTakeOut.innerText = "camera";
-            btnCamTakeOut.classList.add('bg-slate-800', 'hover:bg-slate-700');
-            btnCamTakeOut.classList.remove('bg-green-600', 'hover:bg-green-700');
+        if (btnCamTakeOut) {
+            btnCamTakeOut.classList.remove('hidden');
+            btnCamTextOut.innerText = "Jepret Foto Selfie";
+            if (btnCamIconOut) btnCamIconOut.innerText = "camera";
         }
-
-        if (btnSubmitIn) btnSubmitIn.innerText = "Jepret Foto & Clock In";
-        if (btnSubmitOut) btnSubmitOut.innerText = "Jepret Foto & Clock Out";
     };
 
     // Event Trigger Buka Kamera & Shutter
@@ -419,7 +404,23 @@
     if (btnShutter) btnShutter.addEventListener('click', takePhoto);
     if (btnRetakePhoto) btnRetakePhoto.addEventListener('click', resetPhoto);
 
-    const btnCamTakeOut = document.getElementById('btn-cam-takephoto-out');
+    // Click handler tombol di bawah kamera (Clock In)
+    if (btnCamTakeIn) {
+        btnCamTakeIn.addEventListener('click', () => {
+            if (!streamActive && !isPhotoTaken) {
+                startCamera();
+            } else if (!isPhotoTaken) {
+                takePhoto();
+            } else {
+                const formClockIn = document.getElementById('form-clockin');
+                if (formClockIn) {
+                    formClockIn.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    }
+
+    // Click handler tombol di bawah kamera (Clock Out)
     if (btnCamTakeOut) {
         btnCamTakeOut.addEventListener('click', () => {
             if (!streamActive && !isPhotoTaken) {
@@ -427,10 +428,12 @@
             } else if (!isPhotoTaken) {
                 takePhoto();
             } else {
-                // Scroll smoothly to form laporan
                 if (editorOut) {
                     editorOut.focus();
-                    document.getElementById('form-clockout').scrollIntoView({ behavior: 'smooth' });
+                }
+                const formClockOut = document.getElementById('form-clockout');
+                if (formClockOut) {
+                    formClockOut.scrollIntoView({ behavior: 'smooth' });
                 }
             }
         });
@@ -470,18 +473,19 @@
         locationText.innerText = 'Browser tidak mendukung Geolokasi.';
     }
 
-    // Submit Handler Clock In
+    // Submit Handler Clock In (HANYA dipanggil dari tombol form)
     const submitClockIn = () => {
         if (!currentLocation) {
             alert("Menunggu data lokasi GPS... Pastikan izin GPS aktif.");
             return;
         }
-        if (!streamActive && !isPhotoTaken) {
-            startCamera();
-            return;
-        }
         if (!isPhotoTaken) {
-            takePhoto();
+            if (!streamActive) {
+                startCamera();
+                alert("Silakan ambil foto selfie terlebih dahulu sebelum mengirim absensi.");
+            } else {
+                alert("Silakan klik 'Jepret Foto Selfie' terlebih dahulu sebelum mengirim absensi.");
+            }
             return;
         }
 
@@ -493,29 +497,26 @@
             document.getElementById('keterangan-in').value = content === '<p><br></p>' ? '' : content;
         }
         
-        if (btnCamClockIn) {
-            btnCamClockIn.disabled = true;
-            btnCamTextIn.innerText = "Mengirim Absensi...";
-        }
         if (btnSubmitIn) {
             btnSubmitIn.disabled = true;
-            btnSubmitIn.innerText = "Mengirim Data...";
+            if (btnSubmitInText) btnSubmitInText.innerText = "Mengirim Data...";
         }
         document.getElementById('form-clockin').submit();
     };
 
-    // Submit Handler Clock Out
+    // Submit Handler Clock Out (HANYA dipanggil dari tombol form)
     const submitClockOut = () => {
         if (!currentLocation) {
             alert("Menunggu data lokasi GPS... Pastikan izin GPS aktif.");
             return;
         }
-        if (!streamActive && !isPhotoTaken) {
-            startCamera();
-            return;
-        }
         if (!isPhotoTaken) {
-            takePhoto();
+            if (!streamActive) {
+                startCamera();
+                alert("Silakan ambil foto selfie terlebih dahulu sebelum mengirim absensi.");
+            } else {
+                alert("Silakan klik 'Jepret Foto Selfie' terlebih dahulu sebelum mengirim absensi.");
+            }
             return;
         }
 
@@ -538,15 +539,13 @@
         
         if (btnSubmitOut) {
             btnSubmitOut.disabled = true;
-            btnSubmitOut.innerText = "Mengirim Data...";
+            if (btnSubmitOutText) btnSubmitOutText.innerText = "Mengirim Data...";
         }
         document.getElementById('form-clockout').submit();
     };
 
-    // Pasang Event Listener ke Tombol Kamera & Form
-    if (btnCamClockIn) btnCamClockIn.addEventListener('click', submitClockIn);
+    // Pasang Event Listener HANYA ke Tombol Form Submit
     if (btnSubmitIn) btnSubmitIn.addEventListener('click', submitClockIn);
-
     if (btnSubmitOut) btnSubmitOut.addEventListener('click', submitClockOut);
 </script>
 @endpush
