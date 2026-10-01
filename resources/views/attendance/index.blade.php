@@ -49,14 +49,35 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-on-surface-variant mb-1">Status Kerja</label>
-                        <select name="status_kerja" class="w-full p-2 border border-outline-variant rounded-lg bg-surface text-on-surface">
-                            <option value="WFO">WFO - Work From Office (Kantor Pusat)</option>
-                            <option value="WFD">WFD - Work From Desk (Radius 100m)</option>
+                        <select name="status_kerja" id="select-status-kerja" class="w-full p-2.5 border border-outline-variant rounded-lg bg-surface text-on-surface font-medium text-sm" onchange="cekStatusKerjaWfd(this.value)">
+                            <option value="WFO">WFO - Work From Office (Kantor)</option>
+                            <option value="WFD">WFD - Work From Destination (Penugasan Luar)</option>
                             <option value="WFH">WFH - Work From Home</option>
                             <option value="WFF">WFF - Work From Field</option>
                             <option value="WOD">WOD - Work On Duty</option>
                             <option value="WEH">WEH - Work Extra Hours</option>
                         </select>
+                        
+                        <!-- Banner Info Dinamis WFD -->
+                        <div id="wfd-info-banner" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 animate-page-in">
+                            @if(isset($employee) && $employee->wfd_destination_name)
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-primary text-base mt-0.5 shrink-0">pin_drop</span>
+                                    <div>
+                                        <p class="font-bold text-primary">Penugasan Destinasi WFD Anda:</p>
+                                        <p class="font-semibold text-slate-800 mt-0.5">{{ $employee->wfd_destination_name }}</p>
+                                        @if($employee->wfd_destination_address)
+                                            <p class="text-[11px] text-slate-600 mt-0.5">{{ $employee->wfd_destination_address }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-amber-600 text-base shrink-0">info</span>
+                                    <p class="text-[11px] text-slate-700">Status WFD aktif. Titik GPS dan foto presensi Anda akan dicatat sesuai lokasi terkini.</p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -547,5 +568,16 @@
     // Pasang Event Listener HANYA ke Tombol Form Submit
     if (btnSubmitIn) btnSubmitIn.addEventListener('click', submitClockIn);
     if (btnSubmitOut) btnSubmitOut.addEventListener('click', submitClockOut);
+
+    function cekStatusKerjaWfd(val) {
+        const banner = document.getElementById('wfd-info-banner');
+        if (banner) {
+            if (val === 'WFD') {
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+    }
 </script>
 @endpush

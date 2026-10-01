@@ -12,12 +12,13 @@ class AttendanceController extends Controller
     {
         $employeeId = session('employee_id');
 
-        
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
             ->first();
 
-        return view('attendance.index', compact('attendance'));
+        $employee = \App\Models\Employee::find($employeeId);
+
+        return view('attendance.index', compact('attendance', 'employee'));
     }
 
     public function clockIn(Request $request)
@@ -31,47 +32,12 @@ class AttendanceController extends Controller
 
         $employeeId = session('employee_id');
 
-
         $attendance = Attendance::where('employee_id', $employeeId)
             ->where('tanggal', Carbon::today()->toDateString())
             ->first();
 
         if ($attendance && $attendance->jam_masuk) {
             return back()->with('error', 'Anda sudah melakukan absensi masuk hari ini.');
-        }
-
-        // Haversine Radius Validation for WFO / WFD
-        if (in_array($request->status_kerja, ['WFO', 'WFD'])) {
-            // Extrak lat dan lon dari request->lokasi (format awal adalah: "lat,lon | alamat...")
-            $lokasiParts = explode('|', $request->lokasi);
-            $coords = explode(',', trim($lokasiParts[0]));
-            
-            if (count($coords) >= 2) {
-                $userLat = (float) trim($coords[0]);
-                $userLon = (float) trim($coords[1]);
-
-                // Koordinat Kantor PT. Indo Apps Solusindo & Batas Radius (Toleransi 200 Meter)
-                $officeLat = -8.6388158;
-                $officeLon = 115.2326675;
-                $maxRadius = 200; // Batas radius 200 meter
-
-                // Haversine formula
-                $earthRadius = 6371000; // in meters
-                $dLat = deg2rad($userLat - $officeLat);
-                $dLon = deg2rad($userLon - $officeLon);
-                
-                $a = sin($dLat/2) * sin($dLat/2) +
-                     cos(deg2rad($officeLat)) * cos(deg2rad($userLat)) *
-                     sin($dLon/2) * sin($dLon/2);
-                $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-                $distance = $earthRadius * $c;
-
-                if ($distance > $maxRadius) {
-                    return back()->with('error', 'Jarak Anda (' . round($distance) . ' meter) melebihi batas maksimal ' . $maxRadius . ' meter dari area kantor.');
-                }
-            } else {
-                return back()->with('error', 'Gagal memverifikasi koordinat lokasi Anda.');
-            }
         }
 
         $image_parts = explode(";base64,", $request->foto);
@@ -101,7 +67,7 @@ class AttendanceController extends Controller
         $attendance->keterangan = $request->keterangan;
         $attendance->save();
 
-        return redirect()->route('backoffice.dashboard')->with('success', 'Berhasil melakukan absensi masuk.');
+        return redirect()->route('backoffice.dashboard')->with('success', 'Berhasil melakukan absensi masuk (' . $request->status_kerja . '). Lokasi GPS dan foto berhasil dicatat.');
     }
 
     public function clockOut(Request $request)

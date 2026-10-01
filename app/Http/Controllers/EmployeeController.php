@@ -172,6 +172,33 @@ class EmployeeController extends Controller
         return redirect()->back()->with('success', 'Gaji pokok berhasil diperbarui.');
     }
 
+    public function updateWfdDestination(Request $request, $id)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $role = $user ? $user->role : session('user_role');
+
+        if (!in_array($role, ['hr_manager', 'super_admin'])) {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya HR Manager atau Super Admin yang dapat mengatur destinasi WFD.');
+        }
+
+        $request->validate([
+            'wfd_destination_name' => 'nullable|string|max:255',
+            'wfd_destination_address' => 'nullable|string|max:500',
+            'wfd_latitude' => 'nullable|numeric|between:-90,90',
+            'wfd_longitude' => 'nullable|numeric|between:-180,180',
+        ]);
+
+        $employee = Employee::findOrFail($id);
+        $employee->update([
+            'wfd_destination_name' => $request->wfd_destination_name,
+            'wfd_destination_address' => $request->wfd_destination_address,
+            'wfd_latitude' => $request->wfd_latitude,
+            'wfd_longitude' => $request->wfd_longitude,
+        ]);
+
+        return redirect()->back()->with('success', 'Penugasan destinasi WFD untuk ' . $employee->nama_lengkap . ' berhasil diperbarui.');
+    }
+
     public function lepasDepartemen(Request $request)
     {
         $emp = Employee::where('nik', $request->nik)->first();

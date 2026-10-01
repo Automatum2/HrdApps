@@ -294,6 +294,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/backoffice/karyawan/export', [\App\Http\Controllers\EmployeeController::class, 'export'])->name('backoffice.karyawan.export');
         Route::get('/backoffice/karyawan/{id}/detail', [\App\Http\Controllers\EmployeeController::class, 'show'])->name('backoffice.karyawan.show');
         Route::post('/backoffice/karyawan/{id}/gaji', [\App\Http\Controllers\EmployeeController::class, 'updateGaji'])->name('backoffice.karyawan.update_gaji');
+        Route::post('/backoffice/karyawan/{id}/wfd-destination', [\App\Http\Controllers\EmployeeController::class, 'updateWfdDestination'])->name('backoffice.karyawan.update_wfd');
         Route::post('/backoffice/karyawan/lepas', [\App\Http\Controllers\EmployeeController::class, 'lepasDepartemen'])->name('backoffice.karyawan.lepas');
         Route::post('/backoffice/karyawan/assign', [\App\Http\Controllers\EmployeeController::class, 'assignDepartemen'])->name('backoffice.karyawan.assign');
 
