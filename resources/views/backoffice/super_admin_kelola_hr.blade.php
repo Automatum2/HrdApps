@@ -181,9 +181,30 @@
         const hrTableBody = document.getElementById('hr-table-body');
         const totalCountBadge = document.getElementById('total-count-badge');
 
-        const empOptionsHtml = window.promotableEmployees.length
-            ? window.promotableEmployees.map(e => `<option value="${e.id}" data-nama="${e.nama_lengkap}" data-nik="${e.nik}">${e.nama_lengkap} (${e.nik}) &mdash; ${e.email}</option>`).join('')
-            : '<option value="" disabled>Tidak ada karyawan yang dapat dipromosikan</option>';
+        const buildEmployeeSelectorList = () => {
+            if (!window.promotableEmployees || window.promotableEmployees.length === 0) {
+                return '<div class="p-4 text-center text-xs text-slate-400">Tidak ada karyawan aktif yang dapat dipromosikan.</div>';
+            }
+
+            return window.promotableEmployees.map((emp, index) => {
+                const initial = emp.nama_lengkap ? emp.nama_lengkap.substring(0, 2).toUpperCase() : 'EM';
+                const deptName = emp.department ? emp.department.nama_department : 'Umum';
+                const posName = emp.position ? emp.position.nama_jabatan : 'Staff';
+
+                return `
+                    <label class="promosi-emp-item flex items-center gap-3 p-3 border-b border-slate-100 hover:bg-primary/5 cursor-pointer transition-colors" data-id="${emp.id}" data-nama="${emp.nama_lengkap}" data-nik="${emp.nik}" data-email="${emp.email}" data-dept="${deptName}">
+                        <input type="radio" name="employee_id" value="${emp.id}" class="emp-promosi-radio w-4 h-4 text-primary border-slate-300 focus:ring-primary">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                            ${initial}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-slate-800 truncate emp-name">${emp.nama_lengkap}</p>
+                            <p class="text-[11px] text-slate-500 font-mono">${emp.nik} &bull; ${deptName} &bull; <span class="font-normal text-slate-400">${emp.email}</span></p>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+        };
 
         const buildAddForm = (activeTab) => `
             @csrf
@@ -191,69 +212,80 @@
 
             <!-- Tabs -->
             <div class="flex bg-slate-100 rounded-lg p-1 gap-1">
-                <button type="button" class="manager-tab-btn flex-1 py-2.5 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'promosi' ? 'bg-white text-primary shadow font-bold' : 'text-slate-500 hover:text-slate-700 font-semibold'}" data-tab="promosi">
+                <button type="button" class="manager-tab-btn flex-1 py-2 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'promosi' ? 'bg-white text-primary shadow font-bold' : 'text-slate-500 hover:text-slate-700 font-semibold'}" data-tab="promosi">
                     <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-base">upgrade</span> Promosi Internal</span>
                 </button>
-                <button type="button" class="manager-tab-btn flex-1 py-2.5 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'eksternal' ? 'bg-white text-primary shadow font-bold' : 'text-slate-500 hover:text-slate-700 font-semibold'}" data-tab="eksternal">
+                <button type="button" class="manager-tab-btn flex-1 py-2 rounded-lg text-xs transition-all cursor-pointer ${activeTab === 'eksternal' ? 'bg-white text-primary shadow font-bold' : 'text-slate-500 hover:text-slate-700 font-semibold'}" data-tab="eksternal">
                     <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-base">person_add</span> Manager Eksternal</span>
                 </button>
             </div>
 
-            <!-- TAB 1: PROMOSI KARYAWAN INTERNAL -->
+            <!-- TAB 1: PROMOSI KARYAWAN INTERNAL (SEARCHABLE SELECTOR) -->
             <div class="space-y-4 tab-panel ${activeTab === 'promosi' ? '' : 'hidden'}" id="tab-promosi">
-                <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="employee_id">Pilih Karyawan (Email / NIK)</label>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-600">Pilih Karyawan <span class="text-error">*</span></label>
+                        <span class="text-[11px] text-primary font-bold" id="promosi-selected-label">Belum ada yang dipilih</span>
+                    </div>
+
+                    <!-- Search Input -->
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="employee_id" name="employee_id" required>
-                            <option value="">-- Pilih Karyawan --</option>
-                            ${empOptionsHtml}
-                        </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                        <input type="text" id="search-promosi-emp" class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" placeholder="Ketik nama, NIK, atau email karyawan...">
+                    </div>
+
+                    <!-- Scrollable Employee List -->
+                    <div class="max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white" id="promosi-emp-list-container">
+                        ${buildEmployeeSelectorList()}
                     </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-3 items-end">
                     <div class="space-y-1">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block" for="promosi-nik">NIK (Otomatis)</label>
-                        <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500" id="promosi-nik" type="text" readonly tabindex="-1">
+                        <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-600 font-mono" id="promosi-nik" type="text" readonly tabindex="-1" placeholder="Pilih karyawan di atas...">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block" for="promosi-nama">Nama Lengkap (Otomatis)</label>
-                        <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500" id="promosi-nama" type="text" readonly tabindex="-1">
+                        <input class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-600 font-semibold" id="promosi-nama" type="text" readonly tabindex="-1" placeholder="Pilih karyawan di atas...">
                     </div>
                 </div>
+
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="role-promosi">Peran Baru</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="role-promosi">Peran Baru</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role-promosi" name="role" onchange="document.getElementById('dept-promosi').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role-promosi" name="role" onchange="document.getElementById('dept-promosi').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
                             <option value="manager_departemen">Manager Departemen</option>
                             <option value="hr_manager">HR Manager</option>
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
+
                 <div class="space-y-1" id="dept-promosi">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="department_id_promosi">Departemen</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="department_id_promosi">Departemen yang Dipimpin</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id_promosi" name="department_id">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id_promosi" name="department_id">
                             <option value="">-- Pilih Departemen --</option>
                             @foreach($departments as $dept)
                             <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
                             @endforeach
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
+
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="jabatan-promosi">Jabatan Manager</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="jabatan-promosi">Jabatan Manager</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan-promosi" name="jabatan" required>
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan-promosi" name="jabatan" required>
                             @forelse($positions as $pos)
                             <option value="{{ $pos->nama_jabatan }}">{{ $pos->nama_jabatan }}</option>
                             @empty
                             <option value="Manager">Manager</option>
                             @endforelse
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
             </div>
@@ -261,50 +293,50 @@
             <!-- TAB 2: MANAGER EKSTERNAL -->
             <div class="space-y-4 tab-panel ${activeTab === 'eksternal' ? '' : 'hidden'}" id="tab-eksternal">
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nik">NIK Manager</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nik" name="nik" placeholder="Contoh: 14785236" type="text" required>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="nik">NIK Manager</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nik" name="nik" placeholder="Contoh: 14785236" type="text" required>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="nama">Nama Lengkap</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" placeholder="Contoh: Rina Wijaya" type="text" required>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="nama">Nama Lengkap</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="nama" name="nama" placeholder="Contoh: Rina Wijaya" type="text" required>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="email">Alamat Email</label>
-                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" placeholder="Contoh: rina.w@hrdapps.co.id" type="email" required>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="email">Alamat Email</label>
+                    <input class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800" id="email" name="email" placeholder="Contoh: rina.w@hrdapps.co.id" type="email" required>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="role_eksternal">Peran</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="role_eksternal">Peran</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role_eksternal" name="role" onchange="document.getElementById('dept-eksternal').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="role_eksternal" name="role" onchange="document.getElementById('dept-eksternal').style.display = this.value === 'manager_departemen' ? 'block' : 'none'">
                             <option value="hr_manager">HR Manager</option>
                             <option value="manager_departemen">Manager Departemen</option>
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
                 <div class="space-y-1" id="dept-eksternal" style="display: none;">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="department_id_eksternal">Departemen</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="department_id_eksternal">Departemen</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id_eksternal" name="department_id">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="department_id_eksternal" name="department_id">
                             <option value="">-- Pilih Departemen --</option>
                             @foreach($departments as $dept)
                             <option value="{{ $dept->id }}">{{ $dept->nama_department }}</option>
                             @endforeach
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="jabatan">Jabatan</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-600" for="jabatan">Jabatan</label>
                     <div class="relative">
-                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan" name="jabatan">
+                        <select class="w-full appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-800 cursor-pointer" id="jabatan" name="jabatan">
                             @forelse($positions as $pos)
                             <option value="{{ $pos->nama_jabatan }}">{{ $pos->nama_jabatan }}</option>
                             @empty
                             <option value="Manager">Manager</option>
                             @endforelse
                         </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                     </div>
                 </div>
             </div>
@@ -336,14 +368,44 @@
             });
         };
 
-        const isiOtomatisPromosi = () => {
-            const sel = document.getElementById('employee_id');
+        const setupPromosiSearchAndSelect = () => {
+            const searchInput = document.getElementById('search-promosi-emp');
+            const items = document.querySelectorAll('.promosi-emp-item');
             const namaEl = document.getElementById('promosi-nama');
             const nikEl = document.getElementById('promosi-nik');
-            if (!sel) return;
-            const opt = sel.options[sel.selectedIndex];
-            if (namaEl) namaEl.value = opt && opt.dataset.nama ? opt.dataset.nama : '';
-            if (nikEl) nikEl.value = opt && opt.dataset.nik ? opt.dataset.nik : '';
+            const selectedLabel = document.getElementById('promosi-selected-label');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    items.forEach(item => {
+                        const nama = (item.dataset.nama || '').toLowerCase();
+                        const nik = (item.dataset.nik || '').toLowerCase();
+                        const email = (item.dataset.email || '').toLowerCase();
+                        const dept = (item.dataset.dept || '').toLowerCase();
+
+                        if (nama.includes(query) || nik.includes(query) || email.includes(query) || dept.includes(query)) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const radio = this.querySelector('.emp-promosi-radio');
+                    if (radio) radio.checked = true;
+
+                    items.forEach(el => el.classList.remove('bg-primary/10', 'border-primary'));
+                    this.classList.add('bg-primary/10', 'border-primary');
+
+                    if (namaEl) namaEl.value = this.dataset.nama || '';
+                    if (nikEl) nikEl.value = this.dataset.nik || '';
+                    if (selectedLabel) selectedLabel.innerText = this.dataset.nama || '1 Karyawan Terpilih';
+                });
+            });
         };
 
         // 1. Tampilkan Modal Tambah Manager (tab Promosi default)
@@ -353,6 +415,7 @@
             formHrManager.action = "{{ route('backoffice.super_admin.kelola_hr.store') }}";
             formHrManager.innerHTML = buildAddForm('promosi');
             setManagerTab('promosi');
+            setupPromosiSearchAndSelect();
             modalTambahHr.style.display = 'flex';
         });
 
@@ -363,14 +426,12 @@
         btnCloseModal.addEventListener('click', tutupModal);
         btnCancelModal.addEventListener('click', tutupModal);
 
-        // Event delegation untuk tab & autofill promosi
+        // Event delegation untuk tab
         formHrManager.addEventListener('click', (e) => {
             const tabBtn = e.target.closest('.manager-tab-btn');
-            if (tabBtn) setManagerTab(tabBtn.getAttribute('data-tab'));
-        });
-
-        formHrManager.addEventListener('change', (e) => {
-            if (e.target.id === 'employee_id') isiOtomatisPromosi();
+            if (tabBtn) {
+                setManagerTab(tabBtn.getAttribute('data-tab'));
+            }
         });
 
         // 2. Edit Manager

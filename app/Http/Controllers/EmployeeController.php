@@ -177,8 +177,9 @@ class EmployeeController extends Controller
         $emp = Employee::where('nik', $request->nik)->first();
         if ($emp) {
             $emp->department_id = null;
+            $emp->status = 'nonaktif'; // Otomatis nonaktif saat dilepas dari departemen
             $emp->save();
-            return redirect()->back()->with('success', 'Karyawan berhasil dilepas dari departemen.');
+            return redirect()->back()->with('success', 'Karyawan berhasil dilepas dari departemen dan status diubah menjadi Nonaktif.');
         }
         return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
     }
@@ -187,8 +188,10 @@ class EmployeeController extends Controller
     {
         $emp = Employee::where('nik', $request->nik)->first();
         if ($emp) {
-            $dept = Department::where('id', $request->departemen)
-                ->orWhere('nama_department', $request->departemen)
+            $deptInput = $request->input('departemen') ?? $request->input('department');
+            $dept = Department::where('id', $deptInput)
+                ->orWhere('nama_department', $deptInput)
+                ->orWhere('kode_department', $deptInput)
                 ->first();
 
             if ($dept) {
@@ -219,8 +222,9 @@ class EmployeeController extends Controller
                 $emp->status_kerja = $statusMap[$request->status] ?? strtolower($request->status);
             }
 
+            $emp->status = 'aktif'; // Otomatis aktif saat ditempatkan ke departemen
             $emp->save();
-            return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan ke departemen.');
+            return redirect()->back()->with('success', 'Karyawan berhasil ditempatkan ke departemen dan status diubah menjadi Aktif.');
         }
         return redirect()->back()->with('error', 'Data karyawan tidak ditemukan.');
     }
@@ -298,5 +302,46 @@ class EmployeeController extends Controller
         $employee->update(['status' => 'nonaktif']);
         
         return redirect()->back()->with('success', 'Status karyawan berhasil diubah menjadi Nonaktif.');
+    }
+
+    public function forceDelete($id)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $role = $user ? $user->role : session('user_role');
+
+        if (!in_array($role, ['super_admin', 'hr_manager'])) {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya Super Admin atau HR Manager yang dapat menghapus data permanen.');
+        }
+
+        $employee = Employee::with(['user', 'documents'])->findOrFail($id);
+        $nama = $employee->nama_lengkap;
+
+        // Hapus berkas CV fisik jika ada
+        if ($employee->cv_file && \Illuminate\Support\Facades\Storage::disk('public')->exists($employee->cv_file)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($employee->cv_file);
+        }
+
+        // Hapus foto jika ada
+        if ($employee->foto && \Illuminate\Support\Facades\Storage::disk('public')->exists($employee->foto)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($employee->foto);
+        }
+
+        // Hapus dokumen terlampir fisik
+        foreach ($employee->documents as $doc) {
+            if ($doc->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($doc->file_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_path);
+            }
+            $doc->delete();
+        }
+
+        // Hapus akun user jika ada
+        if ($employee->user) {
+            $employee->user->delete();
+        }
+
+        // Hapus data employee secara permanen
+        $employee->delete();
+
+        return redirect()->back()->with('success', "Data karyawan/pelamar \"{$nama}\" berhasil dihapus permanen dari sistem.");
     }
 }

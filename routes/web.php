@@ -296,6 +296,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/backoffice/karyawan/{id}/gaji', [\App\Http\Controllers\EmployeeController::class, 'updateGaji'])->name('backoffice.karyawan.update_gaji');
         Route::post('/backoffice/karyawan/lepas', [\App\Http\Controllers\EmployeeController::class, 'lepasDepartemen'])->name('backoffice.karyawan.lepas');
         Route::post('/backoffice/karyawan/assign', [\App\Http\Controllers\EmployeeController::class, 'assignDepartemen'])->name('backoffice.karyawan.assign');
+        Route::delete('/backoffice/karyawan/{id}/force-delete', [\App\Http\Controllers\EmployeeController::class, 'forceDelete'])->name('backoffice.karyawan.force_delete');
 
         // Tunjangan & Potongan
         Route::post('/backoffice/karyawan/{id}/allowances', [AllowanceController::class, 'store'])->name('backoffice.allowances.store');
@@ -480,6 +481,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/backoffice/super-admin/kelola-karyawan', [EmployeeController::class, 'index'])->name('backoffice.super_admin.kelola_karyawan');
         Route::put('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'update'])->name('backoffice.super_admin.kelola_karyawan.update');
         Route::delete('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'destroy'])->name('backoffice.super_admin.kelola_karyawan.destroy');
+        Route::delete('/backoffice/super-admin/kelola-karyawan/{id}/force-delete', [EmployeeController::class, 'forceDelete'])->name('backoffice.super_admin.kelola_karyawan.force_delete');
         Route::get('/backoffice/super-admin/kelola-karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.super_admin.kelola_karyawan.show'); // duplicate fallback
     });
 });

@@ -390,17 +390,17 @@
         </header>
 
         <!-- Canvas -->
-        <div class="p-8 space-y-8 max-w-container-max mx-auto w-full animate-page-in animate-stagger">
+        <div class="p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl mx-auto w-full animate-page-in animate-stagger">
             @if(session('success'))
-            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
-                <strong class="font-bold">Berhasil!</strong>
-                <span class="block sm:inline">{{ session('success') }}</span>
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl relative shadow-sm text-xs sm:text-sm font-semibold flex items-center gap-2" role="alert">
+                <span class="material-symbols-outlined text-emerald-600 text-lg sm:text-xl">check_circle</span>
+                <span>{{ session('success') }}</span>
             </div>
             @endif
             @if(session('error'))
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative" role="alert">
-                <strong class="font-bold">Error!</strong>
-                <span class="block sm:inline">{{ session('error') }}</span>
+            <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl relative shadow-sm text-xs sm:text-sm font-semibold flex items-center gap-2" role="alert">
+                <span class="material-symbols-outlined text-rose-600 text-lg sm:text-xl">error</span>
+                <span>{{ session('error') }}</span>
             </div>
             @endif
 

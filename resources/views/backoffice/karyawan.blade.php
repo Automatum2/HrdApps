@@ -29,13 +29,13 @@
 </div>
 
 <!-- Bento Filter & List Container -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
     <!-- Filter Section -->
-    <div class="p-6 border-b border-outline-variant bg-surface-bright flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div class="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
+    <div class="p-4 sm:p-6 border-b border-outline-variant bg-surface-bright flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center w-full md:w-auto">
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
                 <label class="text-xs uppercase font-bold text-on-surface-variant whitespace-nowrap">Filter Status:</label>
-                <select class="form-select bg-white border border-outline-variant rounded-lg text-sm py-2 pl-4 pr-10 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-status" onchange="window.location.href='{{ route('backoffice.karyawan') }}?status=' + this.value">
+                <select class="form-select bg-white border border-outline-variant rounded-xl text-xs sm:text-sm py-2 px-3 focus:ring-primary focus:border-primary w-full sm:w-48 transition-all text-on-surface" id="filter-status" onchange="window.location.href='{{ route('backoffice.karyawan') }}?status=' + this.value">
                     <option value="">Semua Karyawan</option>
                     <optgroup label="Status Akun">
                         <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Hanya Aktif</option>
@@ -52,9 +52,9 @@
                 </select>
             </div>
         </div>
-        <div class="relative w-full md:w-96 group">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-lg">search</span>
-            <input class="pl-12 pr-4 py-2 bg-white border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 w-full transition-all outline-none text-on-surface" placeholder="Cari Karyawan (Nama atau NIK)..." type="text" id="search-karyawan">
+        <div class="relative w-full md:w-80 group">
+            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-lg">search</span>
+            <input class="pl-10 pr-4 py-2 bg-white border border-outline-variant rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 w-full transition-all outline-none text-on-surface" placeholder="Cari Nama atau NIK..." type="text" id="search-karyawan">
         </div>
     </div>
     
@@ -152,45 +152,45 @@
 </div>
 
 <!-- Stats Overview (Bento Rekap Cards) -->
-<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="mt-4 sm:mt-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
     <!-- Card 1: Total Staff -->
-    <div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined">group</span>
+    <div class="p-4 sm:p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-xl sm:text-2xl">group</span>
         </div>
         <div>
-            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Total Staff</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-total-staff">{{ $stats['total_staff'] ?? 0 }}</p>
+            <p class="text-[10px] sm:text-xs uppercase font-bold text-on-surface-variant tracking-wider">Total Staff</p>
+            <p class="text-xl sm:text-headline-md font-bold text-on-surface" id="widget-total-staff">{{ $stats['total_staff'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 2: Aktif -->
-    <div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
-            <span class="material-symbols-outlined">how_to_reg</span>
+    <div class="p-4 sm:p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
+            <span class="material-symbols-outlined text-xl sm:text-2xl">how_to_reg</span>
         </div>
         <div>
-            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Aktif</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-aktif">{{ $stats['aktif'] ?? 0 }}</p>
+            <p class="text-[10px] sm:text-xs uppercase font-bold text-on-surface-variant tracking-wider">Aktif</p>
+            <p class="text-xl sm:text-headline-md font-bold text-on-surface" id="widget-aktif">{{ $stats['aktif'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 3: Cuti/Off -->
-    <div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center text-error">
-            <span class="material-symbols-outlined">person_off</span>
+    <div class="p-4 sm:p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-error/10 flex items-center justify-center text-error shrink-0">
+            <span class="material-symbols-outlined text-xl sm:text-2xl">person_off</span>
         </div>
         <div>
-            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Cuti/Izin Hari Ini</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-cuti">{{ $stats['cuti'] ?? 0 }}</p>
+            <p class="text-[10px] sm:text-xs uppercase font-bold text-on-surface-variant tracking-wider">Cuti/Izin Hari Ini</p>
+            <p class="text-xl sm:text-headline-md font-bold text-on-surface" id="widget-cuti">{{ $stats['cuti'] ?? 0 }}</p>
         </div>
     </div>
     <!-- Card 4: Baru Bulan Ini -->
-    <div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
-            <span class="material-symbols-outlined">new_releases</span>
+    <div class="p-4 sm:p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-secondary-container/30 flex items-center justify-center text-secondary shrink-0">
+            <span class="material-symbols-outlined text-xl sm:text-2xl">new_releases</span>
         </div>
         <div>
-            <p class="text-xs uppercase font-bold text-on-surface-variant tracking-wider">Baru (Bulan Ini)</p>
-            <p class="text-headline-md font-bold text-on-surface" id="widget-baru">{{ $stats['baru'] ?? 0 }}</p>
+            <p class="text-[10px] sm:text-xs uppercase font-bold text-on-surface-variant tracking-wider">Baru (Bulan Ini)</p>
+            <p class="text-xl sm:text-headline-md font-bold text-on-surface" id="widget-baru">{{ $stats['baru'] ?? 0 }}</p>
         </div>
     </div>
 </div>
@@ -198,24 +198,24 @@
 
 @push('modals')
 <!-- MODAL: Tambah Karyawan Baru (Assign Departemen) -->
-<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-tambah" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
-    <div class="bg-white rounded-xl shadow-xl border border-outline-variant flex flex-col max-h-[85vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 640px; min-width: 280px; display: flex; flex-direction: column;">
+<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-tambah" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 12px;">
+    <div class="bg-white rounded-2xl shadow-2xl border border-outline-variant flex flex-col max-h-[90dvh] overflow-hidden animate-modal-pop w-full max-w-xl">
         <!-- Modal Header -->
-        <div class="px-xl py-lg border-b border-outline-variant flex justify-between items-center bg-surface">
+        <div class="px-5 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
             <div>
-                <h3 class="font-title-sm text-title-sm text-on-surface font-bold">Pilih Anggota Baru</h3>
-                <p class="text-body-sm text-on-surface-variant">Daftar karyawan aktif yang belum ditempatkan ke departemen mana pun.</p>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base">Pilih Anggota Baru</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar pelamar yang belum ditempatkan ke departemen mana pun.</p>
             </div>
-            <button class="p-1 hover:bg-surface-container rounded-full text-on-surface-variant cursor-pointer" id="btn-close-modal">
+            <button class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer" id="btn-close-modal">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
         
         <!-- Modal Search Bar -->
-        <div class="p-lg border-b border-outline-variant bg-surface-bright flex gap-3">
+        <div class="p-4 border-b border-outline-variant bg-slate-50/50 flex gap-3">
             <div class="relative flex-1">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
-                <input class="w-full bg-white border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-body-md outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface" placeholder="Cari nama atau NIK karyawan..." type="text" id="search-modal-karyawan">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                <input class="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-800 placeholder:text-slate-400" placeholder="Cari nama atau NIK pelamar..." type="text" id="search-modal-karyawan">
             </div>
         </div>
         
@@ -226,7 +226,7 @@
                     <tr>
                         <th class="font-table-header text-table-header px-lg py-3 uppercase">Nama Karyawan</th>
                         <th class="font-table-header text-table-header px-lg py-3 uppercase">NIK</th>
-                        <th class="font-table-header text-table-header px-lg py-3 uppercase text-right">Pilih</th>
+                        <th class="font-table-header text-table-header px-lg py-3 uppercase text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/10 font-body-sm text-body-sm" id="modal-table-body">
@@ -242,9 +242,14 @@
                         </td>
                         <td class="px-lg py-3 font-mono text-on-surface-variant">{{ $unassigned->nik }}</td>
                         <td class="px-lg py-3 text-right">
-                            <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
-                                + Pilih
-                            </button>
+                            <div class="inline-flex items-center gap-1.5 justify-end">
+                                <button class="btn-assign bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all">
+                                    + Pilih
+                                </button>
+                                <button type="button" onclick="hapusKaryawanDuplikat('{{ $unassigned->id }}', '{{ addslashes($unassigned->nama_lengkap) }}')" class="p-1.5 text-red-500 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors cursor-pointer" title="Hapus Data Duplikat / Tidak Dipakai">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -459,5 +464,208 @@
     
     searchKaryawan.addEventListener('input', filterTableUtama);
     filterStatus.addEventListener('change', filterTableUtama);
+
+    // ==========================================
+    // 3. Pencarian Karyawan Baru pada Modal
+    // ==========================================
+    if (searchModalKaryawan) {
+        searchModalKaryawan.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            filterModalKaryawan(query);
+        });
+    }
+
+    function filterModalKaryawan(query) {
+        const rows = modalTableBody ? modalTableBody.querySelectorAll('tr') : [];
+        let matchCount = 0;
+        
+        rows.forEach(row => {
+            const nama = (row.getAttribute('data-nama') || '').toLowerCase();
+            const nik = (row.getAttribute('data-nik') || '').toLowerCase();
+            
+            if (nama.includes(query) || nik.includes(query)) {
+                row.classList.remove('hidden');
+                matchCount++;
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+        
+        if (modalEmptyState) {
+            if (matchCount === 0 && rows.length > 0) {
+                modalEmptyState.classList.remove('hidden');
+            } else {
+                modalEmptyState.classList.add('hidden');
+            }
+        }
+    }
+
+    // ==========================================
+    // 4. Aksi Tambah / Pilih Karyawan Baru
+    // ==========================================
+    if (modalTableBody) {
+        modalTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-assign')) {
+                const row = e.target.closest('tr');
+                const nama = row.getAttribute('data-nama');
+                const nik = row.getAttribute('data-nik');
+                
+                activeAssignData = { row, nama, nik };
+                if (assignNamaKaryawan) assignNamaKaryawan.innerText = nama;
+                
+                // Tutup modal pilihan awal
+                tutupModalTambah();
+                
+                // Buka modal detail penempatan
+                if (modalAssignDetail) {
+                    modalAssignDetail.style.display = 'flex';
+                    const inpJabatan = document.getElementById('assign-jabatan');
+                    if (inpJabatan) inpJabatan.focus();
+                }
+            }
+        });
+    }
+    
+    const tutupModalAssignDetail = () => {
+        if (modalAssignDetail) modalAssignDetail.style.display = 'none';
+        if (formAssignDetail) formAssignDetail.reset();
+        activeAssignData = null;
+    };
+    
+    if (btnCloseAssignModal) btnCloseAssignModal.addEventListener('click', tutupModalAssignDetail);
+    if (btnCancelAssignModal) btnCancelAssignModal.addEventListener('click', tutupModalAssignDetail);
+    
+    if (formAssignDetail) {
+        formAssignDetail.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (activeAssignData) {
+                const nik = activeAssignData.nik;
+                const jabatan = document.getElementById('assign-jabatan').value;
+                const status = document.getElementById('assign-status').value;
+                const dept = document.getElementById('assign-departemen').value;
+                
+                // Buat form submission permanen
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("backoffice.karyawan.assign") }}';
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                
+                const nikInput = document.createElement('input');
+                nikInput.type = 'hidden';
+                nikInput.name = 'nik';
+                nikInput.value = nik;
+
+                const jabatanInput = document.createElement('input');
+                jabatanInput.type = 'hidden';
+                jabatanInput.name = 'jabatan';
+                jabatanInput.value = jabatan;
+
+                const deptInput = document.createElement('input');
+                deptInput.type = 'hidden';
+                deptInput.name = 'departemen';
+                deptInput.value = dept;
+
+                const statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'status';
+                statusInput.value = status;
+                
+                form.appendChild(csrfToken);
+                form.appendChild(nikInput);
+                form.appendChild(jabatanInput);
+                form.appendChild(deptInput);
+                form.appendChild(statusInput);
+                document.body.appendChild(form);
+                
+                const btnSubmit = formAssignDetail.querySelector('button[type="submit"]');
+                if(btnSubmit) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerText = 'Memproses...';
+                }
+                
+                form.submit();
+            }
+        });
+    }
+
+    // ==========================================
+    // 5. Aksi Lepas Karyawan (Trigger Konfirmasi)
+    // ==========================================
+    if (tableKaryawanBody) {
+        tableKaryawanBody.addEventListener('click', (e) => {
+            const btnLepas = e.target.closest('.btn-lepas');
+            if (btnLepas) {
+                const nama = btnLepas.getAttribute('data-nama');
+                const nik = btnLepas.getAttribute('data-nik');
+                
+                targetNikToRelease = nik;
+                
+                const konfNama = document.getElementById('konfirmasi-nama');
+                const konfNik = document.getElementById('konfirmasi-nik');
+                if (konfNama) konfNama.innerText = nama;
+                if (konfNik) konfNik.innerText = nik;
+                
+                if (modalKonfirmasi) modalKonfirmasi.style.display = 'flex';
+            }
+        });
+    }
+    
+    // Batal Konfirmasi
+    if (btnKonfirmasiBatal) {
+        btnKonfirmasiBatal.addEventListener('click', () => {
+            if (modalKonfirmasi) modalKonfirmasi.style.display = 'none';
+            targetRowToRelease = null;
+            targetNikToRelease = '';
+        });
+    }
+    
+    // Setuju Konfirmasi (Proses Lepas secara Realtime dan Permanen)
+    if (btnKonfirmasiLepas) {
+        btnKonfirmasiLepas.addEventListener('click', () => {
+            if (targetNikToRelease) {
+                // Buat form untuk submit aksi lepas secara permanen
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("backoffice.karyawan.lepas") }}';
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                
+                const nikInput = document.createElement('input');
+                nikInput.type = 'hidden';
+                nikInput.name = 'nik';
+                nikInput.value = targetNikToRelease;
+                
+                form.appendChild(csrfToken);
+                form.appendChild(nikInput);
+                document.body.appendChild(form);
+                
+                btnKonfirmasiLepas.disabled = true;
+                btnKonfirmasiLepas.innerText = 'Memproses...';
+                
+                form.submit();
+            }
+        });
+    }
+
+    window.hapusKaryawanDuplikat = function(id, nama) {
+        if (confirm(`Apakah Anda yakin ingin menghapus data pelamar/karyawan duplikat "${nama}"? Akun dan data ini akan dihapus permanen.`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/backoffice/karyawan/${id}/force-delete`;
+            form.innerHTML = `
+                @csrf
+                @method('DELETE')
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    };
 </script>
 @endpush

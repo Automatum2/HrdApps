@@ -68,7 +68,7 @@
             
             <!-- Submit Button -->
             <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 rounded-xl shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer mt-2" type="submit">
-                Masuk ke Portal
+                Login
             </button>
         </form>
         

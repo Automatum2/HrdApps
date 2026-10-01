@@ -51,22 +51,24 @@
                     </select>
                 </div>
             </div>
-            <div class="mt-6 flex justify-between gap-3">
-                <button type="submit" class="bg-blue-50 border border-blue-200 text-blue-700 font-bold text-sm px-5 py-2 rounded-lg hover:bg-blue-100 transition-colors flex items-center cursor-pointer shadow-sm">
-                    <span class="material-symbols-outlined mr-2 text-lg">search</span>
-                    Terapkan Filter
-                </button>
-                <div class="flex gap-3">
-                    <a href="{{ route('backoffice.absensi') }}" class="bg-surface-container-lowest border border-outline-variant text-on-surface font-semibold text-sm px-5 py-2 rounded-lg hover:bg-surface-container-low transition-colors flex items-center cursor-pointer active:scale-95 shadow-sm" id="btn-reset-filter">
-                        <span class="material-symbols-outlined mr-2 text-lg">filter_alt_off</span>
-                        Reset
+            <div class="mt-5 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 flex-wrap">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button type="submit" class="bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">search</span>
+                        <span>Terapkan Filter</span>
+                    </button>
+                    <a href="{{ route('backoffice.absensi') }}" class="bg-surface-container-lowest border border-outline-variant text-on-surface font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm" id="btn-reset-filter">
+                        <span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
+                        <span>Reset</span>
                     </a>
+                </div>
+                <div class="flex items-center">
                     @php
                         $exportUrl = route('backoffice.absensi.export', request()->query());
                     @endphp
-                    <a href="{{ $exportUrl }}" class="bg-primary text-white font-semibold text-sm px-5 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center cursor-pointer shadow">
-                        <span class="material-symbols-outlined mr-2 text-lg">download</span>
-                        Export Excel
+                    <a href="{{ $exportUrl }}" class="w-full sm:w-auto bg-primary text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow">
+                        <span class="material-symbols-outlined text-[18px]">download</span>
+                        <span>Export Excel</span>
                     </a>
                 </div>
             </div>

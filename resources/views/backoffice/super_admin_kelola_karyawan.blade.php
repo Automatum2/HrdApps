@@ -50,23 +50,31 @@
             <thead>
                 <tr class="bg-slate-50 border-b border-outline-variant text-slate-500 uppercase tracking-wider text-xs font-bold">
                     <th class="py-4 px-6 w-16">No</th>
-                    <th class="py-4 px-6">Nama</th>
+                    <th class="py-4 px-6">NIK</th>
+                    <th class="py-4 px-6">Nama Lengkap</th>
                     <th class="py-4 px-6">Email</th>
                     <th class="py-4 px-6">Jabatan</th>
                     <th class="py-4 px-6">Departemen</th>
                     <th class="py-4 px-6">Gaji Pokok</th>
                     <th class="py-4 px-6 w-32">Status</th>
-                    <th class="py-4 px-6 w-32 text-center">Aksi</th>
+                    <th class="py-4 px-6 w-36 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody class="text-sm font-medium text-slate-700 divide-y divide-slate-100" id="karyawan-table-body">
                 @forelse($employees as $index => $k)
-                <tr class="{{ $k->status === 'nonaktif' ? 'bg-slate-50 opacity-60 grayscale' : 'hover:bg-slate-50 group transition-colors' }}" data-nama="{{ $k->nama_lengkap }}">
+                <tr class="{{ $k->status === 'nonaktif' ? 'bg-slate-50 opacity-60 grayscale' : 'hover:bg-slate-50 group transition-colors' }}" data-nama="{{ $k->nama_lengkap }}" data-nik="{{ $k->nik }}" data-email="{{ $k->email }}">
                     <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
+                    <td class="py-4 px-6 font-mono font-bold text-xs {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-primary' }}">{{ $k->nik }}</td>
                     <td class="py-4 px-6 font-bold {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $k->nama_lengkap }}</td>
                     <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->email }}</td>
                     <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->position ? $k->position->nama_jabatan : 'Belum Ditentukan' }}</td>
-                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $k->department ? $k->department->nama_department : 'Belum Ditempatkan' }}</td>
+                    <td class="py-4 px-6 {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">
+                        @if($k->department)
+                            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-semibold">{{ $k->department->nama_department }}</span>
+                        @else
+                            <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-xs font-semibold">Belum Ditempatkan</span>
+                        @endif
+                    </td>
                     <td class="py-4 px-6 font-mono {{ $k->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">Rp {{ number_format($k->gaji_pokok, 0, ',', '.') }}</td>
                     <td class="py-4 px-6" id="status-k-{{ $k->nik }}">
                         @if($k->status === 'nonaktif')
@@ -82,7 +90,7 @@
                         @endif
                     </td>
                     <td class="py-4 px-6">
-                        <div class="flex items-center justify-center gap-2">
+                        <div class="flex items-center justify-center gap-1.5">
                             @if($k->status === 'nonaktif')
                                 <button class="w-8 h-8 rounded border border-slate-200 text-slate-300 cursor-not-allowed flex items-center justify-center" title="Detail" disabled>
                                     <span class="material-symbols-outlined text-[16px]">search</span>
@@ -95,15 +103,22 @@
                             <button class="btn-edit-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors cursor-pointer' }} flex items-center justify-center" title="Edit" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}" data-gaji="{{ $k->gaji_pokok }}" data-department="{{ $k->department_id }}" data-position="{{ $k->position_id }}" data-status_kerja="{{ $k->status_kerja }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[16px]">edit</span>
                             </button>
-                            <button class="btn-delete-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-red-200 text-red-500 hover:bg-red-50 transition-colors cursor-pointer' }} flex items-center justify-center" title="Hapus / Nonaktifkan" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
-                                <span class="material-symbols-outlined text-[16px]">delete</span>
-                            </button>
+                            
+                            @if($k->status === 'aktif')
+                                <button class="btn-delete-karyawan w-8 h-8 rounded border border-slate-200 text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer flex items-center justify-center" title="Nonaktifkan Karyawan" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}">
+                                    <span class="material-symbols-outlined text-[16px]">person_off</span>
+                                </button>
+                            @else
+                                <button class="btn-force-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center" title="Hapus Permanen (Data Duplikat/Tidak Dipakai)" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-nik="{{ $k->nik }}">
+                                    <span class="material-symbols-outlined text-[16px]">delete_forever</span>
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center py-6 text-slate-500 italic">Belum ada karyawan</td>
+                    <td colspan="9" class="text-center py-6 text-slate-500 italic">Belum ada karyawan</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -158,10 +173,10 @@
 <!-- MODAL: Dialog Konfirmasi Hapus/Nonaktifkan -->
 <div class="bg-slate-900/60 backdrop-blur-sm" id="modal-delete-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
     <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 400px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
-        <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-3xl">delete</span>
+        <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl">person_off</span>
         </div>
-        <h3 class="font-bold text-slate-800 text-lg mb-2">Hapus Karyawan?</h3>
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Nonaktifkan Karyawan?</h3>
         <p class="text-sm text-slate-500 mb-6 leading-relaxed">
             Apakah Anda yakin ingin menonaktifkan karyawan <span class="font-bold text-slate-800" id="delete-karyawan-nama">Nama</span>? Akun karyawan tersebut akan diubah statusnya menjadi **Nonaktif**.
         </p>
@@ -169,10 +184,35 @@
             <button class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-delete-cancel">
                 Batal
             </button>
-            <button class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-delete-confirm-act">
+            <button class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-delete-confirm-act">
                 Ya, Nonaktifkan
             </button>
         </div>
+    </div>
+</div>
+
+<!-- MODAL: Dialog Konfirmasi Hapus Permanen (Hard Delete) -->
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-force-delete-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 420px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl">delete_forever</span>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Hapus Permanen Karyawan?</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+            Apakah Anda yakin ingin <strong class="text-red-600">menghapus permanen</strong> data <span class="font-bold text-slate-800" id="force-delete-nama">Nama</span> (<span class="font-mono text-xs font-bold" id="force-delete-nik">NIK</span>)? Tindakan ini akan menghapus akun login dan seluruh data pelamar secara permanen dan tidak dapat dibatalkan.
+        </p>
+        <form id="form-force-delete-karyawan" method="POST" class="w-full">
+            @csrf
+            @method('DELETE')
+            <div class="flex gap-3 justify-center w-full">
+                <button type="button" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" onclick="document.getElementById('modal-force-delete-confirm').style.display='none'">
+                    Batal
+                </button>
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all shadow">
+                    Ya, Hapus Permanen
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endpush
@@ -273,14 +313,16 @@
         
         // Removed LS mockup
         
-        // 3. Logika Filter Pencarian
+        // 3. Logika Filter Pencarian (Nama & NIK)
         searchKaryawan.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const rows = karyawanTableBody.querySelectorAll('tr');
             
             rows.forEach(row => {
-                const nama = row.getAttribute('data-nama').toLowerCase();
-                if (nama.includes(query)) {
+                const nama = (row.getAttribute('data-nama') || '').toLowerCase();
+                const nik = (row.getAttribute('data-nik') || '').toLowerCase();
+                const email = (row.getAttribute('data-email') || '').toLowerCase();
+                if (nama.includes(query) || nik.includes(query) || email.includes(query)) {
                     row.classList.remove('hidden');
                 } else {
                     row.classList.add('hidden');
@@ -288,7 +330,7 @@
             });
         });
         
-        // 4. Trigger Hapus (Modal Konfirmasi)
+        // 4. Trigger Nonaktifkan (Modal Konfirmasi)
         karyawanTableBody.addEventListener('click', (e) => {
             const btnDelete = e.target.closest('.btn-delete-karyawan');
             if (btnDelete) {
@@ -299,6 +341,19 @@
                 deleteKaryawanNama.innerText = nama;
                 
                 modalDeleteConfirm.style.display = 'flex';
+            }
+
+            // Trigger Hard Delete
+            const btnForceDelete = e.target.closest('.btn-force-delete-karyawan');
+            if (btnForceDelete) {
+                const id = btnForceDelete.getAttribute('data-id');
+                const nama = btnForceDelete.getAttribute('data-nama');
+                const nik = btnForceDelete.getAttribute('data-nik');
+
+                document.getElementById('force-delete-nama').innerText = nama;
+                document.getElementById('force-delete-nik').innerText = nik;
+                document.getElementById('form-force-delete-karyawan').action = `/backoffice/super-admin/kelola-karyawan/${id}/force-delete`;
+                document.getElementById('modal-force-delete-confirm').style.display = 'flex';
             }
         });
         

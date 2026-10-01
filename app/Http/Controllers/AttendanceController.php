@@ -140,6 +140,17 @@ class AttendanceController extends Controller
         ]);
 
         $employeeId = session('employee_id');
+        $user = auth()->user();
+
+        // Fallback jika session employee_id kosong namun user memiliki relasi employee
+        if (!$employeeId && $user && $user->employee_id) {
+            $employeeId = $user->employee_id;
+            session(['employee_id' => $employeeId]);
+        }
+
+        if (!$employeeId) {
+            return back()->with('error', 'Gagal mengajukan cuti: Akun Anda tidak memiliki data Karyawan terkait. Silakan hubungi Administrator.');
+        }
 
         $mulai = Carbon::parse($request->tanggal_mulai)->startOfDay();
         $selesai = Carbon::parse($request->tanggal_selesai)->startOfDay();

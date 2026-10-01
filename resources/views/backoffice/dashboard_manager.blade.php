@@ -5,133 +5,216 @@
 
 @section('content')
 <!-- Summary Grid -->
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-stagger">
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-stagger">
     <!-- Card 1: Total Karyawan Departemen -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 sm:p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
-            <p class="text-on-surface-variant font-medium text-sm mb-1">Total Karyawan Departemen</p>
-            <h3 class="text-display-lg font-display-lg text-on-background font-bold" id="stat-total-karyawan">{{ $total_karyawan_dept }}</h3>
+            <p class="text-on-surface-variant font-semibold text-xs sm:text-sm mb-1 uppercase tracking-wider">Karyawan Departemen</p>
+            <h3 class="text-2xl sm:text-display-lg font-bold text-on-background" id="stat-total-karyawan">{{ $total_karyawan_dept }}</h3>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">group</span>
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">group</span>
         </div>
     </div>
     <!-- Card 2: Hadir Hari Ini -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 sm:p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
-            <p class="text-on-surface-variant font-medium text-sm mb-1">Hadir Hari Ini</p>
-            <h3 class="text-display-lg font-display-lg text-tertiary font-bold" id="stat-hadir-karyawan">{{ $hadir_hari_ini_dept }}</h3>
+            <p class="text-on-surface-variant font-semibold text-xs sm:text-sm mb-1 uppercase tracking-wider">Hadir Hari Ini</p>
+            <h3 class="text-2xl sm:text-display-lg font-bold text-tertiary" id="stat-hadir-karyawan">{{ $hadir_hari_ini_dept }}</h3>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary shrink-0">
+            <span class="material-symbols-outlined text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
         </div>
     </div>
     <!-- Card 3: Belum Absen -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 sm:p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
-            <p class="text-on-surface-variant font-medium text-sm mb-1">Belum Absen</p>
-            <h3 class="text-display-lg font-display-lg text-error font-bold" id="stat-belum-absen">{{ $belum_absen_dept }}</h3>
+            <p class="text-on-surface-variant font-semibold text-xs sm:text-sm mb-1 uppercase tracking-wider">Belum Absen</p>
+            <h3 class="text-2xl sm:text-display-lg font-bold text-error" id="stat-belum-absen">{{ $belum_absen_dept }}</h3>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error shrink-0">
+            <span class="material-symbols-outlined text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
         </div>
     </div>
     <!-- Card 4: Total Karyawan Perusahaan -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 sm:p-6 card-shadow hover-card-float hover:border-primary/50 transition-colors flex justify-between items-start">
         <div>
-            <p class="text-on-surface-variant font-medium text-sm mb-1">Total Karyawan Perusahaan</p>
-            <h3 class="text-display-lg font-display-lg text-primary font-bold" id="stat-estimasi-gaji">{{ $total_karyawan_perusahaan }}</h3>
+            <p class="text-on-surface-variant font-semibold text-xs sm:text-sm mb-1 uppercase tracking-wider">Total Perusahaan</p>
+            <h3 class="text-2xl sm:text-display-lg font-bold text-primary" id="stat-estimasi-gaji">{{ $total_karyawan_perusahaan }}</h3>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
         </div>
     </div>
 </section>
 
 <!-- Widget Absensi Manager -->
-<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow mb-6 mt-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-stagger relative overflow-hidden">
+<section class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 card-shadow mb-4 sm:mb-6 mt-4 sm:mt-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 sm:gap-6 animate-stagger relative overflow-hidden">
     <!-- Ornamen Background -->
     <div class="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
     
-    <div class="flex items-center gap-5 z-10">
-        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary relative shadow-sm border border-primary/20">
-            <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
-            <span class="absolute top-0 right-0 w-4 h-4 bg-error rounded-full border-2 border-white animate-pulse" id="status-dot"></span>
+    <div class="flex items-center gap-4 sm:gap-5 z-10">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl {{ $todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']) ? 'bg-green-500/10 text-green-600 border border-green-200' : 'bg-primary/10 text-primary border border-primary/20' }} flex items-center justify-center relative shadow-sm shrink-0">
+            <span class="material-symbols-outlined text-3xl sm:text-4xl" style="font-variation-settings: 'FILL' 1;">{{ $todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']) ? 'event_available' : 'fingerprint' }}</span>
+            @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
+                <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" id="status-dot"></span>
+            @elseif($todayAttendance && $todayAttendance->jam_masuk)
+                <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" id="status-dot"></span>
+            @else
+                <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-error rounded-full border-2 border-white animate-pulse" id="status-dot"></span>
+            @endif
         </div>
-        <div>
-            <h4 class="font-bold text-lg text-on-background">Absensi Kehadiran</h4>
-            <p class="text-xs text-on-surface-variant font-medium mt-1">Waktu Server: <span class="font-bold text-primary font-mono bg-primary/10 px-1.5 py-0.5 rounded" id="realtime-clock">--:--:-- WIB</span></p>
-            <p class="text-[11px] text-error font-bold mt-1" id="status-text">Anda belum melakukan Clock In hari ini.</p>
+        <div class="min-w-0">
+            <h4 class="font-bold text-base sm:text-lg text-on-background">Presensi Kehadiran</h4>
+            <p class="text-xs text-on-surface-variant font-medium mt-0.5">Waktu Server: <span class="font-bold text-primary font-mono bg-primary/10 px-1.5 py-0.5 rounded" id="realtime-clock">--:--:-- WIB</span></p>
+            @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
+                <div class="mt-1">
+                    <span class="px-2.5 py-0.5 rounded-md bg-green-100 text-green-800 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                        STATUS HARI INI: {{ strtoupper($todayAttendance->status_kehadiran) }} (DISETUJUI)
+                    </span>
+                    @if($todayAttendance->keterangan)
+                        <p class="text-[11px] text-slate-500 mt-0.5 font-medium truncate max-w-xs sm:max-w-md">Keterangan: {{ $todayAttendance->keterangan }}</p>
+                    @endif
+                </div>
+            @elseif($todayAttendance && $todayAttendance->jam_masuk && !$todayAttendance->jam_keluar)
+                <p class="text-[11px] text-green-600 font-bold mt-1" id="status-text">Sudah Clock In pukul {{ substr($todayAttendance->jam_masuk, 0, 5) }} WIB ({{ $todayAttendance->status_kerja }})</p>
+            @elseif($todayAttendance && $todayAttendance->jam_masuk && $todayAttendance->jam_keluar)
+                <p class="text-[11px] text-primary font-bold mt-1" id="status-text">Presensi Selesai (Keluar pukul {{ substr($todayAttendance->jam_keluar, 0, 5) }} WIB)</p>
+            @else
+                <p class="text-[11px] text-error font-bold mt-1" id="status-text">Anda belum melakukan Clock In hari ini.</p>
+            @endif
         </div>
     </div>
     
-    <div class="flex items-center gap-3 w-full md:w-auto z-10">
-        <button type="button" onclick="document.getElementById('form-request-leave-modal').classList.remove('hidden')" class="flex-1 md:flex-none px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-            <span class="material-symbols-outlined text-[18px]">event_busy</span>
-            Ajukan Cuti/Izin
-        </button>
-        <a href="{{ route('attendance.index') }}" class="flex-1 md:flex-none px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer btn-ripple group">
-            <span class="material-symbols-outlined text-[18px] group-hover:animate-bounce">location_on</span>
-            Halaman Absensi
-        </a>
-        <button class="flex-1 md:flex-none px-6 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-bold text-sm bg-surface-container-low transition-all flex items-center justify-center gap-2 cursor-not-allowed opacity-50" disabled id="btn-clockout">
-            <span class="material-symbols-outlined text-[18px]">logout</span>
-            Clock Out
-        </button>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto z-10">
+        @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
+            <div class="opacity-90 bg-primary/15 text-primary border border-primary/30 px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 select-none shadow-sm cursor-default" style="pointer-events: none;">
+                <span class="material-symbols-outlined text-[18px]">event_available</span>
+                <span class="uppercase">STATUS HARI INI: {{ $todayAttendance->status_kehadiran }}</span>
+            </div>
+            <button type="button" onclick="toggleMgrLeaveForm()" class="px-4 py-2.5 sm:py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">event_busy</span>
+                <span>Ajukan Cuti/Izin</span>
+            </button>
+        @else
+            <button type="button" onclick="toggleMgrLeaveForm()" class="px-4 py-2.5 sm:py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">event_busy</span>
+                <span>Ajukan Cuti/Izin</span>
+            </button>
+            @if(!$todayAttendance || !$todayAttendance->jam_masuk)
+                <a href="{{ route('attendance.index') }}" class="px-5 py-2.5 sm:py-3 rounded-xl bg-primary hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">location_on</span>
+                    <span>Halaman Presensi</span>
+                </a>
+            @elseif($todayAttendance && $todayAttendance->jam_masuk && !$todayAttendance->jam_keluar)
+                <a href="{{ route('attendance.index') }}" class="px-5 py-2.5 sm:py-3 rounded-xl bg-[#1e293b] hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                    <span>Clock Out Presensi</span>
+                </a>
+            @else
+                <div class="px-5 py-2.5 sm:py-3 rounded-xl bg-slate-200 text-slate-600 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-default select-none">
+                    <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                    <span>Presensi Selesai</span>
+                </div>
+            @endif
+        @endif
     </div>
 </section>
 
-<!-- Modal Pengajuan Cuti Manager -->
-<div id="form-request-leave-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-outline-variant w-full max-w-2xl overflow-hidden animate-modal-pop">
-        <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
-            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">edit_document</span>
-                Pengajuan Cuti / Izin / Sakit Manager
-            </h3>
-            <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer" onclick="document.getElementById('form-request-leave-modal').classList.add('hidden')">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        <form action="{{ route('attendance.leave') }}" method="POST" class="p-6 space-y-4" enctype="multipart/form-data">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Inline Request Leave Form Manager -->
+<div id="form-request-leave-mgr" class="hidden mb-6 bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-300">
+    <div class="px-5 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
+        <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg sm:text-xl">edit_document</span>
+            Pengajuan Cuti / Izin / Sakit Manager
+        </h3>
+        <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer p-1" onclick="document.getElementById('form-request-leave-mgr').classList.add('hidden')">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <form action="{{ route('attendance.leave') }}" method="POST" class="p-4 sm:p-6" enctype="multipart/form-data">
+        @csrf
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tipe Pengajuan</label>
-                    <select name="tipe" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary bg-white">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tipe Pengajuan <span class="text-error">*</span></label>
+                    <select name="tipe" id="mgr-leave-tipe" required class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white" onchange="handleMgrLeaveType(this.value)">
+                        <option value="">Pilih Tipe...</option>
                         <option value="cuti">Cuti Tahunan</option>
                         <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
+                        <option value="sakit">Sakit (Surat Dokter)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Dokumen Pendukung (Opsional)</label>
-                    <input type="file" name="dokumen_pendukung" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tgl Mulai <span class="text-error">*</span></label>
+                        <input type="date" name="tanggal_mulai" id="mgr-tgl-mulai" required class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tgl Selesai <span class="text-error">*</span></label>
+                        <input type="date" name="tanggal_selesai" id="mgr-tgl-selesai" required class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tanggal Mulai</label>
-                    <input type="date" name="tanggal_mulai" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" id="mgr-label-dokumen">Dokumen Pendukung <span class="text-slate-400 font-normal lowercase">(opsional)</span></label>
+                    <input type="file" name="dokumen_pendukung" id="mgr-input-dokumen" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer border border-slate-200 rounded-xl p-1 bg-slate-50">
                 </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col justify-between h-full space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tanggal Selesai</label>
-                    <input type="date" name="tanggal_selesai" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Keterangan / Alasan <span class="text-error">*</span></label>
+                    <textarea name="keterangan" rows="5" required class="w-full border border-slate-300 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Tuliskan keterangan detail pengajuan cuti/izin/sakit..."></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" class="px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave-mgr').classList.add('hidden')">
+                        Tutup
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 text-xs sm:text-sm font-bold text-white rounded-xl shadow transition-all cursor-pointer active:scale-95 bg-amber-500 hover:bg-amber-600">
+                        Kirim Pengajuan
+                    </button>
                 </div>
             </div>
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Keterangan / Alasan</label>
-                <textarea name="keterangan" rows="4" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Tuliskan keterangan detail pengajuan..."></textarea>
-            </div>
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave-modal').classList.add('hidden')">
-                    Batal
-                </button>
-                <button type="submit" class="px-5 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-lg shadow transition-colors cursor-pointer">
-                    Kirim Pengajuan
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
+
+<script>
+    function toggleMgrLeaveForm() {
+        const formEl = document.getElementById('form-request-leave-mgr');
+        if (formEl) {
+            formEl.classList.toggle('hidden');
+            if (!formEl.classList.contains('hidden')) {
+                formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const mgrTglMulai = document.getElementById('mgr-tgl-mulai');
+        const mgrTglSelesai = document.getElementById('mgr-tgl-selesai');
+        if (mgrTglMulai && mgrTglSelesai) {
+            mgrTglMulai.addEventListener('change', (e) => {
+                mgrTglSelesai.min = e.target.value;
+                if (!mgrTglSelesai.value || mgrTglSelesai.value < e.target.value) {
+                    mgrTglSelesai.value = e.target.value;
+                }
+            });
+        }
+    });
+
+    function handleMgrLeaveType(val) {
+        const lbl = document.getElementById('mgr-label-dokumen');
+        const inp = document.getElementById('mgr-input-dokumen');
+        if (val === 'sakit') {
+            if (lbl) lbl.innerHTML = 'Surat Keterangan Dokter <span class="text-error font-bold">*</span> <span class="text-xs text-error lowercase">(wajib jika sakit)</span>';
+            if (inp) inp.required = true;
+        } else {
+            if (lbl) lbl.innerHTML = 'Dokumen Pendukung <span class="text-slate-400 font-normal lowercase">(opsional)</span>';
+            if (inp) inp.required = false;
+        }
+    }
+</script>
 
 <!-- Charts Bento Grid -->
 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">

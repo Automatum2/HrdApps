@@ -58,7 +58,7 @@ class CVController extends Controller
             'nik' => $nik,
             'is_cv_approved' => true,
             'status_kerja' => $statusKerja,
-            'status' => 'aktif',
+            'status' => 'nonaktif', // Nonaktif sampai ditempatkan ke departemen
             'activation_otp' => Hash::make($otp),
             'activation_otp_expires_at' => now()->addHours(24),
         ]);
@@ -87,7 +87,13 @@ class CVController extends Controller
 
         // Send activation link with OTP
         $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
-        $user->notify(new \App\Notifications\AccountActivation($token, $otp));
+        $emailSent = true;
+        try {
+            $user->notify(new \App\Notifications\AccountActivation($token, $otp));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send Account Activation email: ' . $e->getMessage());
+            $emailSent = false;
+        }
 
         $statusLabel = [
             'tetap' => 'Tetap',
@@ -96,7 +102,14 @@ class CVController extends Controller
             'tenaga_lepas' => 'Tenaga Lepas',
         ][$statusKerja] ?? ucfirst($statusKerja);
 
-        return redirect()->route('backoffice.cv.index')->with('success', 'Pelamar ' . $employee->nama_lengkap . ' berhasil disetujui (Status: ' . $statusLabel . '). Email aktivasi beserta Kode OTP telah dikirim ke ' . $employee->email . '.');
+        $msg = 'Pelamar ' . $employee->nama_lengkap . ' berhasil disetujui (Status: ' . $statusLabel . ').';
+        if ($emailSent) {
+            $msg .= ' Email aktivasi beserta Kode OTP telah dikirim ke ' . $employee->email . '.';
+        } else {
+            $msg .= ' (Peringatan: Gagal mengirim email aktivasi ke ' . $employee->email . ').';
+        }
+
+        return redirect()->route('backoffice.cv.index')->with('success', $msg);
     }
     
     public function reject(Request $request, $id)

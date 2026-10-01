@@ -114,9 +114,13 @@ class HrManagerController extends Controller
 
         // Kirim link aktivasi
         $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
-        $user->notify(new \App\Notifications\AccountActivation($token));
+        try {
+            $user->notify(new \App\Notifications\AccountActivation($token));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send Account Activation email: ' . $e->getMessage());
+        }
 
-        return redirect()->back()->with('success', 'HR Manager ' . $employee->nama_lengkap . ' berhasil ditambahkan dan email aktivasi telah dikirim.');
+        return redirect()->back()->with('success', 'HR Manager ' . $employee->nama_lengkap . ' berhasil ditambahkan.');
     }
 
     protected function storePromotion(Request $request)

@@ -135,6 +135,8 @@ class DashboardController extends Controller
         
         // Manager Dashboard (default fallback for 'manager')
         $user = Auth::user();
+        $employeeId = session('employee_id') ?? ($user ? ($user->employee_id ?? ($user->employee ? $user->employee->id : null)) : null);
+        $todayAttendance = $employeeId ? Attendance::where('employee_id', $employeeId)->where('tanggal', Carbon::today()->toDateString())->first() : null;
         
         if ($role === 'manager_departemen' && $user && $user->employee) {
             $department_id = $user->employee->department_id;
@@ -186,7 +188,7 @@ class DashboardController extends Controller
             return view('backoffice.dashboard_manager', compact(
                 'total_karyawan_dept', 'hadir_hari_ini_dept', 'belum_absen_dept', 
                 'total_karyawan_perusahaan', 'latest_employees', 
-                'status_tetap', 'status_kontrak', 'status_magang', 'attendance_trend'
+                'status_tetap', 'status_kontrak', 'status_magang', 'attendance_trend', 'todayAttendance'
             ));
         }
         
@@ -253,6 +255,6 @@ class DashboardController extends Controller
         $departments = Department::orderBy('nama_department', 'asc')->get();
         $positions = Position::orderBy('nama_jabatan', 'asc')->get();
 
-        return view('backoffice.dashboard', compact('total_karyawan', 'hadir_hari_ini', 'belum_absen', 'latest_employees', 'total_gaji_bulan_ini', 'status_tetap', 'status_kontrak', 'status_magang', 'unassigned_employees', 'attendance_trend', 'departments', 'positions'));
+        return view('backoffice.dashboard', compact('total_karyawan', 'hadir_hari_ini', 'belum_absen', 'latest_employees', 'total_gaji_bulan_ini', 'status_tetap', 'status_kontrak', 'status_magang', 'unassigned_employees', 'attendance_trend', 'departments', 'positions', 'todayAttendance'));
     }
 }

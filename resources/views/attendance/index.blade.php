@@ -22,25 +22,44 @@
     }
 </style>
 @endpush
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-stagger">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-stagger">
     
     <!-- KOLOM KIRI: Form Input & Informasi -->
-    <div class="flex flex-col gap-6 order-2 lg:order-1">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow">
+    <div class="flex flex-col gap-4 sm:gap-6 order-2 lg:order-1">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 card-shadow">
             <h4 class="font-title-sm text-title-sm text-on-background font-bold mb-4">Form Kehadiran</h4>
             
             @if(session('success'))
-                <div class="bg-primary/20 text-primary p-3 rounded-lg mb-4">
+                <div class="bg-primary/20 text-primary p-3 rounded-xl mb-4 text-xs sm:text-sm font-semibold">
                     {{ session('success') }}
                 </div>
             @endif
             @if(session('error'))
-                <div class="bg-error/20 text-error p-3 rounded-lg mb-4">
+                <div class="bg-error/20 text-error p-3 rounded-xl mb-4 text-xs sm:text-sm font-semibold">
                     {{ session('error') }}
                 </div>
             @endif
 
-            @if(!$attendance || !$attendance->jam_masuk)
+            @if($attendance && in_array($attendance->status_kehadiran, ['cuti', 'izin', 'sakit']))
+                <!-- Status Cuti / Izin / Sakit Terverifikasi Hari Ini (Absen Terkunci) -->
+                <div class="text-center p-6 sm:p-8 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                    <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <span class="material-symbols-outlined text-4xl">event_available</span>
+                    </div>
+                    <span class="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        Status Hari Ini: {{ strtoupper($attendance->status_kehadiran) }} (DISETUJUI)
+                    </span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800">Presensi Hari Ini Telah Terjadwal</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
+                        Pengajuan {{ ucfirst($attendance->status_kehadiran) }} Anda telah disetujui resmi oleh manajemen. Anda tidak perlu melakukan presensi Clock In / Clock Out.
+                    </p>
+                    @if($attendance->keterangan)
+                        <div class="mt-4 p-3 bg-white border border-emerald-200 rounded-xl text-xs text-slate-700 max-w-md mx-auto text-left">
+                            <strong>Keterangan:</strong> {{ strip_tags($attendance->keterangan) }}
+                        </div>
+                    @endif
+                </div>
+            @elseif(!$attendance || !$attendance->jam_masuk)
                 <!-- Form Clock In -->
                 <form action="{{ route('attendance.clock_in') }}" method="POST" id="form-clockin">
                     @csrf
@@ -48,8 +67,8 @@
                     <input type="hidden" name="lokasi" id="lokasi-in">
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-bold text-on-surface-variant mb-1">Status Kerja</label>
-                        <select name="status_kerja" class="w-full p-2.5 border border-outline-variant rounded-lg bg-surface text-on-surface font-medium text-sm">
+                        <label class="block text-xs sm:text-sm font-bold text-on-surface-variant mb-1.5 uppercase tracking-wider">Status Kerja</label>
+                        <select name="status_kerja" class="w-full p-3 border border-outline-variant rounded-xl bg-surface text-on-surface font-medium text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                             <option value="WFO">WFO - Work From Office (Kantor)</option>
                             <option value="WFD">WFD - Work From Destination (Penugasan Luar)</option>
                             <option value="WFH">WFH - Work From Home</option>
@@ -60,14 +79,14 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-bold text-on-surface-variant mb-1">Laporan Singkat / Keterangan (Opsional)</label>
-                        <div class="bg-surface rounded-lg overflow-hidden">
+                        <label class="block text-xs sm:text-sm font-bold text-on-surface-variant mb-1.5 uppercase tracking-wider">Laporan Singkat / Rencana Kerja <span class="text-outline text-xs lowercase font-normal">(opsional)</span></label>
+                        <div class="bg-surface rounded-xl overflow-hidden border border-outline-variant focus-within:border-primary transition-all">
                             <div id="editor-in"></div>
                         </div>
                         <input type="hidden" name="keterangan" id="keterangan-in">
                     </div>
 
-                    <button type="button" id="btn-submit-in" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-md hover:brightness-110 active:scale-98 transition cursor-pointer flex items-center justify-center gap-2">
+                    <button type="button" id="btn-submit-in" class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow hover:shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base">
                         <span class="material-symbols-outlined">send</span>
                         <span id="btn-submit-in-text">Kirim Absensi Masuk (Clock In)</span>
                     </button>
@@ -79,59 +98,66 @@
                     <input type="hidden" name="foto" id="foto-out">
                     <input type="hidden" name="lokasi" id="lokasi-out">
 
-                    <div class="mb-4">
-                        <p class="text-on-background font-bold">Waktu Clock In: <span class="text-primary">{{ $attendance->jam_masuk }}</span></p>
-                        <p class="text-on-background font-bold">Status: <span class="text-primary">{{ $attendance->status_kerja }}</span></p>
+                    <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Clock In Pukul</p>
+                            <p class="text-base font-bold text-primary font-mono mt-0.5">{{ substr($attendance->jam_masuk, 0, 5) }} WIB</p>
+                        </div>
+                        <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-lg uppercase tracking-wider">
+                            {{ $attendance->status_kerja }}
+                        </span>
                     </div>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-bold text-on-surface-variant mb-1">
-                            Update Laporan Harian <span class="text-error font-bold">*</span> <span class="text-xs font-semibold text-error">(Wajib Diisi)</span>
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Update Laporan Harian <span class="text-error font-bold">*</span> <span class="text-xs font-semibold text-error lowercase">(wajib diisi)</span>
                         </label>
-                        <div class="bg-surface rounded-lg overflow-hidden border border-outline-variant focus-within:border-primary transition-colors">
+                        <div class="bg-surface rounded-xl overflow-hidden border border-outline-variant focus-within:border-primary transition-colors">
                             <div id="editor-out">{!! $attendance->keterangan ?? '' !!}</div>
                         </div>
-                        <p class="text-[11px] text-on-surface-variant mt-1">Tuliskan ringkasan hasil kerja atau aktivitas yang telah Anda selesaikan hari ini.</p>
+                        <p class="text-[11px] text-on-surface-variant mt-1.5 leading-relaxed">Tuliskan ringkasan hasil kerja atau aktivitas yang telah Anda selesaikan hari ini.</p>
                         <input type="hidden" name="keterangan" id="keterangan-out">
                     </div>
 
-                    <button type="button" id="btn-submit-out" class="w-full border border-error text-error bg-error/10 font-bold py-3.5 rounded-xl shadow-md hover:bg-error hover:text-white active:scale-98 transition cursor-pointer flex items-center justify-center gap-2">
+                    <button type="button" id="btn-submit-out" class="w-full border border-error text-error bg-error/10 font-bold py-3.5 px-4 rounded-xl shadow-md hover:bg-error hover:text-white active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base">
                         <span class="material-symbols-outlined">logout</span>
                         <span id="btn-submit-out-text">Kirim Absensi Keluar (Clock Out)</span>
                     </button>
                 </form>
             @else
                 <!-- Selesai Absen -->
-                <div class="text-center p-6 bg-primary-container/20 border border-primary/30 rounded-xl">
-                    <span class="material-symbols-outlined text-4xl text-primary mb-2">check_circle</span>
-                    <h3 class="text-lg font-bold text-on-background">Anda sudah menyelesaikan absensi hari ini.</h3>
-                    <p class="text-on-surface-variant">Total Jam Kerja: {{ $attendance->total_jam_kerja }} Jam</p>
+                <div class="text-center p-6 sm:p-8 bg-primary/5 border border-primary/20 rounded-2xl">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <span class="material-symbols-outlined text-4xl">check_circle</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-on-background">Absensi Hari Ini Selesai</h3>
+                    <p class="text-xs sm:text-sm text-on-surface-variant mt-1">Total Durasi Kerja: <strong class="text-primary font-mono">{{ $attendance->total_jam_kerja }} Jam</strong></p>
                 </div>
             @endif
         </div>
 
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow">
-            <h4 class="font-title-sm text-title-sm text-on-background font-bold mb-4">Informasi Tambahan</h4>
-            <p class="text-sm text-on-surface-variant mb-4">Pastikan wajah terlihat jelas dan lokasi sudah sesuai sebelum melakukan absensi.</p>
-            <div class="bg-surface-container-low p-4 rounded-lg">
-                <p class="font-bold mb-1">Panduan Absensi:</p>
-                <ul class="list-disc pl-5 text-sm text-on-surface-variant">
-                    <li>Izinkan akses kamera dan lokasi di browser Anda.</li>
-                    <li>Pilih status kerja yang sesuai.</li>
-                    <li>Ketuk area kamera untuk mengaktifkan video.</li>
-                    <li>Klik tombol Clock In saat memulai kerja.</li>
-                    <li>Isi laporan harian dan klik tombol Clock Out saat mengakhiri kerja.</li>
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 card-shadow">
+            <h4 class="font-title-sm text-title-sm text-on-background font-bold mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-lg">info</span>
+                Panduan Presensi
+            </h4>
+            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                <ul class="list-disc pl-4 space-y-1.5 text-xs text-slate-600 leading-relaxed">
+                    <li>Izinkan akses kamera dan sensor lokasi GPS browser Anda.</li>
+                    <li>Ambil foto selfie di area yang cukup terang.</li>
+                    <li>Klik <strong>Clock In</strong> saat memulai hari kerja.</li>
+                    <li>Isi laporan aktivitas kerja sebelum menekan tombol <strong>Clock Out</strong> saat jam pulang.</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <!-- KOLOM KANAN: Kamera & Peta GPS (Mobile: Prioritas di atas) -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow h-fit order-1 lg:order-2">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 card-shadow h-fit order-1 lg:order-2">
         <div class="flex items-center justify-between mb-4 gap-2 flex-wrap">
             <h4 class="font-title-sm text-title-sm text-on-background font-bold flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary">photo_camera</span>
-                Bukti Visual & Lokasi
+                Bukti Foto & Lokasi
             </h4>
             <div class="flex items-center gap-2">
                 <button type="button" id="btn-toggle-mirror" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-surface-container-low hover:bg-surface-container border border-outline-variant text-on-surface flex items-center gap-1 transition cursor-pointer" title="Klik untuk membalik orientasi cermin kamera">
@@ -146,58 +172,58 @@
         
         <div class="mb-4 relative group overflow-hidden rounded-xl border border-outline-variant bg-black">
             <!-- Placeholder (Dashed Box) -->
-            <div id="camera-placeholder" class="w-full h-72 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center text-on-surface-variant cursor-pointer bg-surface-container-low hover:bg-surface-container hover:border-primary transition-all p-4 text-center">
-                <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3 shadow-inner group-hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-3xl">add_a_photo</span>
+            <div id="camera-placeholder" class="w-full h-64 sm:h-72 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center text-on-surface-variant cursor-pointer bg-surface-container-low hover:bg-surface-container hover:border-primary transition-all p-4 text-center">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3 shadow-inner group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-2xl sm:text-3xl">add_a_photo</span>
                 </div>
-                <span class="font-bold text-base text-on-surface">Buka Kamera Selfie</span>
+                <span class="font-bold text-sm sm:text-base text-on-surface">Buka Kamera Selfie</span>
                 <span class="text-xs text-on-surface-variant mt-1 max-w-[240px]">Ketuk di sini untuk menyalakan kamera depan dan ambil foto langsung</span>
             </div>
 
             <!-- Video Live Feed -->
-            <div id="video-wrapper" class="relative hidden w-full h-72 bg-black flex items-center justify-center">
+            <div id="video-wrapper" class="relative hidden w-full h-64 sm:h-72 bg-black flex items-center justify-center">
                 <video id="camera-feed" class="w-full h-full object-cover rounded-xl" autoplay playsinline></video>
             </div>
 
             <!-- Photo Preview -->
-            <div id="preview-wrapper" class="relative hidden w-full h-72 bg-black flex items-center justify-center">
+            <div id="preview-wrapper" class="relative hidden w-full h-64 sm:h-72 bg-black flex items-center justify-center">
                 <img id="photo-preview" class="w-full h-full object-cover rounded-xl" alt="Preview Absensi" />
             </div>
             
             <canvas id="camera-canvas" class="hidden"></canvas>
         </div>
 
-        <!-- Tombol Aksi Kamera (Hanya untuk Kontrol Kamera & Jepret Foto) -->
-        <div id="camera-action-bar" class="mb-5 space-y-2">
+        <!-- Tombol Aksi Kamera -->
+        <div id="camera-action-bar" class="mb-4 space-y-2">
             @if(!$attendance || !$attendance->jam_masuk)
                 <!-- Tombol Kamera saat Clock In -->
-                <button type="button" id="btn-cam-takephoto-in" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-sm">
-                    <span class="material-symbols-outlined text-xl" id="btn-cam-icon-in">photo_camera</span>
+                <button type="button" id="btn-cam-takephoto-in" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm">
+                    <span class="material-symbols-outlined text-lg sm:text-xl" id="btn-cam-icon-in">photo_camera</span>
                     <span id="btn-cam-text-in">Buka Kamera Selfie</span>
                 </button>
             @elseif(!$attendance->jam_keluar)
                 <!-- Tombol Kamera saat Clock Out -->
-                <button type="button" id="btn-cam-takephoto-out" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-sm">
-                    <span class="material-symbols-outlined text-xl" id="btn-cam-icon-out">photo_camera</span>
+                <button type="button" id="btn-cam-takephoto-out" class="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-slate-700 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm">
+                    <span class="material-symbols-outlined text-lg sm:text-xl" id="btn-cam-icon-out">photo_camera</span>
                     <span id="btn-cam-text-out">Buka Kamera Selfie</span>
                 </button>
             @endif
 
-            <button type="button" id="btn-retake-photo" class="w-full py-2.5 px-4 bg-surface-container border border-outline-variant text-error font-semibold rounded-xl hover:bg-error/10 transition items-center justify-center gap-2 hidden cursor-pointer text-sm">
-                <span class="material-symbols-outlined text-lg">refresh</span>
+            <button type="button" id="btn-retake-photo" class="w-full py-2.5 px-4 bg-slate-100 border border-slate-300 text-red-600 font-bold rounded-xl hover:bg-red-50 transition items-center justify-center gap-2 hidden cursor-pointer text-xs sm:text-sm">
+                <span class="material-symbols-outlined text-base">refresh</span>
                 <span>Foto Ulang (Retake)</span>
             </button>
         </div>
 
         <div class="border-t border-outline-variant/60 pt-4">
-            <div id="map-container" class="w-full h-36 bg-slate-100 rounded-lg overflow-hidden hidden mb-2 border border-outline-variant">
+            <div id="map-container" class="w-full h-32 sm:h-36 bg-slate-100 rounded-xl overflow-hidden hidden mb-2 border border-outline-variant">
                 <iframe id="map-iframe" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src=""></iframe>
             </div>
             <div class="flex items-start gap-2 mt-2">
-                <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">location_on</span>
-                <div>
-                    <p id="location-text" class="text-xs text-on-surface font-mono font-bold">Mendapatkan lokasi GPS...</p>
-                    <p id="address-text" class="text-xs text-on-surface-variant mt-0.5 leading-relaxed"></p>
+                <span class="material-symbols-outlined text-primary text-base mt-0.5 shrink-0">location_on</span>
+                <div class="min-w-0">
+                    <p id="location-text" class="text-[11px] sm:text-xs text-on-surface font-mono font-bold truncate">Mendapatkan lokasi GPS...</p>
+                    <p id="address-text" class="text-[11px] sm:text-xs text-on-surface-variant mt-0.5 leading-relaxed break-words"></p>
                 </div>
             </div>
         </div>

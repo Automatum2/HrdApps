@@ -5,24 +5,24 @@
 
 @section('content')
 <!-- Top Section: Welcome Banner & Status -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
     <!-- Welcome Banner -->
-    <div class="lg:col-span-2 relative overflow-hidden rounded-xl bg-[#1e293b] text-white p-8 flex flex-col md:flex-row items-center justify-between shadow-lg border border-outline-variant">
+    <div class="lg:col-span-2 relative overflow-hidden rounded-2xl bg-[#1e293b] text-white p-5 sm:p-8 flex flex-col md:flex-row items-center justify-between shadow-lg border border-slate-700">
         <div class="relative z-10 space-y-2 text-center md:text-left">
-            <p class="font-body-md opacity-80">Selamat Datang,</p>
-            <h3 class="font-display-lg text-3xl font-extrabold tracking-tight">{{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nama_lengkap : session('user_name', 'Ahmad Fadillah') }}</h3>
-            <div class="flex items-center gap-4 mt-4 justify-center md:justify-start">
-                <span class="px-3 py-1 bg-primary text-white rounded-full text-[12px] font-bold tracking-wide uppercase">Tetap Produktif!</span>
-                <span class="text-body-sm opacity-70">Employee ID : {{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nik : session('employee_id', '00001221') }}</span>
+            <p class="text-xs sm:text-sm text-slate-300 font-medium">Selamat Datang,</p>
+            <h3 class="text-xl sm:text-3xl font-extrabold tracking-tight">{{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nama_lengkap : session('user_name', 'Ahmad Fadillah') }}</h3>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 justify-center md:justify-start text-xs">
+                <span class="px-2.5 py-1 bg-primary text-white rounded-full text-[11px] font-bold tracking-wide uppercase">Tetap Produktif!</span>
+                <span class="text-slate-300 font-mono">ID: {{ auth()->check() && auth()->user()->employee ? auth()->user()->employee->nik : session('employee_id', '00001221') }}</span>
                 @if(isset($masaKerja))
-                <span class="text-body-sm opacity-70 border-l border-white/30 pl-4">Masa Kerja: <span class="font-bold">{{ $masaKerja }}</span></span>
+                <span class="text-slate-300 hidden sm:inline">&bull; Masa Kerja: <strong class="text-white">{{ $masaKerja }}</strong></span>
                 @endif
                 @if(isset($sisaCutiTahunan))
-                <span class="text-body-sm opacity-70 border-l border-white/30 pl-4">Sisa Cuti: <span class="font-bold text-amber-400">{{ $sisaCutiTahunan }} Hari</span></span>
+                <span class="text-slate-300">&bull; Sisa Cuti: <strong class="text-amber-400 font-bold">{{ $sisaCutiTahunan }} Hari</strong></span>
                 @endif
             </div>
         </div>
-        <div class="mt-6 md:mt-0 relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-primary/20 shadow-xl overflow-hidden bg-slate-700">
+        <div class="mt-4 md:mt-0 relative z-10 w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-primary/20 shadow-xl overflow-hidden bg-slate-700 shrink-0">
             @php
                 $user = \Illuminate\Support\Facades\Auth::user();
                 $dashboardPhoto = asset('images/avatar.svg');
@@ -33,69 +33,69 @@
             <img class="w-full h-full object-cover" alt="Foto Profil" src="{{ $dashboardPhoto }}">
         </div>
         <!-- Background Decoration -->
-        <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-        <div class="absolute -left-10 -top-10 w-48 h-48 bg-primary-container/5 rounded-full blur-2xl"></div>
+        <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-primary-container/5 rounded-full blur-2xl pointer-events-none"></div>
     </div>
     
     <!-- Clock Status Card -->
-    <div class="bg-white rounded-xl border border-outline-variant p-6 flex flex-col justify-between shadow-sm" id="absensi-status-card">
-        <div class="flex items-center justify-between mb-4">
-            <h4 class="font-title-sm text-title-sm text-on-surface font-semibold text-lg">Status Absensi</h4>
+    <div class="bg-white rounded-2xl border border-outline-variant p-5 sm:p-6 flex flex-col justify-between shadow-sm" id="absensi-status-card">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="font-title-sm text-title-sm text-on-surface font-bold text-base sm:text-lg">Status Presensi</h4>
             <span class="material-symbols-outlined text-outline" id="status-icon-badge">verified</span>
         </div>
-        <div class="space-y-4">
-            <!-- Box status (Default: Belum Absen) -->
+        <div class="space-y-3 sm:space-y-4">
+            <!-- Box status -->
             @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
-            <div class="flex items-center gap-4 p-4 bg-primary/10 rounded-xl border border-primary/20 transition-all duration-300" id="status-box">
-                <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
-                    <span class="material-symbols-outlined text-2xl" id="status-icon">event_available</span>
+            <div class="flex items-center gap-3 p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 transition-all duration-300" id="status-box">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white shrink-0" id="status-icon-container">
+                    <span class="material-symbols-outlined text-xl" id="status-icon">event_available</span>
                 </div>
-                <div>
-                    <p class="text-body-sm text-primary font-bold leading-tight transition-all duration-300 uppercase" id="status-text">Status: {{ $todayAttendance->status_kehadiran }}</p>
-                    <p class="text-[12px] text-on-surface-variant line-clamp-2" id="status-desc">{!! strip_tags($todayAttendance->keterangan ?? 'Tidak ada keterangan') !!}</p>
+                <div class="min-w-0">
+                    <p class="text-xs font-bold text-emerald-800 leading-tight uppercase truncate" id="status-text">Status: {{ $todayAttendance->status_kehadiran }} (DISETUJUI)</p>
+                    <p class="text-[11px] text-slate-600 truncate mt-0.5" id="status-desc">{!! strip_tags($todayAttendance->keterangan ?? 'Tidak ada keterangan') !!}</p>
                 </div>
             </div>
             @elseif(!$todayAttendance || !$todayAttendance->jam_masuk)
-            <div class="flex items-center gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200 transition-all duration-300" id="status-box">
-                <div class="w-12 h-12 rounded-lg bg-slate-400 flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
-                    <span class="material-symbols-outlined text-2xl" id="status-icon">pending_actions</span>
+            <div class="flex items-center gap-3 p-3.5 bg-slate-100 rounded-xl border border-slate-200 transition-all duration-300" id="status-box">
+                <div class="w-10 h-10 rounded-lg bg-slate-400 flex items-center justify-center text-white shrink-0" id="status-icon-container">
+                    <span class="material-symbols-outlined text-xl" id="status-icon">pending_actions</span>
                 </div>
                 <div>
-                    <p class="text-body-sm text-slate-700 font-bold leading-tight transition-all duration-300" id="status-text">Belum Absen Masuk</p>
-                    <p class="text-[12px] text-on-surface-variant" id="status-desc">Silakan lakukan absensi hari ini</p>
+                    <p class="text-xs font-bold text-slate-700 leading-tight" id="status-text">Belum Absen Masuk</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5" id="status-desc">Silakan lakukan presensi hari ini</p>
                 </div>
             </div>
             @elseif(!$todayAttendance->jam_keluar)
-            <div class="flex items-center gap-4 p-4 bg-green-50 rounded-xl border border-green-200 transition-all duration-300" id="status-box">
-                <div class="w-12 h-12 rounded-lg bg-green-600 flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
-                    <span class="material-symbols-outlined text-2xl" id="status-icon">check_circle</span>
+            <div class="flex items-center gap-3 p-3.5 bg-green-50 rounded-xl border border-green-200 transition-all duration-300" id="status-box">
+                <div class="w-10 h-10 rounded-lg bg-green-600 flex items-center justify-center text-white shrink-0" id="status-icon-container">
+                    <span class="material-symbols-outlined text-xl" id="status-icon">check_circle</span>
                 </div>
                 <div>
-                    <p class="text-body-sm text-green-700 font-bold leading-tight transition-all duration-300" id="status-text">Sudah Absen Masuk</p>
-                    <p class="text-[12px] text-on-surface-variant" id="status-desc">{{ substr($todayAttendance->jam_masuk, 0, 5) }} WIB • {{ $todayAttendance->status_kerja }}</p>
+                    <p class="text-xs font-bold text-green-700 leading-tight" id="status-text">Sudah Absen Masuk</p>
+                    <p class="text-[11px] text-slate-600 mt-0.5 font-mono">{{ substr($todayAttendance->jam_masuk, 0, 5) }} WIB &bull; {{ $todayAttendance->status_kerja }}</p>
                 </div>
             </div>
             @else
-            <div class="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/20 transition-all duration-300" id="status-box">
-                <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white transition-all duration-300" id="status-icon-container">
-                    <span class="material-symbols-outlined text-2xl" id="status-icon">check_circle</span>
+            <div class="flex items-center gap-3 p-3.5 bg-primary/5 rounded-xl border border-primary/20 transition-all duration-300" id="status-box">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white shrink-0" id="status-icon-container">
+                    <span class="material-symbols-outlined text-xl" id="status-icon">check_circle</span>
                 </div>
                 <div>
-                    <p class="text-body-sm text-primary font-bold leading-tight transition-all duration-300" id="status-text">Sudah Absen Pulang</p>
-                    <p class="text-[12px] text-on-surface-variant" id="status-desc">Keluar pukul {{ substr($todayAttendance->jam_keluar, 0, 5) }} WIB</p>
+                    <p class="text-xs font-bold text-primary leading-tight" id="status-text">Presensi Selesai</p>
+                    <p class="text-[11px] text-slate-600 mt-0.5 font-mono">Keluar pukul {{ substr($todayAttendance->jam_keluar, 0, 5) }} WIB</p>
                 </div>
             </div>
             @endif
-            <div class="grid grid-cols-2 gap-3 text-center">
-                <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50">
-                    <p class="text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Jam Masuk</p>
-                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_masuk ? 'text-tertiary-container' : 'text-on-surface' }} text-lg transition-all duration-300" id="clock-in-time">
+            <div class="grid grid-cols-2 gap-2.5 text-center">
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Jam Masuk</p>
+                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_masuk ? 'text-primary' : 'text-slate-700' }} text-base font-mono mt-0.5" id="clock-in-time">
                         {{ $todayAttendance && $todayAttendance->jam_masuk ? substr($todayAttendance->jam_masuk, 0, 5) : '--:--' }}
                     </p>
                 </div>
-                <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50">
-                    <p class="text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Jam Keluar</p>
-                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_keluar ? 'text-primary' : 'text-on-surface' }} text-lg transition-all duration-300" id="clock-out-time">
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Jam Keluar</p>
+                    <p class="font-bold {{ $todayAttendance && $todayAttendance->jam_keluar ? 'text-primary' : 'text-slate-700' }} text-base font-mono mt-0.5" id="clock-out-time">
                         {{ $todayAttendance && $todayAttendance->jam_keluar ? substr($todayAttendance->jam_keluar, 0, 5) : '--:--' }}
                     </p>
                 </div>
@@ -104,8 +104,8 @@
     </div>
 </div>
 
-<!-- Action Buttons Section (Bento Float) -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Action Buttons Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6 mt-4 sm:mt-6">
     @if($todayAttendance && in_array($todayAttendance->status_kehadiran, ['izin', 'cuti', 'sakit']))
         <!-- Sedang Cuti/Izin/Sakit -->
         <div class="opacity-80 bg-primary/20 group flex items-center justify-center gap-4 py-6 text-primary rounded-xl font-bold text-lg shadow-lg border border-primary/30" style="pointer-events: none;">
@@ -139,54 +139,56 @@
 </div>
 
 <!-- Inline Request Leave Form -->
-<div id="form-request-leave" class="hidden mt-6 bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-300 transform origin-top">
-    <div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
-        <h3 class="font-title-sm text-title-sm font-bold text-slate-800 flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary">edit_document</span>
+<div id="form-request-leave" class="hidden mt-6 bg-white rounded-2xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-300 transform origin-top">
+    <div class="px-5 py-4 border-b border-outline-variant flex items-center justify-between bg-slate-50">
+        <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg sm:text-xl">edit_document</span>
             Lapor Ketidakhadiran (Cuti/Izin/Sakit)
         </h3>
-        <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
+        <button type="button" class="text-slate-400 hover:text-slate-600 cursor-pointer p-1" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
-    <form action="{{ route('attendance.leave') }}" method="POST" class="p-6" enctype="multipart/form-data">
+    <form action="{{ route('attendance.leave') }}" method="POST" class="p-4 sm:p-6" enctype="multipart/form-data">
         @csrf
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Tipe Pengajuan</label>
-                    <select name="tipe" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tipe Pengajuan <span class="text-error">*</span></label>
+                    <select name="tipe" id="karyawan-leave-tipe" required class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white" onchange="handleLeaveTypeChange(this.value)">
                         <option value="">Pilih Tipe...</option>
-                        <option value="cuti">Cuti</option>
+                        <option value="cuti">Cuti Tahunan</option>
                         <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
+                        <option value="sakit">Sakit (Surat Dokter)</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-body-sm font-bold text-slate-700 mb-1">Tgl Mulai</label>
-                        <input type="date" name="tanggal_mulai" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tgl Mulai <span class="text-error">*</span></label>
+                        <input type="date" name="tanggal_mulai" id="karyawan-tgl-mulai" required class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
                     </div>
                     <div id="container-tanggal-selesai">
-                        <label class="block text-body-sm font-bold text-slate-700 mb-1">Tgl Selesai</label>
-                        <input type="date" name="tanggal_selesai" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tgl Selesai <span class="text-error">*</span></label>
+                        <input type="date" name="tanggal_selesai" id="karyawan-tgl-selesai" required class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
                     </div>
                 </div>
                 <div id="container-dokumen">
-                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Dokumen Pendukung <span class="text-xs font-normal text-slate-400">(Surat Dokter dll)</span></label>
-                    <input type="file" name="dokumen_pendukung" accept="image/*,.pdf" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" id="label-dokumen-pendukung">
+                        Dokumen Pendukung <span class="text-slate-400 font-normal lowercase">(surat dokter/foto)</span>
+                    </label>
+                    <input type="file" name="dokumen_pendukung" id="input-dokumen-pendukung" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer border border-slate-200 rounded-xl p-1 bg-slate-50">
                 </div>
             </div>
-            <div class="lg:col-span-2 flex flex-col justify-between h-full">
+            <div class="lg:col-span-2 flex flex-col justify-between h-full space-y-4">
                 <div>
-                    <label class="block text-body-sm font-bold text-slate-700 mb-1">Keterangan / Alasan</label>
-                    <textarea name="keterangan" rows="6" required class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Tuliskan keterangan secara singkat..."></textarea>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Keterangan / Alasan <span class="text-error">*</span></label>
+                    <textarea name="keterangan" rows="5" required class="w-full border border-slate-300 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Jelaskan alasan pengajuan izin/cuti atau keterangan istirahat dari dokter..."></textarea>
                 </div>
-                <div class="mt-4 flex items-center justify-end gap-3">
-                    <button type="button" class="px-6 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" class="px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" onclick="document.getElementById('form-request-leave').classList.add('hidden')">
                         Tutup
                     </button>
-                    <button type="submit" class="px-6 py-2 text-sm font-bold text-white rounded-lg shadow-md transition-colors cursor-pointer" style="background-color: #f59e0b;">
+                    <button type="submit" class="px-6 py-2.5 text-xs sm:text-sm font-bold text-white rounded-xl shadow transition-all cursor-pointer active:scale-95" style="background-color: #f59e0b;">
                         Kirim Pengajuan
                     </button>
                 </div>
@@ -544,21 +546,32 @@
             });
         }
 
-        const tipeSelect = document.querySelector('select[name="tipe"]');
-        const containerTanggalSelesai = document.getElementById('container-tanggal-selesai');
-        const inputTanggalSelesai = document.querySelector('input[name="tanggal_selesai"]');
-        const inputTanggalMulai = document.querySelector('input[name="tanggal_mulai"]');
-        const containerMulai = inputTanggalMulai.parentElement;
+        const inputTanggalMulai = document.getElementById('karyawan-tgl-mulai');
+        const inputTanggalSelesai = document.getElementById('karyawan-tgl-selesai');
 
-        if (tipeSelect && containerTanggalSelesai && inputTanggalSelesai && inputTanggalMulai) {
-            // Otomatis isi Tgl Selesai dengan Tgl Mulai (1 hari)
+        if (inputTanggalMulai && inputTanggalSelesai) {
+            // Set min tanggal selesai mengikuti tanggal mulai
             inputTanggalMulai.addEventListener('change', (e) => {
-                if (!inputTanggalSelesai.value || inputTanggalSelesai.value <= e.target.value) {
+                inputTanggalSelesai.min = e.target.value;
+                if (!inputTanggalSelesai.value || inputTanggalSelesai.value < e.target.value) {
                     inputTanggalSelesai.value = e.target.value;
                 }
             });
         }
     });
+
+    function handleLeaveTypeChange(type) {
+        const labelDokumen = document.getElementById('label-dokumen-pendukung');
+        const inputDokumen = document.getElementById('input-dokumen-pendukung');
+        
+        if (type === 'sakit') {
+            if (labelDokumen) labelDokumen.innerHTML = 'Surat Keterangan Dokter <span class="text-error font-bold">*</span> <span class="text-xs text-error lowercase">(wajib jika sakit)</span>';
+            if (inputDokumen) inputDokumen.required = true;
+        } else {
+            if (labelDokumen) labelDokumen.innerHTML = 'Dokumen Pendukung <span class="text-slate-400 font-normal lowercase">(opsional)</span>';
+            if (inputDokumen) inputDokumen.required = false;
+        }
+    }
 
     function showAttDetailModal(tanggal, masuk, keluar, durasi, status, kerja, fotoIn, fotoOut, locIn, locOut, notes) {
         document.getElementById('att-detail-date').innerText = 'Presensi: ' + tanggal;
