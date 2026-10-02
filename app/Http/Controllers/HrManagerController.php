@@ -60,9 +60,14 @@ class HrManagerController extends Controller
         ]);
 
         if ($request->role === 'hr_manager') {
-            $existingHR = User::where('role', 'hr_manager')->count();
-            if ($existingHR >= 1) {
-                return redirect()->back()->with('error', 'Hanya boleh ada 1 HR Manager di dalam sistem.');
+            // Otomatis demote HR Manager lama menjadi karyawan biasa
+            $oldHRs = User::where('role', 'hr_manager')->get();
+            foreach ($oldHRs as $oldUser) {
+                $oldUser->update(['role' => 'karyawan']);
+                if ($oldUser->employee) {
+                    $staffPos = \App\Models\Position::firstOrCreate(['nama_jabatan' => 'Staff'], ['level' => 'staff', 'tunjangan_jabatan' => 0]);
+                    $oldUser->employee->update(['position_id' => $staffPos->id]);
+                }
             }
         }
 
@@ -132,13 +137,6 @@ class HrManagerController extends Controller
             'department_id' => 'nullable|exists:departments,id',
         ]);
 
-        if ($request->role === 'hr_manager') {
-            $existingHR = User::where('role', 'hr_manager')->count();
-            if ($existingHR >= 1) {
-                return redirect()->back()->with('error', 'Hanya boleh ada 1 HR Manager di dalam sistem.');
-            }
-        }
-
         if ($request->role === 'manager_departemen' && blank($request->department_id)) {
             return redirect()->back()->with('error', 'Departemen wajib dipilih untuk Manager Departemen.');
         }
@@ -151,6 +149,24 @@ class HrManagerController extends Controller
 
         if ($employee->user->role !== 'karyawan') {
             return redirect()->back()->with('error', 'Karyawan ini sudah memiliki role ' . $employee->user->role . ' dan tidak dapat dipromosikan lagi.');
+        }
+
+        // Jika promosi menjadi HR Manager, otomatis demote HR Manager lama ke karyawan biasa
+        $demotedName = null;
+        if ($request->role === 'hr_manager') {
+            $oldHRs = User::where('role', 'hr_manager')
+                ->where('id', '!=', $employee->user->id)
+                ->with('employee')
+                ->get();
+
+            foreach ($oldHRs as $oldUser) {
+                $demotedName = $oldUser->employee ? $oldUser->employee->nama_lengkap : $oldUser->username;
+                $oldUser->update(['role' => 'karyawan']);
+                if ($oldUser->employee) {
+                    $staffPos = \App\Models\Position::firstOrCreate(['nama_jabatan' => 'Staff'], ['level' => 'staff', 'tunjangan_jabatan' => 0]);
+                    $oldUser->employee->update(['position_id' => $staffPos->id]);
+                }
+            }
         }
 
         // Jabatan Manager (tunjangan_jabatan otomatis merujuk pada data positions)
@@ -178,8 +194,12 @@ class HrManagerController extends Controller
         }
 
         $namaRole = $request->role === 'manager_departemen' ? 'Manager Departemen' : 'HR Manager';
+        $successMsg = 'Karyawan ' . $employee->nama_lengkap . ' berhasil dipromosikan menjadi ' . $namaRole . '.';
+        if ($demotedName) {
+            $successMsg .= ' (Posisi HR Manager sebelumnya milik "' . $demotedName . '" otomatis dialihkan ke Karyawan).';
+        }
 
-        return redirect()->back()->with('success', 'Karyawan ' . $employee->nama_lengkap . ' berhasil dipromosikan menjadi ' . $namaRole . '. NIK tetap sama dan tidak ada record duplikat.');
+        return redirect()->back()->with('success', $successMsg);
     }
 
     public function update(Request $request, $id)

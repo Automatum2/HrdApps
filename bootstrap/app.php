@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\PreventSqlInjection::class,
+        ]);
+
         $middleware->alias([
             'employee.session' => \App\Http\Middleware\CheckEmployeeSession::class,
             'role' => \App\Http\Middleware\CheckRole::class,

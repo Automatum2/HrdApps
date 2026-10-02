@@ -16,12 +16,14 @@ class SuperAdminAttendanceController extends Controller
             abort(403, 'Akses khusus Super Admin.');
         }
 
-        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
-        $departmentId = $request->input('department_id');
+        $dari = $request->input('dari_tanggal', Carbon::now()->startOfMonth()->toDateString());
+        $sampai = $request->input('sampai_tanggal', Carbon::now()->endOfMonth()->toDateString());
+        $departmentId = $request->input('departemen_id');
+        $status = $request->input('status');
         $search = $request->input('search');
 
         $query = Attendance::with(['employee.department', 'employee.user'])
-            ->whereDate('tanggal', $tanggal);
+            ->whereBetween('tanggal', [$dari, $sampai]);
 
         if ($departmentId) {
             $query->whereHas('employee', function ($q) use ($departmentId) {
@@ -29,30 +31,40 @@ class SuperAdminAttendanceController extends Controller
             });
         }
 
+        if ($status) {
+            $query->where('status_kehadiran', $status);
+        }
+
         if ($search) {
-            $query->whereHas('employee', function ($q) use ($search) {
-                $q->where('nama_lengkap', 'like', "%{$search}%")
-                  ->orWhere('nik', 'like', "%{$search}%");
+            $escapedSearch = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+            $query->whereHas('employee', function ($q) use ($escapedSearch) {
+                $q->where('nama_lengkap', 'like', "%{$escapedSearch}%")
+                  ->orWhere('nik', 'like', "%{$escapedSearch}%");
             });
         }
 
-        $attendances = $query->orderBy('jam_masuk', 'desc')->paginate(10)->withQueryString();
-        $departments = Department::orderBy('nama_department')->get();
+        // Hitung statistik untuk seluruh data hasil filter (sebelum dipaginate)
+        $allFiltered = (clone $query)->get();
+        $stats = [
+            'hadir' => $allFiltered->where('status_kehadiran', 'hadir')->count(),
+            'izin' => $allFiltered->where('status_kehadiran', 'izin')->count(),
+            'sakit' => $allFiltered->where('status_kehadiran', 'sakit')->count(),
+            'alpha' => $allFiltered->where('status_kehadiran', 'alpha')->count(),
+            'cuti' => $allFiltered->where('status_kehadiran', 'cuti')->count(),
+        ];
 
-        // Calculate summary stats for today
-        $totalHadir = Attendance::whereDate('tanggal', $tanggal)->whereIn('status_kehadiran', ['hadir', 'wfo', 'wfh'])->count();
-        $totalIzin = Attendance::whereDate('tanggal', $tanggal)->whereIn('status_kehadiran', ['izin', 'sakit', 'cuti'])->count();
-        $totalAlpha = Attendance::whereDate('tanggal', $tanggal)->where('status_kehadiran', 'alpha')->count();
+        $attendances = $query->orderBy('tanggal', 'desc')->orderBy('jam_masuk', 'desc')->paginate(10)->withQueryString();
+        $departments = Department::orderBy('nama_department')->get();
 
         return view('backoffice.super_admin_absensi', compact(
             'attendances',
+            'stats',
             'departments',
-            'tanggal',
+            'dari',
+            'sampai',
             'departmentId',
-            'search',
-            'totalHadir',
-            'totalIzin',
-            'totalAlpha'
+            'status',
+            'search'
         ));
     }
 }

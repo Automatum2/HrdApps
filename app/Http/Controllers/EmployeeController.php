@@ -86,7 +86,8 @@ class EmployeeController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $rawSearch = $request->search;
+            $search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $rawSearch);
             $employeesQuery->where(function($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                   ->orWhere('nik', 'like', "%{$search}%");
