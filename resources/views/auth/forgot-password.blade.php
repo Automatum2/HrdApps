@@ -9,7 +9,7 @@
 <div class="floating-orb orb-3"></div>
 
 <!-- Login Container -->
-<main class="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
+<main class="auth-container w-full max-w-md max-w-[440px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10" style="max-width: 440px; width: 100%;">
     <div class="login-card bg-surface-container-lowest rounded-xl p-xl flex flex-col items-center">
         <!-- Logo Section -->
         <div class="mb-lg flex flex-col items-center text-center">

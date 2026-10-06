@@ -35,10 +35,16 @@
         .clean-card {
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
     @stack('styles')
 </head>
-<body class="flex flex-col items-center justify-center p-4 sm:p-6 font-body-md text-slate-900 antialiased">
+<body class="flex flex-col items-center justify-center p-4 sm:p-6 font-body-md text-slate-900 antialiased" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
     @yield('content')
     @stack('scripts')
 </body>

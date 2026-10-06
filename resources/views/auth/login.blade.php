@@ -3,7 +3,7 @@
 @section('title', 'Login - HRDApps Management System')
 
 @section('content')
-<main class="w-full max-w-[420px] relative z-10 py-6">
+<main class="auth-container w-full max-w-md max-w-[420px] mx-auto relative z-10 py-6" style="max-width: 420px; width: 100%;">
     <div class="bg-white rounded-2xl border border-slate-200/80 p-8 shadow-sm">
         <!-- Logo Section -->
         <div class="mb-6 flex flex-col items-center text-center">
