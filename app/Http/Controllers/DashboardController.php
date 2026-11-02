@@ -43,7 +43,27 @@ class DashboardController extends Controller
             $latest_managers = User::where('role', 'hr_manager')->with('employee')->orderBy('id', 'desc')->take(5)->get();
             $total_departemen = DB::table('departments')->count();
 
-            return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'kenaikan_karyawan', 'total_manager', 'latest_managers', 'total_departemen'));
+            $todayStr = Carbon::today()->toDateString();
+
+            $hadirHariIni = Attendance::where('tanggal', $todayStr)
+                ->where('status_kehadiran', 'hadir')
+                ->with(['employee.department'])
+                ->orderBy('jam_masuk')
+                ->get();
+
+            $cutiHariIni = Attendance::where('tanggal', $todayStr)
+                ->whereIn('status_kehadiran', ['cuti', 'izin', 'sakit'])
+                ->with(['employee.department'])
+                ->orderBy('jam_masuk')
+                ->get();
+
+            $trainingHariIni = \App\Models\Training::with(['employees.department'])
+                ->whereDate('tanggal_mulai', '<=', $todayStr)
+                ->whereDate('tanggal_selesai', '>=', $todayStr)
+                ->orderBy('tanggal_mulai')
+                ->get();
+
+            return view('backoffice.super_admin_dashboard', compact('total_karyawan', 'kenaikan_karyawan', 'total_manager', 'latest_managers', 'total_departemen', 'hadirHariIni', 'cutiHariIni', 'trainingHariIni'));
         } 
         
         // Employee Dashboard

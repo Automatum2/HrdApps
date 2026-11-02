@@ -218,7 +218,7 @@ class AttendanceController extends Controller
 
         // Tentukan initial status berdasarkan role pemohon
         $userRole = auth()->check() ? auth()->user()->role : session('user_role');
-        if ($userRole === 'hr_manager') {
+        if (in_array($userRole, ['hr_manager', 'super_admin'])) {
             $leaveRequest->status = 'menunggu_super_admin';
         } elseif ($userRole === 'manager_departemen') {
             $leaveRequest->status = 'menunggu_hr';

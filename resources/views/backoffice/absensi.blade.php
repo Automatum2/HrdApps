@@ -50,6 +50,13 @@
                         <option value="alpha" {{ request('status') == 'alpha' ? 'selected' : '' }}>Alpha</option>
                     </select>
                 </div>
+                <div class="sm:col-span-2 md:col-span-4 space-y-1.5">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Cari Nama / NIK Karyawan</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+                        <input class="w-full border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white text-on-surface" placeholder="Ketik nama atau NIK untuk mencari seluruh histori..." type="text" name="search" value="{{ request('search', $search) }}" id="search-karyawan">
+                    </div>
+                </div>
             </div>
             <div class="mt-5 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 flex-wrap">
                 <div class="flex flex-wrap items-center gap-2.5">
@@ -193,10 +200,6 @@
     <div class="p-6 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-center bg-surface-container-low gap-4">
         <h2 class="font-bold text-sm text-on-surface">Data Kehadiran Harian</h2>
         <div class="flex gap-2 w-full sm:w-auto">
-            <div class="relative flex-1 sm:w-64 group">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
-                <input class="w-full bg-white border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface" placeholder="Cari nama atau NIK karyawan..." type="text" id="search-karyawan">
-            </div>
             <button class="bg-white border border-outline-variant text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95" id="btn-filter-wfo">WFO Only</button>
             <button class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:brightness-110 transition-colors cursor-pointer active:scale-95" id="btn-filter-all">Semua</button>
         </div>
@@ -231,7 +234,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 font-mono text-on-surface-variant">{{ $att->employee->nik ?? '-' }}</td>
-                    <td class="px-6 py-4 text-on-surface-variant">{{ \Carbon\Carbon::parse($att->tanggal)->format('d/m/Y') }}</td>
+                    <td class="px-6 py-4 text-on-surface-variant">{{ \Carbon\Carbon::parse($att->tanggal)->translatedFormat('j l F Y') }}</td>
                     <td class="px-6 py-4 font-bold text-on-surface">{{ $att->jam_masuk ? substr($att->jam_masuk, 0, 5) : '--:--' }}</td>
                     <td class="px-6 py-4 font-bold text-on-surface">{{ $att->jam_keluar ? substr($att->jam_keluar, 0, 5) : '--:--' }}</td>
                     <td class="px-6 py-4">
@@ -243,6 +246,11 @@
                     <td class="px-6 py-4 text-center font-mono text-on-surface">{{ $att->total_jam_kerja ? $att->total_jam_kerja . ' Jam' : '--' }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex justify-center gap-2 transition-opacity">
+                            @if($att->employee)
+                            <a href="{{ route('backoffice.absensi.rekap', $att->employee->id) }}" class="p-1 hover:bg-surface-container-high rounded text-tertiary transition-colors cursor-pointer" title="Rekap Absensi Karyawan (Semua Riwayat)">
+                                <span class="material-symbols-outlined text-lg">receipt_long</span>
+                            </a>
+                            @endif
                             <button class="p-1 hover:bg-surface-container-high rounded text-primary transition-colors cursor-pointer" title="Lihat Foto" onclick="showFotoModal('{{ $att->foto_masuk ? asset('storage/' . $att->foto_masuk) : '' }}', '{{ $att->foto_keluar ? asset('storage/' . $att->foto_keluar) : '' }}', '{{ $att->lokasi_masuk }}', '{{ $att->lokasi_keluar }}')">
                                 <span class="material-symbols-outlined text-lg">image</span>
                             </button>
@@ -371,7 +379,6 @@
     const filterSampai = document.getElementById('filter-sampai-tanggal');
     const filterDept = document.getElementById('filter-departemen');
     const filterStatus = document.getElementById('filter-status');
-    const searchKaryawan = document.getElementById('search-karyawan');
     
     const tableBody = document.getElementById('table-absensi-body');
     const btnReset = document.getElementById('btn-reset-filter');
@@ -397,29 +404,18 @@
     const defaultSampai = formatDate(today);
 
     // ==========================================
-    // Fungsi Filter Utama
+    // Fungsi Filter Cepat (WFO / Semua) di Halaman
     // ==========================================
     const filterAbsensi = (filterKerja = '') => {
-        const query = searchKaryawan.value.toLowerCase().trim();
-        const deptVal = filterDept.value;
-        const statusVal = filterStatus.value;
         const rows = tableBody.querySelectorAll('tr');
         
         let visibleCount = 0;
         
         rows.forEach(row => {
-            const nama = row.querySelector('td:nth-child(2) span').innerText.toLowerCase();
-            const nik = row.getAttribute('data-nik').toLowerCase();
-            const dept = row.getAttribute('data-dept');
-            const status = row.getAttribute('data-status');
-            const kerja = row.getAttribute('data-kerja');
+            const kerja = (row.getAttribute('data-kerja') || '').toUpperCase();
+            const matchKerja = !filterKerja || kerja === filterKerja.toUpperCase();
             
-            const matchQuery = nama.includes(query) || nik.includes(query);
-            const matchDept = !deptVal || dept === deptVal;
-            const matchStatus = !statusVal || status === statusVal;
-            const matchKerja = !filterKerja || kerja === filterKerja;
-            
-            if (matchQuery && matchDept && matchStatus && matchKerja) {
+            if (matchKerja) {
                 row.classList.remove('hidden');
                 visibleCount++;
             } else {
@@ -436,18 +432,15 @@
         });
         
         // Update label jumlah entri
-        showingRange.innerText = visibleCount === 0 ? '0' : `1-${visibleCount}`;
-        showingCountFooter.innerText = visibleCount;
+        if (showingRange) showingRange.innerText = visibleCount === 0 ? '0' : `1-${visibleCount}`;
+        if (showingCountFooter) showingCountFooter.innerText = visibleCount;
     };
 
-    // Event Listeners untuk Filter Pencarian Cepat (Klien Side)
-    searchKaryawan.addEventListener('input', () => filterAbsensi());
-    
     // Filter WFO Only dan Semua
     btnWfo.addEventListener('click', () => {
         btnWfo.className = "bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:brightness-110 transition-colors cursor-pointer active:scale-95";
         btnAll.className = "bg-white border border-outline-variant text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95";
-        filterAbsensi('wfo'); // Mengasumsikan wfo di-lowercase
+        filterAbsensi('WFO');
     });
     
     btnAll.addEventListener('click', () => {

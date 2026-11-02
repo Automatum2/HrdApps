@@ -69,6 +69,7 @@
                 <tr class="bg-slate-50 border-b border-outline-variant text-slate-500 uppercase tracking-wider text-xs font-bold">
                     <th class="py-4 px-6 w-16">No</th>
                     <th class="py-4 px-6">Nama</th>
+                    <th class="py-4 px-6">Username Akun</th>
                     <th class="py-4 px-6">Email</th>
                     <th class="py-4 px-6">Peran</th>
                     <th class="py-4 px-6">Departemen</th>
@@ -81,6 +82,7 @@
                 <tr class="{{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'bg-slate-50 opacity-60 grayscale' : 'hover:bg-slate-50 transition-colors group' }}">
                     <td class="py-4 px-6 text-on-surface-variant">{{ $index + 1 }}</td>
                     <td class="py-4 px-6 font-bold {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-800' }}">{{ $manager->employee ? $manager->employee->nama_lengkap : $manager->username }}</td>
+                    <td class="py-4 px-6 font-mono {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-primary' }}">{{ $manager->username }}</td>
                     <td class="py-4 px-6 {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">{{ $manager->email }}</td>
                     <td class="py-4 px-6 font-bold {{ $manager->employee && $manager->employee->status === 'nonaktif' ? 'text-slate-400' : 'text-slate-600' }}">
                         {{ $manager->role === 'hr_manager' ? 'HR Manager' : 'Manager Departemen' }}
@@ -117,7 +119,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="py-8 text-center text-slate-500">
+                    <td colspan="7" class="py-8 text-center text-slate-500">
                         <div class="flex flex-col items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-4xl text-slate-300">group_off</span>
                             <p>Belum ada data Manager.</p>

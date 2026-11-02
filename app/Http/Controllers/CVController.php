@@ -13,8 +13,8 @@ class CVController extends Controller
     private function authorizeCvAccess()
     {
         $role = session('user_role');
-        if (!in_array($role, ['hr_manager', 'hr_admin_manager', 'manager_departemen'])) {
-            abort(403, 'Akses ditolak. Pengelolaan CV hanya untuk HR Manager.');
+        if (!in_array($role, ['super_admin', 'hr_manager', 'hr_admin_manager', 'manager_departemen'])) {
+            abort(403, 'Akses ditolak. Pengelolaan CV hanya untuk HR Manager dan Super Admin.');
         }
     }
 

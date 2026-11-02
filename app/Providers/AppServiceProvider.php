@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Carbon\Carbon::setLocale('id');
+
         Gate::define('manage-payslip', function (User $user, Employee $targetEmployee) {
             if ($user->role === 'super_admin') return true;
             if (!$targetEmployee->user) return true;

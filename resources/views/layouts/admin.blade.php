@@ -120,6 +120,12 @@
                 <span class="font-medium font-body-md">Karyawan</span>
             </a>
 
+            <!-- Penempatan Karyawan (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.karyawan') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.karyawan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.karyawan') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">person_add</span>
+                <span class="font-medium font-body-md">Penempatan Karyawan</span>
+            </a>
+
             <!-- Kelola Manager -->
             <a class="{{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.super_admin.kelola_hr') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.super_admin.kelola_hr') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">manage_accounts</span>
@@ -136,6 +142,30 @@
             <a class="{{ request()->routeIs('backoffice.posisi.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.posisi.index') }}">
                 <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.posisi.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">badge</span>
                 <span class="font-medium font-body-md">Jabatan</span>
+            </a>
+
+            <!-- Trainer / Pelatihan (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.training.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.training.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.training.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">model_training</span>
+                <span class="font-medium font-body-md">Trainer / Pelatihan</span>
+            </a>
+
+            <!-- Kelola CV (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.cv.*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.cv.index') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.cv.*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">assignment_ind</span>
+                <span class="font-medium font-body-md">Kelola CV</span>
+            </a>
+
+            <!-- Penggajian (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.penggajian*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.penggajian') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.penggajian*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">payments</span>
+                <span class="font-medium font-body-md">Penggajian</span>
+            </a>
+
+            <!-- Laporan (Super Admin) -->
+            <a class="{{ request()->routeIs('backoffice.laporan*') ? 'bg-primary/10 text-primary border-l-4 border-primary font-bold' : 'text-white hover:bg-white/10' }} flex items-center px-4 py-3 transition-colors duration-200 group" href="{{ route('backoffice.laporan') }}">
+                <span class="material-symbols-outlined mr-3 text-xl {{ request()->routeIs('backoffice.laporan*') ? 'text-primary animate-sidebar-pulse' : 'text-white/75 group-hover:text-white' }}">analytics</span>
+                <span class="font-medium font-body-md">Laporan</span>
             </a>
 
             <!-- Persetujuan Cuti (Super Admin) -->

@@ -273,8 +273,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/attendance/leave', [AttendanceController::class, 'submitLeave'])->name('attendance.leave');
     });
 
-    // -- CV / REKRUTMEN (HR Manager & Manager Departemen, TIDAK untuk Super Admin) --
-    Route::middleware(['role:hr_manager,manager_departemen'])->group(function () {
+    // -- CV / REKRUTMEN (HR Manager & Manager Departemen & Super Admin) --
+    Route::middleware(['role:hr_manager,manager_departemen,super_admin'])->group(function () {
         Route::get("/backoffice/cv", [App\Http\Controllers\CVController::class, "index"])->name("backoffice.cv.index");
         Route::post("/backoffice/cv/{id}/approve", [App\Http\Controllers\CVController::class, "approve"])->name("backoffice.cv.approve");
         Route::post("/backoffice/cv/{id}/reject", [App\Http\Controllers\CVController::class, "reject"])->name("backoffice.cv.reject");
@@ -322,6 +322,7 @@ Route::middleware(['auth'])->group(function () {
             
             $dari = $request->input('dari_tanggal', \Carbon\Carbon::now()->startOfMonth()->toDateString());
             $sampai = $request->input('sampai_tanggal', \Carbon\Carbon::now()->endOfMonth()->toDateString());
+            $search = $request->input('search', '');
             $query->whereBetween('tanggal', [$dari, $sampai]);
             
             if ($request->filled('departemen_id')) {
@@ -332,6 +333,14 @@ Route::middleware(['auth'])->group(function () {
             
             if ($request->filled('status')) {
                 $query->where('status_kehadiran', $request->status);
+            }
+            
+            if (!empty($search)) {
+                $escapedSearch = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+                $query->whereHas('employee', function ($q) use ($escapedSearch) {
+                    $q->where('nama_lengkap', 'like', "%{$escapedSearch}%")
+                      ->orWhere('nik', 'like', "%{$escapedSearch}%");
+                });
             }
             
             // Hitung statistik untuk seluruh filter (sebelum dipaginate)
@@ -353,7 +362,7 @@ Route::middleware(['auth'])->group(function () {
                 $departments = \Illuminate\Support\Facades\DB::table('departments')->get();
             }
             
-            return view('backoffice.absensi', compact('attendances', 'stats', 'departments', 'dari', 'sampai'));
+            return view('backoffice.absensi', compact('attendances', 'stats', 'departments', 'dari', 'sampai', 'search'));
         })->name('backoffice.absensi');
 
         Route::put('/backoffice/absensi/{id}', function (\Illuminate\Http\Request $request, $id) {
@@ -401,6 +410,14 @@ Route::middleware(['auth'])->group(function () {
                 $query->where('status_kehadiran', $request->status);
             }
             
+            if ($request->filled('search')) {
+                $escapedSearch = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->search);
+                $query->whereHas('employee', function ($q) use ($escapedSearch) {
+                    $q->where('nama_lengkap', 'like', "%{$escapedSearch}%")
+                      ->orWhere('nik', 'like', "%{$escapedSearch}%");
+                });
+            }
+            
             $attendances = $query->orderBy('tanggal', 'desc')->get();
             
             $csvFileName = 'Laporan_Absensi_' . $dari . '_sd_' . $sampai . '.csv';
@@ -437,6 +454,9 @@ Route::middleware(['auth'])->group(function () {
             
             return response()->stream($callback, 200, $headers);
         })->name('backoffice.absensi.export');
+
+        // Rekap Absensi per Karyawan (semua riwayat)
+        Route::get('/backoffice/absensi/rekap/{employee}', [EmployeeController::class, 'rekapAbsensi'])->name('backoffice.absensi.rekap');
 
         // Penggajian Actions
         Route::post('/backoffice/penggajian/periode', [PayrollController::class, 'storePeriod'])->name('backoffice.penggajian.store_period');

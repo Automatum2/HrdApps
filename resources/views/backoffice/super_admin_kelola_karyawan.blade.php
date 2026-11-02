@@ -99,6 +99,9 @@
                                 <a href="{{ route('backoffice.super_admin.kelola_karyawan.show', $k->id) }}" class="w-8 h-8 rounded border border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors flex items-center justify-center cursor-pointer" title="Detail">
                                     <span class="material-symbols-outlined text-[16px]">search</span>
                                 </a>
+                                <a href="{{ route('backoffice.absensi.rekap', $k->id) }}" class="w-8 h-8 rounded border border-outline-variant text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center justify-center cursor-pointer" title="Rekap Absensi (Semua Riwayat)">
+                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                </a>
                             @endif
                             <button class="btn-edit-karyawan w-8 h-8 rounded border {{ $k->status === 'nonaktif' ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-outline-variant text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors cursor-pointer' }} flex items-center justify-center" title="Edit" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}" data-gaji="{{ $k->gaji_pokok }}" data-department="{{ $k->department_id }}" data-position="{{ $k->position_id }}" data-status_kerja="{{ $k->status_kerja }}" {{ $k->status === 'nonaktif' ? 'disabled' : '' }}>
                                 <span class="material-symbols-outlined text-[16px]">edit</span>

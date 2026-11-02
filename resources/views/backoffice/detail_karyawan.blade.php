@@ -13,10 +13,16 @@
         </nav>
         <p class="text-on-surface-variant text-sm">Informasi lengkap profil dan data pribadi karyawan perusahaan.</p>
     </div>
-    <a href="{{ $back_route }}" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm">
-        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-        <span>Kembali</span>
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('backoffice.absensi.rekap', $employee->id) }}" class="bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+            <span>Rekap Absensi</span>
+        </a>
+        <a href="{{ $back_route }}" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Kembali</span>
+        </a>
+    </div>
 </div>
 
 @if($errors->any())
@@ -129,7 +135,7 @@
                     <div class="text-sm font-semibold text-slate-500">Gaji Pokok</div>
                     <div class="col-span-2 flex justify-between items-center">
                         <div class="text-sm font-mono font-bold text-slate-800">Rp {{ number_format($employee->gaji_pokok, 0, ',', '.') }}</div>
-                        @if(Auth::user()->role === 'hr_manager')
+                        @if(in_array(Auth::user()->role, ['hr_manager', 'super_admin']))
                             <button onclick="document.getElementById('modal-edit-gaji').classList.remove('hidden')" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded hover:bg-primary/20 transition-colors">Edit</button>
                         @endif
                     </div>

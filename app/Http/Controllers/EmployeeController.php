@@ -158,8 +158,8 @@ class EmployeeController extends Controller
     public function updateGaji(Request $request, $id)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user->role !== 'hr_manager') {
-            return redirect()->back()->with('error', 'Akses ditolak. Hanya HR Manager yang dapat mengubah gaji pokok.');
+        if (!in_array($user->role, ['hr_manager', 'super_admin'])) {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya HR Manager atau Super Admin yang dapat mengubah gaji pokok.');
         }
 
         $request->validate([
@@ -251,6 +251,54 @@ class EmployeeController extends Controller
         $back_route = $role === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan'); 
 
         return view('backoffice.detail_karyawan', compact('employee', 'back_route'));
+    }
+
+    public function rekapAbsensi(Request $request, $id)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $role = $user ? $user->role : session('user_role');
+
+        if (!in_array($role, ['super_admin', 'hr_manager', 'manager_departemen'])) {
+            return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $employee = Employee::with(['department', 'position', 'user'])->findOrFail($id);
+
+        if ($role === 'manager_departemen' && $user && $user->employee) {
+            if ($employee->department_id !== $user->employee->department_id) {
+                return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak. Karyawan berada di luar departemen Anda.');
+            }
+        }
+
+        $query = \App\Models\Attendance::where('employee_id', $employee->id);
+
+        $dari = $request->input('dari_tanggal', \Carbon\Carbon::now()->startOfMonth()->toDateString());
+        $sampai = $request->input('sampai_tanggal', \Carbon\Carbon::now()->endOfMonth()->toDateString());
+        $status = $request->input('status');
+
+        if ($request->filled('dari_tanggal') || $request->filled('sampai_tanggal')) {
+            $query->whereBetween('tanggal', [$dari, $sampai]);
+        }
+
+        if ($status) {
+            $query->where('status_kehadiran', $status);
+        }
+
+        $all = (clone $query)->get();
+        $stats = [
+            'total' => $all->count(),
+            'hadir' => $all->where('status_kehadiran', 'hadir')->count(),
+            'izin' => $all->where('status_kehadiran', 'izin')->count(),
+            'sakit' => $all->where('status_kehadiran', 'sakit')->count(),
+            'alpha' => $all->where('status_kehadiran', 'alpha')->count(),
+            'cuti' => $all->where('status_kehadiran', 'cuti')->count(),
+        ];
+
+        $attendances = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
+
+        $back_route = $role === 'super_admin' ? route('backoffice.super_admin.kelola_karyawan') : route('backoffice.karyawan');
+
+        return view('backoffice.rekap_absensi', compact('employee', 'attendances', 'stats', 'dari', 'sampai', 'status', 'back_route'));
     }
 
     public function update(Request $request, $id)

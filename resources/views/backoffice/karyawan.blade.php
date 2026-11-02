@@ -123,6 +123,9 @@
                             <a href="{{ route('backoffice.karyawan.show', $emp->id) }}" class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Detail / Edit">
                                 <span class="material-symbols-outlined text-sm">visibility</span>
                             </a>
+                            <a href="{{ route('backoffice.absensi.rekap', $emp->id) }}" class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-high text-tertiary hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Rekap Absensi (Semua Riwayat)">
+                                <span class="material-symbols-outlined text-sm">receipt_long</span>
+                            </a>
                             <button class="btn-lepas w-8 h-8 flex items-center justify-center rounded bg-error text-white hover:brightness-110 active:scale-90 transition-all shadow-sm cursor-pointer" title="Lepas dari Departemen" data-nama="{{ $emp->nama_lengkap }}" data-nik="{{ $emp->nik }}">
                                 <span class="material-symbols-outlined text-sm">person_remove</span>
                             </button>
@@ -198,12 +201,12 @@
 
 @push('modals')
 <!-- MODAL: Tambah Karyawan Baru (Assign Departemen) -->
-<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-tambah" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 12px;">
-    <div class="bg-white rounded-2xl shadow-2xl border border-outline-variant flex flex-col max-h-[90dvh] overflow-hidden animate-modal-pop w-full max-w-xl">
+<div class="bg-[#0b1c30]/60 backdrop-blur-sm" id="modal-tambah" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-2xl shadow-2xl border border-outline-variant flex flex-col max-h-[90vh] overflow-hidden animate-modal-pop" style="width: 100%; max-width: 650px; min-width: 300px; display: flex; flex-direction: column;">
         <!-- Modal Header -->
-        <div class="px-5 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
+        <div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50">
             <div>
-                <h3 class="font-bold text-slate-800 text-sm sm:text-base">Pilih Anggota Baru</h3>
+                <h3 class="font-bold text-slate-800 text-base">Pilih Anggota Baru</h3>
                 <p class="text-xs text-slate-500 mt-0.5">Daftar pelamar yang belum ditempatkan ke departemen mana pun.</p>
             </div>
             <button class="p-1 hover:bg-slate-200 rounded-full text-slate-400 cursor-pointer" id="btn-close-modal">
@@ -423,6 +426,23 @@
     
     btnCloseModal.addEventListener('click', tutupModalTambah);
     btnCloseModalFooter.addEventListener('click', tutupModalTambah);
+    modalTambah.addEventListener('click', (e) => {
+        if (e.target === modalTambah) tutupModalTambah();
+    });
+    if (modalKonfirmasi) {
+        modalKonfirmasi.addEventListener('click', (e) => {
+            if (e.target === modalKonfirmasi) {
+                modalKonfirmasi.style.display = 'none';
+                targetRowToRelease = null;
+                targetNikToRelease = '';
+            }
+        });
+    }
+    if (modalAssignDetail) {
+        modalAssignDetail.addEventListener('click', (e) => {
+            if (e.target === modalAssignDetail) tutupModalAssignDetail();
+        });
+    }
 
     // ==========================================
     // 2. Pencarian & Filter Real-Time Utama

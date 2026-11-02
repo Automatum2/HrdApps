@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 
 class HrManagerController extends Controller
 {
@@ -103,11 +101,11 @@ class HrManagerController extends Controller
             $username = $baseUsername . rand(100, 999);
         }
 
-        // Buat record User
+        // Buat record User (password default: password)
         $user = User::create([
             'username' => $username,
             'email' => $request->email,
-            'password' => Hash::make(Str::random(24)),
+            'password' => Hash::make('password'),
             'role' => $request->role === 'manager_departemen' ? 'manager_departemen' : 'hr_manager',
             'employee_id' => $employee->id
         ]);
@@ -117,15 +115,8 @@ class HrManagerController extends Controller
             \App\Models\Department::where('id', $request->department_id)->update(['manager_id' => $employee->id]);
         }
 
-        // Kirim link aktivasi
-        $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
-        try {
-            $user->notify(new \App\Notifications\AccountActivation($token));
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send Account Activation email: ' . $e->getMessage());
-        }
-
-        return redirect()->back()->with('success', 'HR Manager ' . $employee->nama_lengkap . ' berhasil ditambahkan.');
+        $namaRole = $request->role === 'manager_departemen' ? 'Manager Departemen' : 'HR Manager';
+        return redirect()->back()->with('success', $namaRole . ' ' . $employee->nama_lengkap . ' berhasil ditambahkan. Username: ' . $username . ', Password default: password');
     }
 
     protected function storePromotion(Request $request)

@@ -74,6 +74,103 @@
     </div>
 </div>
 
+<!-- Pemantauan Hari Ini (Hadir / Training / Cuti) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Karyawan Hadir Hari Ini -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-600">how_to_reg</span>
+                <h3 class="font-bold text-on-background">Karyawan Hadir Hari Ini</h3>
+            </div>
+            <span class="bg-green-50 text-green-700 font-bold px-2.5 py-0.5 rounded-full text-xs border border-green-200">{{ $hadirHariIni->count() }}</span>
+        </div>
+        <div class="p-4 divide-y divide-slate-100 overflow-y-auto custom-scrollbar" style="max-height: 320px;">
+            @forelse($hadirHariIni as $att)
+            <div class="py-2.5 flex justify-between items-center gap-3">
+                <div class="min-w-0">
+                    <p class="text-sm font-bold text-slate-800 truncate">{{ $att->employee->nama_lengkap ?? 'Unknown' }}</p>
+                    <p class="text-[11px] text-slate-500">{{ $att->employee->department->nama_department ?? '-' }}</p>
+                </div>
+                <span class="text-xs font-mono font-bold text-green-700 whitespace-nowrap">{{ $att->jam_masuk ? substr($att->jam_masuk, 0, 5) : '--:--' }}</span>
+            </div>
+            @empty
+            <p class="text-sm text-slate-500 text-center py-6">Belum ada karyawan yang hadir hari ini.</p>
+            @endforelse
+        </div>
+        <div class="p-4 border-t border-outline-variant bg-slate-50/50">
+            <a href="{{ route('backoffice.super_admin.absensi', ['status' => 'hadir']) }}" class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                <span>Lihat Monitoring Absensi</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Sedang Training Hari Ini -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">model_training</span>
+                <h3 class="font-bold text-on-background">Sedang Training Hari Ini</h3>
+            </div>
+            <span class="bg-primary/10 text-primary font-bold px-2.5 py-0.5 rounded-full text-xs border border-primary/20">{{ $trainingHariIni->count() }}</span>
+        </div>
+        <div class="p-4 divide-y divide-slate-100 overflow-y-auto custom-scrollbar" style="max-height: 320px;">
+            @forelse($trainingHariIni as $training)
+            <div class="py-2.5">
+                <p class="text-sm font-bold text-slate-800 truncate">{{ $training->nama_training ?: 'Pelatihan' }}</p>
+                <p class="text-[11px] text-slate-500">{{ \Carbon\Carbon::parse($training->tanggal_mulai)->translatedFormat('j l F Y') }} s.d {{ \Carbon\Carbon::parse($training->tanggal_selesai)->translatedFormat('j l F Y') }}</p>
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                    @forelse($training->employees as $emp)
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">{{ $emp->nama_lengkap }}</span>
+                    @empty
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-400">Tidak ada peserta</span>
+                    @endforelse
+                </div>
+            </div>
+            @empty
+            <p class="text-sm text-slate-500 text-center py-6">Tidak ada pelatihan berlangsung hari ini.</p>
+            @endforelse
+        </div>
+        <div class="p-4 border-t border-outline-variant bg-slate-50/50">
+            <a href="{{ route('backoffice.training.index') }}" class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                <span>Kelola Training</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cuti / Izin / Sakit Hari Ini -->
+    <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500">event_available</span>
+                <h3 class="font-bold text-on-background">Cuti / Izin / Sakit</h3>
+            </div>
+            <span class="bg-amber-50 text-amber-700 font-bold px-2.5 py-0.5 rounded-full text-xs border border-amber-200">{{ $cutiHariIni->count() }}</span>
+        </div>
+        <div class="p-4 divide-y divide-slate-100 overflow-y-auto custom-scrollbar" style="max-height: 320px;">
+            @forelse($cutiHariIni as $att)
+            <div class="py-2.5 flex justify-between items-center gap-3">
+                <div class="min-w-0">
+                    <p class="text-sm font-bold text-slate-800 truncate">{{ $att->employee->nama_lengkap ?? 'Unknown' }}</p>
+                    <p class="text-[11px] text-slate-500">{{ $att->employee->department->nama_department ?? '-' }}</p>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase {{ strtolower($att->status_kehadiran) === 'sakit' ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700' }}">{{ ucfirst($att->status_kehadiran) }}</span>
+            </div>
+            @empty
+            <p class="text-sm text-slate-500 text-center py-6">Tidak ada karyawan cuti/izin/sakit hari ini.</p>
+            @endforelse
+        </div>
+        <div class="p-4 border-t border-outline-variant bg-slate-50/50">
+            <a href="{{ route('backoffice.super_admin.absensi') }}" class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                <span>Lihat Monitoring Absensi</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Main Table Section -->
 <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
     <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
