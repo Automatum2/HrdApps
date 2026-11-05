@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+ng sa@extends('layouts.admin')
 
 @section('title', 'Dashboard Manager - HRDApps')
 @section('page_title', 'Dashboard Manager')

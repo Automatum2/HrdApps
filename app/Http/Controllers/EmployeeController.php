@@ -322,8 +322,10 @@ class EmployeeController extends Controller
             'status_kerja' => 'nullable|in:tetap,kontrak,magang,musiman,harian,tenaga_lepas',
         ]);
 
+        $cleanName = trim(preg_replace('/\s+/', ' ', $request->nama));
+
         $employee->update([
-            'nama_lengkap' => $request->nama,
+            'nama_lengkap' => $cleanName,
             'email' => $request->email,
             'department_id' => $request->department_id,
             'position_id' => $request->position_id,
@@ -351,6 +353,76 @@ class EmployeeController extends Controller
         $employee->update(['status' => 'nonaktif']);
         
         return redirect()->back()->with('success', 'Status karyawan berhasil diubah menjadi Nonaktif.');
+    }
+
+    public function activate($id)
+    {
+        if (session('user_role') !== 'super_admin') {
+            return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $employee = Employee::findOrFail($id);
+        $employee->update(['status' => 'aktif']);
+
+        // Sinkronkan akun user terkait jika ada
+        $user = \App\Models\User::where('email', $employee->email)
+            ->orWhere('employee_id', $employee->id)
+            ->first();
+
+        if ($user) {
+            $user->update([
+                'employee_id' => $employee->id,
+                'email' => $employee->email,
+                'last_login' => now(), // Reset timer aktivitas agar bisa login
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Status karyawan ' . $employee->nama_lengkap . ' berhasil diaktifkan kembali dan akun login telah disinkronkan.');
+    }
+
+    public function syncAccount($id)
+    {
+        if (session('user_role') !== 'super_admin') {
+            return redirect()->route('backoffice.dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $employee = Employee::findOrFail($id);
+
+        // Pastikan status employee aktif
+        $employee->update(['status' => 'aktif']);
+
+        // Cari atau buat akun user
+        $user = \App\Models\User::where('email', $employee->email)
+            ->orWhere('employee_id', $employee->id)
+            ->first();
+
+        if ($user) {
+            $user->update([
+                'employee_id' => $employee->id,
+                'email' => $employee->email,
+                'last_login' => now(), // Reset timer aktivitas agar bisa login
+            ]);
+            $msg = 'Akun login (' . $user->username . ' / ' . $user->email . ') berhasil disinkronkan dengan data karyawan ' . $employee->nama_lengkap . ' dan dipastikan aktif.';
+        } else {
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', explode(' ', trim($employee->nama_lengkap))[0]));
+            $baseUsername = substr($baseUsername ?: 'user', 0, 8);
+            $username = $baseUsername . rand(10, 99);
+            while (\App\Models\User::where('username', $username)->exists()) {
+                $username = $baseUsername . rand(100, 999);
+            }
+
+            $user = \App\Models\User::create([
+                'username' => $username,
+                'email' => $employee->email,
+                'password' => \Illuminate\Support\Facades\Hash::make('Password123!'),
+                'role' => 'karyawan',
+                'employee_id' => $employee->id,
+                'last_login' => now(),
+            ]);
+            $msg = 'Akun login baru berhasil dibuat (Username: ' . $username . ', Password default: Password123!) dan dihubungkan ke karyawan ' . $employee->nama_lengkap . '.';
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function forceDelete($id)

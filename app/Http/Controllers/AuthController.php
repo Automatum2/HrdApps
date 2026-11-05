@@ -27,6 +27,30 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
 
+            // Pengecekan otomatis: Nonaktifkan akun karyawan jika tidak ada login selama > 7 hari
+            if ($user->role === 'karyawan') {
+                $threshold = now()->subDays(7);
+                $isInactive = false;
+
+                if ($user->last_login && $user->last_login < $threshold) {
+                    $isInactive = true;
+                } elseif (is_null($user->last_login) && $user->created_at && $user->created_at < $threshold) {
+                    $isInactive = true;
+                }
+
+                if ($isInactive) {
+                    if ($user->employee) {
+                        $user->employee->update(['status' => 'nonaktif']);
+                    }
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    return back()->withErrors([
+                        'username' => 'Akun Anda dinonaktifkan otomatis oleh sistem karena tidak ada aktivitas login selama lebih dari 7 hari. Silakan hubungi administrator.',
+                    ])->onlyInput('username');
+                }
+            }
+
             if ($user->employee && $user->employee->status === 'nonaktif') {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -35,6 +59,9 @@ class AuthController extends Controller
                     'username' => 'Akun Anda telah dinonaktifkan oleh administrator.',
                 ])->onlyInput('username');
             }
+
+            // Catat waktu login terakhir
+            $user->update(['last_login' => now()]);
 
             $request->session()->regenerate();
 

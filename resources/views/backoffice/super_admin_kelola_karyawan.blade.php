@@ -112,10 +112,17 @@
                                     <span class="material-symbols-outlined text-[16px]">person_off</span>
                                 </button>
                             @else
+                                <button class="btn-activate-karyawan w-8 h-8 rounded border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer flex items-center justify-center" title="Aktifkan Kembali Karyawan" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}">
+                                    <span class="material-symbols-outlined text-[16px]">how_to_reg</span>
+                                </button>
                                 <button class="btn-force-delete-karyawan w-8 h-8 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center" title="Hapus Permanen (Data Duplikat/Tidak Dipakai)" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-nik="{{ $k->nik }}">
                                     <span class="material-symbols-outlined text-[16px]">delete_forever</span>
                                 </button>
                             @endif
+
+                            <button class="btn-sync-karyawan w-8 h-8 rounded border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer flex items-center justify-center" title="Sinkronkan & Aktifkan Akun Login" data-id="{{ $k->id }}" data-nama="{{ $k->nama_lengkap }}" data-email="{{ $k->email }}">
+                                <span class="material-symbols-outlined text-[16px]">sync</span>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -173,6 +180,16 @@
     @method('DELETE')
 </form>
 
+<!-- Form tersembunyi untuk Aktivasi Karyawan -->
+<form id="form-activate-karyawan" method="POST" style="display: none;">
+    @csrf
+</form>
+
+<!-- Form tersembunyi untuk Sync Akun Karyawan -->
+<form id="form-sync-karyawan" method="POST" style="display: none;">
+    @csrf
+</form>
+
 <!-- MODAL: Dialog Konfirmasi Hapus/Nonaktifkan -->
 <div class="bg-slate-900/60 backdrop-blur-sm" id="modal-delete-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
     <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 400px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
@@ -189,6 +206,49 @@
             </button>
             <button class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-delete-confirm-act">
                 Ya, Nonaktifkan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Dialog Konfirmasi Aktifkan Kembali -->
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-activate-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 400px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
+        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl">how_to_reg</span>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Aktifkan Karyawan?</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+            Apakah Anda yakin ingin mengaktifkan kembali karyawan <span class="font-bold text-slate-800" id="activate-karyawan-nama">Nama</span>? Status karyawan dan akun login akan dipulihkan menjadi **Aktif**.
+        </p>
+        <div class="flex gap-3 justify-center w-full">
+            <button class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-activate-cancel">
+                Batal
+            </button>
+            <button class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-activate-confirm-act">
+                Ya, Aktifkan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Dialog Konfirmasi Sinkronkan Akun Login -->
+<div class="bg-slate-900/60 backdrop-blur-sm" id="modal-sync-confirm" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-white rounded-xl shadow-xl border border-outline-variant p-6 text-center animate-modal-pop" style="width: 100%; max-width: 420px; min-width: 280px; display: flex; flex-direction: column; align-items: center;">
+        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl">sync</span>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Sinkronkan Akun Login?</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+            Perbaiki dan sinkronkan data login untuk <span class="font-bold text-slate-800" id="sync-karyawan-nama">Nama</span> (<span class="font-mono text-xs text-blue-600" id="sync-karyawan-email">Email</span>)?<br><br>
+            Sistem akan memastikan status aktif, menghubungkan relasi akun login ke data karyawan ini, dan memperbaiki kendala login nonaktif.
+        </p>
+        <div class="flex gap-3 justify-center w-full">
+            <button class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-sync-cancel">
+                Batal
+            </button>
+            <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all" id="btn-sync-confirm-act">
+                Ya, Sinkronkan
             </button>
         </div>
     </div>
@@ -241,6 +301,21 @@
         const deleteKaryawanNama = document.getElementById('delete-karyawan-nama');
         
         let activeDeleteId = null;
+
+        // Modal Activate
+        const modalActivateConfirm = document.getElementById('modal-activate-confirm');
+        const btnActivateCancel = document.getElementById('btn-activate-cancel');
+        const btnActivateConfirmAct = document.getElementById('btn-activate-confirm-act');
+        const activateKaryawanNama = document.getElementById('activate-karyawan-nama');
+        let activeActivateId = null;
+
+        // Modal Sync
+        const modalSyncConfirm = document.getElementById('modal-sync-confirm');
+        const btnSyncCancel = document.getElementById('btn-sync-cancel');
+        const btnSyncConfirmAct = document.getElementById('btn-sync-confirm-act');
+        const syncKaryawanNama = document.getElementById('sync-karyawan-nama');
+        const syncKaryawanEmail = document.getElementById('sync-karyawan-email');
+        let activeSyncId = null;
         
         const tutupModal = () => {
             modalTambahKaryawan.style.display = 'none';
@@ -346,6 +421,32 @@
                 modalDeleteConfirm.style.display = 'flex';
             }
 
+            // Trigger Activate
+            const btnActivate = e.target.closest('.btn-activate-karyawan');
+            if (btnActivate) {
+                const id = btnActivate.getAttribute('data-id');
+                const nama = btnActivate.getAttribute('data-nama');
+
+                activeActivateId = id;
+                activateKaryawanNama.innerText = nama;
+
+                modalActivateConfirm.style.display = 'flex';
+            }
+
+            // Trigger Sync
+            const btnSync = e.target.closest('.btn-sync-karyawan');
+            if (btnSync) {
+                const id = btnSync.getAttribute('data-id');
+                const nama = btnSync.getAttribute('data-nama');
+                const email = btnSync.getAttribute('data-email');
+
+                activeSyncId = id;
+                syncKaryawanNama.innerText = nama;
+                syncKaryawanEmail.innerText = email;
+
+                modalSyncConfirm.style.display = 'flex';
+            }
+
             // Trigger Hard Delete
             const btnForceDelete = e.target.closest('.btn-force-delete-karyawan');
             if (btnForceDelete) {
@@ -370,6 +471,34 @@
                 const formDelete = document.getElementById('form-delete-karyawan');
                 formDelete.action = `/backoffice/super-admin/kelola-karyawan/${activeDeleteId}`;
                 formDelete.submit();
+            }
+        });
+
+        // Handler Activate
+        btnActivateCancel.addEventListener('click', () => {
+            modalActivateConfirm.style.display = 'none';
+            activeActivateId = null;
+        });
+
+        btnActivateConfirmAct.addEventListener('click', () => {
+            if (activeActivateId) {
+                const formActivate = document.getElementById('form-activate-karyawan');
+                formActivate.action = `/backoffice/super-admin/kelola-karyawan/${activeActivateId}/activate`;
+                formActivate.submit();
+            }
+        });
+
+        // Handler Sync
+        btnSyncCancel.addEventListener('click', () => {
+            modalSyncConfirm.style.display = 'none';
+            activeSyncId = null;
+        });
+
+        btnSyncConfirmAct.addEventListener('click', () => {
+            if (activeSyncId) {
+                const formSync = document.getElementById('form-sync-karyawan');
+                formSync.action = `/backoffice/super-admin/kelola-karyawan/${activeSyncId}/sync`;
+                formSync.submit();
             }
         });
     });

@@ -53,7 +53,10 @@
                     <div class="flex items-center justify-center w-11 h-11 text-slate-400">
                         <span class="material-symbols-outlined text-lg">lock</span>
                     </div>
-                    <input class="flex-1 pr-4 py-2.5 bg-transparent border-none focus:outline-none text-sm text-slate-900 placeholder:text-slate-400 font-medium" id="password" name="password" placeholder="••••••••" type="password" required>
+                    <input class="flex-1 px-1 py-2.5 bg-transparent border-none focus:outline-none text-sm text-slate-900 placeholder:text-slate-400 font-medium" id="password" name="password" placeholder="••••••••" type="password" required>
+                    <button type="button" id="btn-toggle-password" class="flex items-center justify-center w-11 h-11 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" title="Lihat Password" aria-label="Toggle password visibility">
+                        <span class="material-symbols-outlined text-lg" id="icon-toggle-password">visibility_off</span>
+                    </button>
                 </div>
             </div>
             
@@ -89,3 +92,22 @@
     </div>
 </main>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('btn-toggle-password');
+        const toggleIcon = document.getElementById('icon-toggle-password');
+
+        if (toggleBtn && passwordInput && toggleIcon) {
+            toggleBtn.addEventListener('click', () => {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                toggleIcon.textContent = isPassword ? 'visibility' : 'visibility_off';
+                toggleBtn.setAttribute('title', isPassword ? 'Sembunyikan Password' : 'Lihat Password');
+            });
+        }
+    });
+</script>
+@endpush

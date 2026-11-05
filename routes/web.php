@@ -61,6 +61,8 @@ Route::post('/karir/submit', function (\Illuminate\Http\Request $request) {
         'cv_url.url' => 'Format URL tidak valid (contoh: https://linkedin.com/in/username).',
     ]);
 
+    $cleanName = trim(preg_replace('/\s+/', ' ', $request->nama));
+
     $filePath = null;
     if ($request->hasFile('cv_file')) {
         $filePath = $request->file('cv_file')->store('cv_files', 'public');
@@ -72,7 +74,7 @@ Route::post('/karir/submit', function (\Illuminate\Http\Request $request) {
 
     \App\Models\Employee::create([
         'nik' => $tempNik, // Temporary NIK unik untuk pelamar
-        'nama_lengkap' => $request->nama,
+        'nama_lengkap' => $cleanName,
         'email' => $request->email,
         'cv_text' => $request->cv_text,
         'cv_file' => $filePath,
@@ -501,7 +503,47 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/backoffice/super-admin/kelola-karyawan', [EmployeeController::class, 'index'])->name('backoffice.super_admin.kelola_karyawan');
         Route::put('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'update'])->name('backoffice.super_admin.kelola_karyawan.update');
         Route::delete('/backoffice/super-admin/kelola-karyawan/{id}', [EmployeeController::class, 'destroy'])->name('backoffice.super_admin.kelola_karyawan.destroy');
+        Route::post('/backoffice/super-admin/kelola-karyawan/{id}/activate', [EmployeeController::class, 'activate'])->name('backoffice.super_admin.kelola_karyawan.activate');
+        Route::post('/backoffice/super-admin/kelola-karyawan/{id}/sync', [EmployeeController::class, 'syncAccount'])->name('backoffice.super_admin.kelola_karyawan.sync');
         Route::delete('/backoffice/super-admin/kelola-karyawan/{id}/force-delete', [EmployeeController::class, 'forceDelete'])->name('backoffice.super_admin.kelola_karyawan.force_delete');
         Route::get('/backoffice/super-admin/kelola-karyawan/{id}/detail', [EmployeeController::class, 'show'])->name('backoffice.super_admin.kelola_karyawan.show'); // duplicate fallback
     });
+});
+
+// Rute Pemulihan Darurat Super Admin (Gunakan sekali untuk mereset, lalu hapus jika sudah selesai)
+Route::get('/emergency-reset-admin', function (\Illuminate\Http\Request $request) {
+    $secret = $request->query('key');
+    if ($secret !== 'hrdapps-secure-recovery-2026') {
+        abort(403, 'Akses pemulihan ditolak. Parameter kunci (?key=...) tidak valid.');
+    }
+
+    $newPassword = $request->query('password', 'Admin12345!');
+
+    // Cari user super_admin
+    $admin = \App\Models\User::where('role', 'super_admin')->first();
+
+    if (!$admin) {
+        $admin = \App\Models\User::create([
+            'username' => 'superadmin',
+            'email' => 'superadmin@example.com',
+            'password' => \Illuminate\Support\Facades\Hash::make($newPassword),
+            'role' => 'super_admin',
+        ]);
+        $pesan = 'Akun Super Admin baru berhasil dibuat.';
+    } else {
+        $admin->password = \Illuminate\Support\Facades\Hash::make($newPassword);
+        $admin->save();
+        $pesan = 'Password Super Admin berhasil di-reset.';
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => $pesan,
+        'kredensial' => [
+            'username' => $admin->username,
+            'email' => $admin->email,
+            'password_baru' => $newPassword,
+        ],
+        'panduan' => 'Gunakan username atau email serta password baru di atas untuk login pada halaman /login.'
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });

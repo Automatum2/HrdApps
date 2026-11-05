@@ -76,14 +76,21 @@ class CVController extends Controller
             $username = $baseUsername . rand(100, 999);
         }
 
-        // Create User account
-        $user = User::create([
-            'username' => $username,
-            'email' => $employee->email,
-            'password' => Hash::make(Str::random(24)), // Random temporary password
-            'role' => 'karyawan',
-            'employee_id' => $employee->id
-        ]);
+        // Create or sync User account
+        $user = User::where('email', $employee->email)->first();
+        if ($user) {
+            $user->update([
+                'employee_id' => $employee->id,
+            ]);
+        } else {
+            $user = User::create([
+                'username' => $username,
+                'email' => $employee->email,
+                'password' => Hash::make(Str::random(24)), // Random temporary password
+                'role' => 'karyawan',
+                'employee_id' => $employee->id
+            ]);
+        }
 
         // Send activation link with OTP
         $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
