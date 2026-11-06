@@ -28,10 +28,17 @@ class DeactivateInactiveUsers extends Command
     {
         $threshold = now()->subDays(7);
 
-        // Ambil user karyawan yang memiliki catatan last_login dan lebih dari 7 hari yang lalu
+        // Ambil user karyawan yang tidak login dalam 7 hari terakhir
         $inactiveUsers = User::where('role', 'karyawan')
-            ->whereNotNull('last_login')
-            ->where('last_login', '<', $threshold)
+            ->where(function ($query) use ($threshold) {
+                $query->where(function ($q) use ($threshold) {
+                    $q->whereNotNull('last_login')
+                      ->where('last_login', '<', $threshold);
+                })->orWhere(function ($q) use ($threshold) {
+                    $q->whereNull('last_login')
+                      ->where('created_at', '<', $threshold);
+                });
+            })
             ->whereHas('employee', function ($query) {
                 $query->where('status', '!=', 'nonaktif');
             })

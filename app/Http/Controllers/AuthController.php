@@ -28,12 +28,13 @@ class AuthController extends Controller
             $user = Auth::user();
 
             // Pengecekan otomatis: Nonaktifkan akun karyawan jika tidak ada login selama > 7 hari
-            // Catatan: Hanya berlaku jika akun sudah pernah memiliki riwayat login sebelumnya (last_login tidak null)
             if ($user->role === 'karyawan') {
                 $threshold = now()->subDays(7);
                 $isInactive = false;
 
                 if ($user->last_login && $user->last_login < $threshold) {
+                    $isInactive = true;
+                } elseif (is_null($user->last_login) && $user->created_at && $user->created_at < $threshold) {
                     $isInactive = true;
                 }
 
@@ -50,19 +51,13 @@ class AuthController extends Controller
                 }
             }
 
-            // Pemulihan otomatis jika karyawan lama ter-nonaktifkan keliru karena belum memiliki last_login
             if ($user->employee && $user->employee->status === 'nonaktif') {
-                if ($user->employee->department_id && is_null($user->last_login)) {
-                    $user->employee->update(['status' => 'aktif']);
-                    $user->update(['last_login' => now()]);
-                } else {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-                    return back()->withErrors([
-                        'username' => 'Akun Anda telah dinonaktifkan oleh administrator.',
-                    ])->onlyInput('username');
-                }
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'username' => 'Akun Anda telah dinonaktifkan oleh administrator.',
+                ])->onlyInput('username');
             }
 
             // Catat waktu login terakhir
