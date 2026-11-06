@@ -536,9 +536,26 @@ Route::get('/emergency-reset-admin', function (\Illuminate\Http\Request $request
         $pesan = 'Password Super Admin berhasil di-reset.';
     }
 
+    // Opsi pemulihan status karyawan yang ter-nonaktifkan keliru
+    $restoredCount = 0;
+    if ($request->has('restore_employees')) {
+        $employees = \App\Models\Employee::whereNotNull('department_id')
+            ->where('department_id', '>', 0)
+            ->where('status', 'nonaktif')
+            ->get();
+        foreach ($employees as $emp) {
+            $emp->update(['status' => 'aktif']);
+            if ($emp->user) {
+                $emp->user->update(['last_login' => now()]);
+            }
+            $restoredCount++;
+        }
+    }
+
     return response()->json([
         'status' => 'success',
         'message' => $pesan,
+        'karyawan_dipulihkan' => $restoredCount . ' karyawan dikembalikan statusnya ke Aktif.',
         'kredensial' => [
             'username' => $admin->username,
             'email' => $admin->email,
